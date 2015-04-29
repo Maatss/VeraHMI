@@ -1,0 +1,1 @@
+<span onClick="setMapping('?id=<? echo $_GET['id'];?>')">Download Excel file</span>

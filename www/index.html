@@ -1,0 +1,432 @@
+<!doctype html>
+<html>
+<head>
+
+<!-- 
+Detta funkar (när man går till startsidan öppnas en ny flik och filen laddas ner), men vet inte hur jag ska få det att dels komma runt pupup blockers och dels få det att ladda ner vid rätt tillfälle...
+
+<script type="text/javascript">
+    window.open('http://localhost/actions/getXls.php');
+</script>
+
+-->
+
+<meta charset="UTF-8">
+<title>ECU tuning</title>
+<style>
+@font-face {
+font-family: Raleway;
+src: url("fonts/Raleway-ExtraLight.otf") format("opentype");
+}
+
+body {
+	font-family: 'Raleway', sans-serif;
+	font-size: 12px;
+}
+#logo {
+	padding-top: 2px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	height: 40px;
+	width: 70px;
+	background: #3274a8;
+	box-shadow: 0px 0px 1px #888888;
+	color: #FFF;
+	font-size: 30px;
+	text-align: center;
+}
+#menu {
+	padding-top: 10px;
+	position: absolute;
+	left: 0px;
+	top: 40px;
+	bottom: 0px;
+	width: 70px;
+	background: #262d3f;
+	box-shadow: 0px 0px 1px #888888;
+	color: #eaebef;
+	text-align: center;
+	font-size: 10px;
+}
+#submenu {
+	position: absolute;
+	left: 70px;
+	top: 0px;
+	right: 0px;
+	height: 40px;
+	background: #468fd1;
+	box-shadow: 0px 0px 1px #888888;
+	text-align: right;
+	padding-top: 10px;
+	color: #FFF;
+	padding-right: 10px;
+}
+#workspace {
+	position: absolute;
+	left: 70px;
+	top: 40px;
+	bottom: 0px;
+	right: 0px;
+}
+#sub {
+	display: none;
+	float: left;
+	width: 200px;
+	height: 100%;
+	background-color: #edf2f8;
+	box-shadow: 0px 0px 1px #888888;
+}
+#subsub {
+	display: none;
+	float: left;
+	width: 200px;
+	height: 100%;
+	background-color: #e1e8f0;
+	box-shadow: 0px 0px 1px #888888;
+}
+#data {
+	width: 100%;
+	height: 100%;
+	background-color: #FFF;
+}
+.subitem, .subsubitem {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.line {
+	width: 100%;
+	height: 1px;
+	background-color: #d0d4dd;
+}
+#mychart {
+	width: 100%;
+	height: 600px;
+}
+.subitem:hover, .subsubitem:hover {
+    background-color: #eaebef;
+}
+.stdtable {
+	width: 100%;
+}
+.stdtable td {
+	padding: 10px;
+}
+.stdtable th {
+	background-color: #0F0;
+}
+.stdtable tr:nth-child(even) {
+	background: #edf2f8
+}
+.stdtable tr:nth-child(odd) {
+	background: #e1e8f0
+}
+</style>
+<script src="scripts/jquery-2.1.0.min.js"></script>
+<script type="text/javascript"
+  src="scripts/dygraph-combined.js"></script>
+<script>
+function updateMappingChart(){
+	val = "RPM,New,Old\n";
+	for(var i = 1; i<=20; i++){
+		x = document.getElementById("head"+i).innerHTML;
+		y = document.getElementById("map"+i).value;
+		z = document.getElementById("oldmap"+i).value;
+	 	val+= x+","+y+","+z+"\n";
+	}
+	
+	 g = new Dygraph(document.getElementById("mychart"),val);
+ 	
+}
+function updateLogChart(){
+
+	alert('go');
+	val = document.getElementById('ECUData').innerHTML;
+	 g = new Dygraph(document.getElementById("mychart"),val);
+ 	
+}
+function getPref(){
+	loading();
+	resetview();
+	document.getElementById("pref").src = "pictures/pref-selected.png"
+	document.getElementById("pref-span").style.color = '#eaebef';
+	 getSub('mapping');
+	 done;
+}
+function getSub(value){
+	loading();
+	document.getElementById("sub").style.display = 'block';
+	 $.get("sub/"+value+".php",function(data,status){
+    document.getElementById("sub").innerHTML = data;
+	 done();
+	 });
+	 	
+}
+function getSubSub(value){
+	loading();
+	document.getElementById("subsub").style.display = 'block';
+	 $.get("subsub/"+value+".php",function(data,status){
+    document.getElementById("subsub").innerHTML = data;
+	done();
+	 });	
+}
+function getSubMenu(value,arg){
+	loading();
+	document.getElementById("submenu").style.display = 'block';
+	 $.get("submenu/"+value+".php"+arg,function(data,status){
+    document.getElementById("submenu").innerHTML = data;
+	done();
+	 });	
+}
+function getData(value,arg){
+	loading();
+	document.getElementById("data").style.display = 'block';
+	 $.get("data/"+value+".php"+arg,function(data,status){
+    document.getElementById("data").innerHTML = data;
+	done();
+	 });	
+}
+function getHigh(){
+	loading();
+	resetview();
+	document.getElementById("high").src = "pictures/high-selected.png"
+	document.getElementById("high-span").style.color = '#eaebef';
+	done();
+}
+function getLogs(){
+	loading();
+	resetview();
+	document.getElementById("logs").src = "pictures/logs-selected.png"
+	document.getElementById("logs-span").style.color = '#eaebef';
+	getSub('logs');
+	done();
+}
+
+function getMapping(arg){
+	loading();
+	document.getElementById("data").innerHTML = "";
+	 getData('mapping','?id='+arg); 
+	 getSubMenu('mapping','?id='+arg);
+	 waitUntilExists('mychart',function(){
+ 		updateMappingChart();
+		done();
+	});
+}
+
+function getRaceLog(arg){
+	loading();
+	alert('1');
+	  $.get("data/racelog.php"+arg,function(data,status){
+document.getElementById("data").innerHTML = data;
+	 waitUntilExists('mychart',function(){
+		 alert('2');
+		 updateLogChart();
+		done();
+	});
+	});
+}
+
+function loading(){
+	document.getElementById('loading').style.display = 'block';
+}
+function done(){
+	document.getElementById('loading').style.display = 'none';
+}
+function setMapping(arg){
+		loading();
+		val = "";
+		for(var i = 1; i<=42; i++){
+				data = document.getElementById("map"+i).value;
+	 			val+= data+",";
+		}
+alert(val);
+		 $.get("actions/save_mapping.php"+arg+"&data="+val,function(data,status){
+			 alert(data);
+			done();
+		 });
+	}
+function getLoadMapping(arg){
+	loading();
+	 $.get("actions/load_mapping.php"+arg,function(data,status){
+		pdata = jQuery.parseJSON(data);
+		document.getElementById("map1").value = pdata.d1;
+		document.getElementById("map2").value = pdata.d2;
+		document.getElementById("map3").value = pdata.d3;
+		document.getElementById("map4").value = pdata.d4;
+		document.getElementById("map5").value = pdata.d5;
+		document.getElementById("map6").value = pdata.d6;
+		document.getElementById("map7").value = pdata.d7;
+		document.getElementById("map8").value = pdata.d8;
+		document.getElementById("map9").value = pdata.d9;
+		document.getElementById("map10").value = pdata.d10;
+		document.getElementById("map11").value = pdata.d11;
+		document.getElementById("map12").value = pdata.d12;
+		document.getElementById("map13").value = pdata.d13;
+		document.getElementById("map14").value = pdata.d14;
+		document.getElementById("map15").value = pdata.d15;
+		document.getElementById("map16").value = pdata.d16;
+		document.getElementById("map17").value = pdata.d17;
+		document.getElementById("map18").value = pdata.d18;
+		document.getElementById("map19").value = pdata.d19;
+		document.getElementById("map20").value = pdata.d20;
+
+		document.getElementById("map21").value = pdata.d21;
+		document.getElementById("map22").value = pdata.d22;
+		document.getElementById("map23").value = pdata.d23;
+		document.getElementById("map24").value = pdata.d24;
+		document.getElementById("map25").value = pdata.d25;
+		document.getElementById("map26").value = pdata.d26;
+		document.getElementById("map27").value = pdata.d27;
+		document.getElementById("map28").value = pdata.d28;
+		document.getElementById("map29").value = pdata.d29;
+		document.getElementById("map30").value = pdata.d30;
+		document.getElementById("map31").value = pdata.d31;
+		document.getElementById("map32").value = pdata.d32;
+		document.getElementById("map33").value = pdata.d33;
+		document.getElementById("map34").value = pdata.d34;
+		document.getElementById("map35").value = pdata.d35;
+		document.getElementById("map36").value = pdata.d36;
+		document.getElementById("map37").value = pdata.d37;
+		document.getElementById("map38").value = pdata.d38;
+		document.getElementById("map39").value = pdata.d39;
+		document.getElementById("map40").value = pdata.d40;
+		document.getElementById("map41").value = pdata.d41;
+		document.getElementById("map42").value = pdata.d42;
+		
+		
+		document.getElementById("oldmap1").value = pdata.d1;
+		document.getElementById("oldmap2").value = pdata.d2;
+		document.getElementById("oldmap3").value = pdata.d3;
+		document.getElementById("oldmap4").value = pdata.d4;
+		document.getElementById("oldmap5").value = pdata.d5;
+		document.getElementById("oldmap6").value = pdata.d6;
+		document.getElementById("oldmap7").value = pdata.d7;
+		document.getElementById("oldmap8").value = pdata.d8;
+		document.getElementById("oldmap9").value = pdata.d9;
+		document.getElementById("oldmap10").value = pdata.d10;
+		document.getElementById("oldmap11").value = pdata.d11;
+		document.getElementById("oldmap12").value = pdata.d12;
+		document.getElementById("oldmap13").value = pdata.d13;
+		document.getElementById("oldmap14").value = pdata.d14;
+		document.getElementById("oldmap15").value = pdata.d15;
+		document.getElementById("oldmap16").value = pdata.d16;
+		document.getElementById("oldmap17").value = pdata.d17;
+		document.getElementById("oldmap18").value = pdata.d18;
+		document.getElementById("oldmap19").value = pdata.d19;
+		document.getElementById("oldmap20").value = pdata.d20;
+		
+		updateMappingChart();
+		done();
+	 });
+	 	
+}
+
+
+function resetview(){
+	document.getElementById("sub").style.display = 'none';
+	document.getElementById("subsub").style.display = 'none';
+	document.getElementById("data").innerHTML = "";
+	document.getElementById("submenu").innerHTML = "";
+	document.getElementById("sub").innerHTML = '';
+	document.getElementById("subsub").innerHTML= '';
+	document.getElementById("pref").src = "pictures/pref.png"
+	document.getElementById("high").src = "pictures/high.png"
+	document.getElementById("logs").src = "pictures/logs.png"
+	document.getElementById("high-span").style.color = '#7b7e8f';
+	document.getElementById("pref-span").style.color = '#7b7e8f';
+	document.getElementById("logs-span").style.color = '#7b7e8f';
+	}
+
+function setActiveSubItem(id){
+	var cusid_ele = document.getElementsByClassName('subitem');
+		for (var i = 0; i < cusid_ele.length; ++i) {
+   		  var item = cusid_ele[i];  
+  		  item.style.background = "#edf2f8";
+		}
+		document.getElementById(id).style.background = "#dbe5f1";
+	}	
+function setActiveSubSubItem(id){
+	var cusid_ele = document.getElementsByClassName('subsubitem');
+		for (var i = 0; i < cusid_ele.length; ++i) {
+   		  var item = cusid_ele[i];  
+  		  item.style.background = "#e1e8f0";
+		}
+		document.getElementById(id).style.background = "#d0dbe8";
+	}	
+	
+(function(){
+	var _waitUntilExists = {
+		pending_functions : [],
+		loop_and_call : function()
+		{
+			if(!_waitUntilExists.pending_functions.length){return}
+			for(var i=0;i<_waitUntilExists.pending_functions.length;i++)
+			{	
+				var obj = _waitUntilExists.pending_functions[i];
+				var resolution = document.getElementById(obj.id);
+				if(obj.id == document){
+					resolution = document.body;
+				}
+				if(resolution){
+					var _f = obj.f;
+					_waitUntilExists.pending_functions.splice(i, 1)
+					if(obj.c == "itself"){obj.c = resolution}
+					_f.call(obj.c)							
+					i--					
+				}
+			}
+		},
+		global_interval : setInterval(function(){_waitUntilExists.loop_and_call()},5)
+	}
+	if(document.addEventListener){
+		document.addEventListener("DOMNodeInserted", _waitUntilExists.loop_and_call, false);
+		clearInterval(_waitUntilExists.global_interval);
+	}
+	window.waitUntilExists = function(id,the_function,context){
+		context = context || window
+		if(typeof id == "function"){context = the_function;the_function = id;id=document}
+		_waitUntilExists.pending_functions.push({f:the_function,id:id,c:context})
+	}
+	waitUntilExists.stop = function(id,f){
+		for(var i=0;i<_waitUntilExists.pending_functions.length;i++){
+			if(_waitUntilExists.pending_functions[i].id==id && (typeof f == "undefined" || _waitUntilExists.pending_functions[i].f == f))
+			{
+				_waitUntilExists.pending_functions.splice(i, 1)
+			}
+		}
+	}
+	waitUntilExists.stopAll = function(){
+		_waitUntilExists.pending_functions = []
+	}
+})()
+
+
+</script>
+</head>
+<body>
+<div id="logo" onClick="resetview()"><img src="pictures/home-selected.png" width="25" height="25"  alt=""/></div>
+<div id="menu">
+  <div onClick="getPref();"><img id="pref" src="pictures/pref.png" width="20" height="20"  alt=""/><br>
+    <span id="pref-span" style="color:#7b7e8f">Maps</span> </div>
+  <br>
+  <br>
+  <div onClick="getHigh();"> <img id="high" src="pictures/high.png" width="25" height="25"  alt=""/> <br>
+    <span id="high-span" style="color:#7b7e8f">Debug</span> </div>
+  <br>
+  <br>
+  <div onClick="getLogs();"> <img id="logs" src="pictures/logs.png" width="25" height="25"  alt=""/> <br>
+    <span id="logs-span" style="color:#7b7e8f">Logs</span> </div>
+</div>
+<div id="submenu"> </div>
+</div>
+<div id="workspace">
+  <div id="sub"> </div>
+  <div id="subsub">subsub</div>
+  <div id="data"> </div>
+</div>
+</div>
+<div id="loading" style="position:absolute; display:none; top:10px; left:80px;"><img src="pictures/ajax-loader.GIF" width="16" height="16"  alt=""/></div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+<span onClick="setMapping('?id=<? echo $_GET['id'];?>')">Save</span> - <span onClick="getLoadMapping('?id=<? echo $_GET['id'];?>')">Load</span>

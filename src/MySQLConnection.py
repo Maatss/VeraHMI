@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import MySQLdb, time
+import time, sys
 
 class MySQLConnection:
 
@@ -9,6 +9,11 @@ class MySQLConnection:
 		self.password	= "verateam"
 		self.dataBase	= "Vera"
 			
+		if sys.platform == "linux2":
+			import MySQLdb
+		else:
+			import mysql.connector
+
 		#Insert ID and timestamp in ECULogs table
 		self.runSQLCommand("INSERT INTO ECULogs () values ();")
 		self.id = self.cursor.lastrowid
@@ -37,10 +42,17 @@ class MySQLConnection:
 
 	def runSQLCommand(self, sql_string):
 		try:
-			self.conn = MySQLdb.connect(user=self.userID, 
+			if sys.platform == "linux2":
+				self.conn = MySQLdb.connect(user=self.userID, 
 											passwd=self.password, 
 											host=self.hostName, 
 											db=self.dataBase)
+			else:
+				self.conn = mysql.connector.connect(user=self.userID, 
+													password=self.password, 
+													host=self.hostName, 
+													database=self.dataBase)
+
 			self.cursor = self.conn.cursor()
 			self.cursor.execute(sql_string)
 			self.conn.commit()
