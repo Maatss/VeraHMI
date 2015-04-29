@@ -31,5 +31,6 @@ try:
 
 	gui.mainloop()
 	
-except (KeyboardInterrupt, SystemExit):
+except:
+	print("Exiting...")
 	sys.exit()

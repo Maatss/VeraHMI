@@ -126,8 +126,7 @@ class ECUHandler(threading.Thread):
 		while True:
 			if(self.findNextLog() != None):
 				gpsPos = self.getGPSPos()
-				print(gpsPos)
-				#self.mysql.saveLog(self.logs + gpsPos[0 1])
+				self.mysql.saveLog(self.logs + gpsPos[0:2])
 				self.updateGUI()
 
 if __name__ == '__main__':
