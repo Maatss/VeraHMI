@@ -9,6 +9,11 @@ class ECUHandler(threading.Thread):
 	def __init__(self, gui, gps):
 		threading.Thread.__init__(self)
 
+		if sys.platform == "linux2":
+			from GPSHandler import GPSHandler
+			self.GPSHandler = GPSHandler()
+			self.GPSHandler.start()
+
 		self.mysql = MySQLConnection()
 		self.unavailableCount = 0
 		self.gui = gui
@@ -104,19 +109,29 @@ class ECUHandler(threading.Thread):
 
 
 	def getGPSPos(self):
-		#TODO: Implement this
-		return [1, 1]
+		if sys.platform == "linux2":
+			(lat, lon, alt, speed) = self.GPSHandler.getGPSPos()
+			#print("lat: " + str(lat) + "Lon: " + str(lon) + "Alt: " + str(alt) + "Speed: " + str(speed))
+			return [lat, lon, alt, speed]
+		else:
+			return [None, None, None, None]
 
 		
 	def updateGUI(self):
 		self.gui.setRPM(self.logs[6])
 
 	def run(self):
-		while True:
-			if(self.findNextLog() != None):
-				gpsPos = self.getGPSPos()
-				self.mysql.saveLog(self.logs + gpsPos)
-				self.updateGUI()
+		try:
+			while True:
+				if(self.findNextLog() != None):
+					gpsPos = self.getGPSPos()
+					print(gpsPos)
+					#self.mysql.saveLog(self.logs + gpsPos[0 1])
+					self.updateGUI()
+		except KeyboardInterrupt:
+				self.quit()
+				self._Thread__stop()
+				sys.exit("\n\ntBye from ECUHandler...")
 
 if __name__ == '__main__':
 	serialobj = ECUHandler()
