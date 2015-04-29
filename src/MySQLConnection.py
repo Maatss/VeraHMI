@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 import time, sys
+if sys.platform == "linux2":
+	import MySQLdb
+elif sys.platform == "darwin":
+	import mysql.connector
 
 class MySQLConnection:
 
@@ -9,10 +13,6 @@ class MySQLConnection:
 		self.password	= "verateam"
 		self.dataBase	= "Vera"
 			
-		if sys.platform == "linux2":
-			import MySQLdb
-		else:
-			import mysql.connector
 
 		#Insert ID and timestamp in ECULogs table
 		self.runSQLCommand("INSERT INTO ECULogs () values ();")
@@ -41,30 +41,21 @@ class MySQLConnection:
 
 
 	def runSQLCommand(self, sql_string):
-		try:
-			if sys.platform == "linux2":
-				self.conn = MySQLdb.connect(user=self.userID, 
-											passwd=self.password, 
-											host=self.hostName, 
-											db=self.dataBase)
-			else:
-				self.conn = mysql.connector.connect(user=self.userID, 
-													password=self.password, 
-													host=self.hostName, 
-													database=self.dataBase)
+		if sys.platform == "linux2":
+			self.conn = MySQLdb.connect(user=self.userID, 
+										passwd=self.password, 
+										host=self.hostName, 
+										db=self.dataBase)
+		else:
+			self.conn = mysql.connector.connect(user=self.userID, 
+												password=self.password, 
+												host=self.hostName, 
+												database=self.dataBase)
 
-			self.cursor = self.conn.cursor()
-			self.cursor.execute(sql_string)
-			self.conn.commit()
-			self.conn.close()
-
-		except mysql.connector.Error as err:
-			if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-				print("Something is wrong with your user name or password")
-			elif err.errno == errorcode.ER_BAD_DB_ERROR:
-				print("Database does not exist")
-			else:
-				print(err)
+		self.cursor = self.conn.cursor()
+		self.cursor.execute(sql_string)
+		self.conn.commit()
+		self.conn.close()
 		
 
 	def saveLog(self, logValues):
