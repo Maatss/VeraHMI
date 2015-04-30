@@ -100,6 +100,16 @@ class TimerFrame(Frame):
         self.timeSinceLastLap = 0
         self.stopped = True
 
+        self.label.config(text="00:00")
+        
+        self.lap1Label.config(text="-")
+        self.lap1.config(text="--:--")
+        
+        self.lap2Label.config(text="-")
+        self.lap2.config(text="--:--")
+
+        self.lapsLabel.config(text="0")
+
 
 if __name__ == '__main__':
     

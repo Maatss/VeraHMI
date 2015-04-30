@@ -3,6 +3,7 @@
 
 import serial, threading, time, sys, os.path
 from MySQLConnection import MySQLConnection
+from numpy import uint32
 
 class ECUHandler(threading.Thread):
 
@@ -128,12 +129,17 @@ class ECUHandler(threading.Thread):
 		
 	def updateGUI(self):
 		self.gui.setRPM(self.logs[6])
+	def checkForError(self, error_code):
+		error_code = uint32(error_code)
+		print(error_code)
+
 
 	def run(self):
 
 		while True:
 			if(self.findNextLog()):
 				gpsData = self.getGPSPos()
+				self.checkForError(self.logs[8])
 				self.mysql.saveLog(self.logs + [gpsData[0], gpsData[1], gpsData[3]])
 				if self.gui:
 					if gpsData[3]:

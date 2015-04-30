@@ -71,6 +71,7 @@ class GUI(Tk):
 
 	def reset(self):
 		self.timer.reset()
+		self.speed.reset()
 		self.setStatus(1, 3, "Reset timer")
 
 	def newLap(self):

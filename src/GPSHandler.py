@@ -28,7 +28,7 @@ class GPSHandler(threading.Thread):
 				if report['class'] == 'TPV':
 					if self.gui != None:
 						self.gui.connectGPS()
-						self.unavailableCount = 0
+					self.unavailableCount = 0
 					for attr in self.attributeNames.keys():
 						if hasattr(report, attr):
 							#print("attr: " + attr + " number: " + str(self.attributeNames[attr]))
@@ -37,6 +37,7 @@ class GPSHandler(threading.Thread):
 							self.GPSValues[self.attributeNames[attr]] = None
 							#print("Can't find " + attr)
 				else:
+					time.sleep(1)
 					if self.gui != None:
 						self.unavailableCount += 1
 						if self.unavailableCount >= 5:
