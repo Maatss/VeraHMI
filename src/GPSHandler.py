@@ -26,10 +26,6 @@ class GPSHandler(threading.Thread):
 
 			except KeyError:
 				pass
-			except KeyboardInterrupt:
-				self.quit()
-				self._Thread__stop()
-				sys.exit("\n\ntBye from GPSHandler...")
 			except StopIteration:
 				session = None
 				print "GPSD has terminated"

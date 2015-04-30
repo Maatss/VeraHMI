@@ -8,6 +8,7 @@ class ECUHandler(threading.Thread):
 
 	def __init__(self, gui, gps):
 		threading.Thread.__init__(self)
+		self.daemon=True
 
 		if sys.platform == "linux2":
 			from GPSHandler import GPSHandler
@@ -121,17 +122,13 @@ class ECUHandler(threading.Thread):
 		self.gui.setRPM(self.logs[6])
 
 	def run(self):
-		try:
-			while True:
-				if(self.findNextLog() != None):
-					gpsPos = self.getGPSPos()
-					print(gpsPos)
-					#self.mysql.saveLog(self.logs + gpsPos[0 1])
-					self.updateGUI()
-		except KeyboardInterrupt:
-				self.quit()
-				self._Thread__stop()
-				sys.exit("\n\ntBye from ECUHandler...")
+
+		while True:
+			if(self.findNextLog() != None):
+				gpsPos = self.getGPSPos()
+				print(gpsPos)
+				#self.mysql.saveLog(self.logs + gpsPos[0 1])
+				self.updateGUI()
 
 if __name__ == '__main__':
 	serialobj = ECUHandler()

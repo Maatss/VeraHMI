@@ -10,23 +10,26 @@ import threading
 gui = gui.GUI()
 
 
+try:
+	# Only runs buttonHandler if the software is running on raspbian ("linux2")
+	if sys.platform == "linux2":
+		from src.PhysicalButtonHandler import PhysicalButtonHandler
+		#Start to listen for button presses
+		#PhysicalButtonHandler = PhysicalButtonHandler(gui)
+		#PhysicalButtonHandler.start()
 
-# Only runs buttonHandler if the software is running on raspbian ("linux2")
-if sys.platform == "linux2":
-	from src.PhysicalButtonHandler import PhysicalButtonHandler
-	#Start to listen for button presses
-	#PhysicalButtonHandler = PhysicalButtonHandler(gui)
-	#PhysicalButtonHandler.start()
+		from src.GPSHandler import GPSHandler
+		GPSHandler = GPSHandler()
+		GPSHandler.start()
 
-	from src.GPSHandler import GPSHandler
-	GPSHandler = GPSHandler()
-	GPSHandler.start()
+		ECUHandler = ECUHandler(gui, None)
+		ECUHandler.start()
+	else:
+		ECUHandler = ECUHandler(gui, None)
+		ECUHandler.start()
+		print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be diabled, continuing...")
 
-	ECUHandler = ECUHandler(gui, None)
-	ECUHandler.start()
-else:
-	ECUHandler = ECUHandler(gui, None)
-	ECUHandler.start()
-	print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be diabled, continuing...")
-
-gui.mainloop()
+	gui.mainloop()
+	
+except (KeyboardInterrupt, SystemExit):
+	sys.exit()
