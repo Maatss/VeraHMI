@@ -6,15 +6,11 @@ from GUI.GUI import GUI
 
 import sys, os.path, threading
 
-
-
-	
-
-
 try:
 	global gui
 	mysql = MySQLConnection()
-	gui = GUI(mysql)
+	mysql_hmi = MySQLConnection(mysql.getID())
+	gui = GUI(mysql_hmi)
 
 	gui.attributes("-fullscreen", True)
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
@@ -24,9 +20,10 @@ try:
 		from src.GPSHandler import GPSHandler
 		GPSHandler = GPSHandler(gui)
 		GPSHandler.start()
+		gui.setGPS(GPSHandler)
 
 		#Initialize ECUHandler
-		ECUHandler = ECUHandler(gui, GPSHandler, mysql)
+		ECUHandler = ECUHandler(gui, GPSHandler, mysql, debug=True)
 		ECUHandler.start()
 
 		# Handle button presses 

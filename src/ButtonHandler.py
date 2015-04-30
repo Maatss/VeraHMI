@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import RPi.GPIO as GPIO
+import threading, sys, time
 
 class ButtonHandler(threading.Thread):
 
@@ -12,25 +13,46 @@ class ButtonHandler(threading.Thread):
 		GPIO.setup(36, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 		GPIO.setup(38, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 		GPIO.setup(40, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+		GPIO.add_event_detect(36, GPIO.RISING, callback=self.buttonEvent, bouncetime=300) 
+		GPIO.add_event_detect(38, GPIO.RISING, callback=self.buttonEvent, bouncetime=300) 
+		GPIO.add_event_detect(40, GPIO.RISING, callback=self.buttonEvent, bouncetime=300)
 	
 	def run(self):
-		GPIO.add_event_detect(36, GPIO.RISING, callback=buttonEvent, bouncetime=300) 
-		GPIO.add_event_detect(38, GPIO.RISING, callback=buttonEvent, bouncetime=300) 
-		GPIO.add_event_detect(40, GPIO.RISING, callback=buttonEvent, bouncetime=300)
+		time.sleep(1)
 		
-	def buttonEvent(channel):
-	if channel == 38:
-		if gui.timerIsRunning():
-			gui.newLap()
-			print("New lap pressed")
-		else:
-			gui.reset()
-			print("Reset pressed")
+	def buttonEvent(self, channel):
+		if channel == 38:
+			if self.gui != None:
+				if self.gui.timerIsRunning():
+					self.gui.newLap()
+					print("New lap pressed")
+				else:
+					self.gui.reset()
+					print("Reset pressed")
+			else:
+				print("New lap/Reset button pressed")
 
-	if channel == 40:
-		if gui.timerIsRunning():
-			gui.stopTimer()
-			print("Stop pressed")
-		else:
-			gui.startTimer()
-			print("Start pressed")
+		if channel == 40:
+			if self.gui != None:
+				if self.gui.timerIsRunning():
+					self.gui.stopTimer()
+					print("Stop pressed")
+				else:
+					self.gui.startTimer()
+					print("Start pressed")
+			else:
+				print("Start/Stop timer button pressed")
+				
+			
+				
+
+
+if __name__ == '__main__':
+	try:
+		btn = ButtonHandler()
+		btn.start()
+		while True:
+			time.sleep(1)
+	except (KeyboardInterrupt, SystemExit):
+		btn._Thread__stop()
+		sys.exit()

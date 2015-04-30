@@ -8,7 +8,11 @@ from status_bar import Status_bar
 from GPS_ECU_status import GPS_ECU_status
 from Speed import Speed
 from RPM import RPM
-import time
+import time, sys
+
+sys.path.append('/home/pi/VeraHMI/src')
+from src.MySQLConnection import MySQLConnection
+
 
 class GUI(Tk):
 
@@ -66,6 +70,7 @@ class GUI(Tk):
 		return self.timer.isRunning()
 
 	def reset(self):
+		self.timer.reset()
 		self.setStatus(1, 3, "Reset timer")
 
 	def newLap(self):
@@ -110,10 +115,6 @@ class GUI(Tk):
 
 	def start_fullscreen(self, event=None):
 	    self.attributes("-fullscreen", True)
-
-
-	def setMySQL(self, mysql):
-		self.mysql = mysql
 
 	def setGPS(self, gps):
 		self.gps = gps

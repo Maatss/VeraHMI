@@ -93,6 +93,12 @@ class TimerFrame(Frame):
         
         self.lapsLabel.config(text=str(self.laps+1))
 
+    def reset(self):
+        self.seconds = 0
+        self.minutes = 0
+        self.laps = 0
+        self.timeSinceLastLap = 0
+        self.stopped = True
 
 
 if __name__ == '__main__':

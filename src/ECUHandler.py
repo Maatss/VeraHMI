@@ -134,7 +134,7 @@ class ECUHandler(threading.Thread):
 		while True:
 			if(self.findNextLog()):
 				gpsData = self.getGPSPos()
-				self.mysql.saveLog(self.logs + gpsData[0:2])
+				self.mysql.saveLog(self.logs + [gpsData[0], gpsData[1], gpsData[3]])
 				if self.gui:
 					if gpsData[3]:
 						self.gui.setSpeed(gpsData[3])
