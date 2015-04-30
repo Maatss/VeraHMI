@@ -1,10 +1,12 @@
 import gps, threading, time, sys
  
 class GPSHandler(threading.Thread):
-	def __init__(self):
+	def __init__(self, gui):
 		threading.Thread.__init__(self)
 		self.session = gps.gps("localhost", "2947")
 		self.session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
+		self.gui = gui
+		self.gui.setStatus(1, "GPSHandler", "Started")
 		self.GPSValues = [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
 		self.attributeNames = {'time': 0, 'lon': 1, 'lat': 2, 'alt': 3, 'climb': 4, 'speed': 5, 'device': 6, 'mode': 7, 'ept': 8, 'epx': 9, 'epy': 10, 'epv': 11, 'track': 12, 'epd': 13, 'eps': 14, 'epc': 15}
 

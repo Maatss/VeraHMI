@@ -8,12 +8,15 @@ from status_bar import Status_bar
 from GPS_ECU_status import GPS_ECU_status
 from Speed import Speed
 from RPM import RPM
+import time
 
 class GUI(Tk):
 
-	def __init__(self, parent=None, **args):
-		Tk.__init__(self, *args)
+	def __init__(self, mysql, gps):
+		Tk.__init__(self)
 
+		self.mysql = mysql
+		self.gps = gps
 		#Setup screen
 		self.width, self.height = 500, 300
 		self.config(bg="black")
@@ -80,7 +83,14 @@ class GUI(Tk):
 		self.GPS_ECU_status.ECU_connected(False)
 
 	def setStatus(self, level, module, message):
+		#modules: 1=GPSHAndler, 2=ECUHandler
 		self.status.set_status(int(level), int(module), message)
+		if sys.platform == "linux2":
+			(lat, lon, alt, speed) = self.gps.getGPSPos()
+		else:
+			(lat, lon, alt, speed) = (None, None, None, None)
+		date = time.strftime("%Y-%m-%d")
+		self.mysql.saveHMILog(date, level, module, message, [lat, lon])
 
 	def setSpeed(self, speed):
 		self.speed.setSpeed(speed)

@@ -6,16 +6,18 @@ from MySQLConnection import MySQLConnection
 
 class ECUHandler(threading.Thread):
 
-	def __init__(self, gui, gps):
+	def __init__(self, gui, gps, mysql):
 		threading.Thread.__init__(self)
 		self.daemon=True
+		self.mysql = mysql
 
+		self.gui = gui
+		self.gui.setStatus(1, 2, "Started")
 		if sys.platform == "linux2":
 			from GPSHandler import GPSHandler
 			self.GPSHandler = GPSHandler()
 			self.GPSHandler.start()
 
-		self.mysql = MySQLConnection()
 		self.unavailableCount = 0
 		self.gui = gui
 		self.logNames= ["cylinder temp", "topplock temp", "motorblock temp", "batterispänning", "lufttryck", "lufttemperatur", "varvtal", "bränslemassa", "error code"]

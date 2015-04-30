@@ -58,6 +58,10 @@ class MySQLConnection:
 		self.conn.close()
 		
 
+	def saveHMILog(self, date, level, module, message, gpsPos):
+		message = "INSERT INTO HMILog (day,level,module,msg,lat_loc,long_loc) VALUES (\'" + date + "','" + str(level) + "','" + str(module) + "','" +  message  + "','" + str(gpsPos[0])  + "','" + str(gpsPos[1]) + "')"
+		print(message)
+		self.runSQLCommand(message)
 	def saveLog(self, logValues):
 		values = ""
 		for x in range(len(logValues)):
