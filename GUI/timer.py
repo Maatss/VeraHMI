@@ -9,7 +9,7 @@ class TimerFrame(Frame):
         Frame.__init__(self, parent, **options)
         self.bgColor = "black"
         self.fgColor = "white"
-        self.label = Label(self, text="00:00", font=('times', 60, 'bold'), bg=self.bgColor, fg=self.fgColor)
+        self.label = Label(self, text="00:00", font=('times', 80, 'bold'), bg=self.bgColor, fg=self.fgColor)
         self.label.pack(side=TOP)
         self.config(bg=self.bgColor)
         # Number of laps frame

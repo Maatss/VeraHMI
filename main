@@ -11,6 +11,7 @@ import threading
 try:
 	mysql = MySQLConnection()
 	gui = GUI(mysql)
+	gui.attributes("-fullscreen", True)
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
 	if sys.platform == "linux2":
 		from src.PhysicalButtonHandler import PhysicalButtonHandler

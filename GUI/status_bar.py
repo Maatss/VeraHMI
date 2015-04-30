@@ -13,7 +13,7 @@ class Status_bar(Frame):
 		self.config(bg=self.bgColor)
 		
 	def set_status(self,level, module, message):
-		self.label.config(text="Status: " + self.modules[module] + " - " + message)
+		self.label.config(text="Status: " + self.modules[module - 1] + " - " + message)
 		# TODO: implement MySQL connection to insert into HMILog and more...
         # Maybe make the status go away after x seconds?? 
 

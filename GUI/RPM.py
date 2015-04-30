@@ -9,7 +9,7 @@ class RPM(Frame):
         self.bgColor = "black"
         self.fgColor = "white"
         
-        self.label = Label(self, text="RPM: ----", font = ('times', 30), bg = self.bgColor, fg = self.fgColor)
+        self.label = Label(self, text="RPM: ----", font = ('times', 38), bg = self.bgColor, fg = self.fgColor)
         self.label.pack()
         self.config(bg = self.bgColor)
         
