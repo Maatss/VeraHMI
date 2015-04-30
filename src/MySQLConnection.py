@@ -73,7 +73,7 @@ class MySQLConnection:
 				values += str(logValues[x]) + "','"
 			else:
 				values += str(logValues[x]) + "'"
-		print(values)
+		#print(values)
 		query = "INSERT INTO ECULog" + str(self.id) + " (tempcylinder, temptoplock, tempmotorblock, batterispanning , lufttryck, lufttemp, rpm, branslemassa, tandpos, lat_loc, long_loc) VALUES (" + values +  ");" 
 		self.runSQLCommand(query)
 

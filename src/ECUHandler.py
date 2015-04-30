@@ -6,18 +6,21 @@ from MySQLConnection import MySQLConnection
 
 class ECUHandler(threading.Thread):
 
-	def __init__(self, gui, gps, mysql):
+	def __init__(self, gui = None, gps = None, mysql = None, debug = False):
 		threading.Thread.__init__(self)
 		self.daemon=True
-		self.mysql = mysql
+		if mysql != None:
+			self.mysql = mysql
+		else:
+			self.mysql = MySQLConnection()
 		self.gui = gui
 		self.gps = gps
+		self.debug = debug
 
 		self.unavailableCount = 0
-		self.gui = gui
 		self.logNames= ["cylinder temp", "topplock temp", "motorblock temp", "batterispänning", "lufttryck", "lufttemperatur", "varvtal", "bränslemassa", "error code"]
-		self.gui.setStatus(1, 2, "Started")
-
+		if self.gui != None:
+			self.gui.setStatus(1, 2, "Started")
 		self.portName = self.findUSB()
 		#print("Port name: " + self.portName)
 
@@ -26,8 +29,6 @@ class ECUHandler(threading.Thread):
 			self.port.flushInput()
 		except:
 			print("Could not connect to ECU, continuing...")
-			pass
-		return None
 
 	def findUSB(self):
 		# Set the device name depending on the OS ("darwin" = OS X, "linux2" = raspbian)
@@ -69,7 +70,8 @@ class ECUHandler(threading.Thread):
 			y=0
 			x=0
 			# Set ECU to be connected
-			self.gui.connectECU()
+			if self.gui:
+				self.gui.connectECU()
 			self.unavailableCount = 0
 
 			if data[x] == "#":
@@ -102,7 +104,8 @@ class ECUHandler(threading.Thread):
 			self.unavailableCount += 1
 			if self.unavailableCount == 5:
 				print("ECU disconnected")
-				self.gui.disconnectECU()
+				if self.gui:
+					self.gui.disconnectECU()
 				self.connected = False
 				try:
 					self.port.close()
@@ -116,13 +119,12 @@ class ECUHandler(threading.Thread):
 
 
 	def getGPSPos(self):
-		if sys.platform == "linux2":
+		if sys.platform == "linux2" and self.gps != None:
 			(lat, lon, alt, speed) = self.gps.getGPSPos()
 			#print("lat: " + str(lat) + "Lon: " + str(lon) + "Alt: " + str(alt) + "Speed: " + str(speed))
 			return [lat, lon, alt, speed]
 		else:
 			return [None, None, None, None]
-
 		
 	def updateGUI(self):
 		self.gui.setRPM(self.logs[6])
@@ -130,13 +132,29 @@ class ECUHandler(threading.Thread):
 	def run(self):
 
 		while True:
-			if(self.findNextLog() != None):
+			if(self.findNextLog()):
 				gpsData = self.getGPSPos()
-				if gpsData[3] != None:
-					self.gui.setSpeed(gpsData[3])
 				self.mysql.saveLog(self.logs + gpsData[0:2])
-				self.updateGUI()
+				if self.gui:
+					if gpsData[3]:
+						self.gui.setSpeed(gpsData[3])
+					self.updateGUI()
+
+				if self.debug:
+					print(self.logs + gpsData)
+				
+					
 
 if __name__ == '__main__':
-	serialobj = ECUHandler()
-	serialobj.startLog()
+	try:
+		ecu = ECUHandler(debug=True)
+		ecu.start()
+		while True:
+			time.sleep(1)
+			
+	except (KeyboardInterrupt, SystemExit):
+		ecu._Thread__stop()
+		sys.exit()
+
+
+

@@ -3,28 +3,11 @@
 from src.ECUHandler import ECUHandler
 from src.MySQLConnection import MySQLConnection
 from GUI.GUI import GUI
+
 import sys, os.path, threading
 
 
 
-
-def buttonEvent(channel):
-	global gui
-	print("Channel: " + str(channel))
-
-	if channel == 38:
-		if gui.timerIsRunning():
-			gui.newLap()
-		else:
-			gui.reset()
-
-	if channel == 40:
-		if gui.timerIsRunning():
-			gui.stopTimer()
-			print("Stop")
-		else:
-			gui.startTimer()
-			print("Start")
 	
 
 
@@ -36,31 +19,24 @@ try:
 	gui.attributes("-fullscreen", True)
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
 	if sys.platform == "linux2":
-		import RPi.GPIO as GPIO
-		from src.PhysicalButtonHandler import PhysicalButtonHandler
-		
-		#Setup GPIO in order to enable button presses
-		GPIO.setmode(GPIO.BOARD)
-		GPIO.setup(36, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.setup(38, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.setup(40, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.add_event_detect(36, GPIO.RISING, callback=buttonEvent, bouncetime=300) 
-		GPIO.add_event_detect(38, GPIO.RISING, callback=buttonEvent, bouncetime=300) 
-		GPIO.add_event_detect(40, GPIO.RISING, callback=buttonEvent, bouncetime=300) 
 
+		#initalize GPS
 		from src.GPSHandler import GPSHandler
 		GPSHandler = GPSHandler(gui)
 		GPSHandler.start()
 
+		#Initialize ECUHandler
 		ECUHandler = ECUHandler(gui, GPSHandler, mysql)
 		ECUHandler.start()
+
+		# Handle button presses 
+		from src.ButtonHandler import ButtonHandler
+		buttonHandler = ButtonHandler(gui)
+		buttonHandler.start()
 	else:
 		ECUHandler = ECUHandler(gui, None, mysql)
 		ECUHandler.start()
-		print("""
-				You're not running this program on Raspberry Pi, 
-				button presses will be ignored and GPS will be disabled, 
-				continuing...""")
+		print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be disabled, continuing...")
 
 	gui.mainloop()
 	
