@@ -10,6 +10,8 @@ class Speed(Frame):
         self.fgColor = "white"
         self.speed = 0
         self.meanSpeed = 0
+        self.numberOfDataPoints = 0
+        self.totalSpeed = 0
         self.speedLabel = Label(self, text="0 (0)", font=('times', 60, 'bold'), bg = self.bgColor, fg = self.fgColor)
         self.speedLabel.pack(side=TOP, anchor=W)
         
@@ -19,11 +21,9 @@ class Speed(Frame):
 		
     def setSpeed(self, speed):
 		self.speed=float(speed)
-		if self.meanSpeed == 0:
-			self.meanSpeed = self.speed
-		else:
-			self.meanSpeed = (self.speed + self.meanSpeed) / 2
-			
+		self.numberOfDataPoints += 1
+		self.totalSpeed += self.speed
+		self.meanSpeed = self.totalSpeed / self.numberOfDataPoints
 		self.speedLabel.config(text=str('%.1f' % self.speed) + " (" + str('%.1f' % self.meanSpeed) + ")" )
 		
 		#self.meanSpeedLabel.config(text=str(meanSpeed))

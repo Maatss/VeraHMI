@@ -76,7 +76,7 @@ class TimerFrame(Frame):
         self.stopped = False
         
     def isRunning(self):
-        return self.stopped
+        return not self.stopped
 
     def newLap(self):
         self.laps += 1

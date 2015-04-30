@@ -12,7 +12,7 @@ import time
 
 class GUI(Tk):
 
-	def __init__(self, mysql):
+	def __init__(self, mysql = None):
 		Tk.__init__(self)
 
 		self.mysql = mysql
@@ -60,15 +60,21 @@ class GUI(Tk):
 
 	def stopTimer(self):
 		self.timer.stopCount()
+		self.setStatus(1, 3, "Stopped")
 
 	def timerIsRunning(self):
 		return self.timer.isRunning()
 
+	def reset(self):
+		self.setStatus(1, 3, "Reset timer")
+
 	def newLap(self):
 		self.timer.newLap()
+		self.setStatus(1, 3, "New lap")
 
 	def startTimer(self):
 		self.timer.startCount()
+		self.setStatus(1, 3, "Started")
 
 	def connectGPS(self):
 		self.GPS_ECU_status.GPS_connected(True)
@@ -90,7 +96,8 @@ class GUI(Tk):
 		else:
 			(lat, lon, alt, speed) = (None, None, None, None)
 		date = time.strftime("%Y-%m-%d")
-		self.mysql.saveHMILog(date, level, module, message, [lat, lon])
+		if self.mysql != None:
+			self.mysql.saveHMILog(date, level, module, message, [lat, lon])
 
 	def setSpeed(self, speed):
 		self.speed.setSpeed(speed)

@@ -84,9 +84,9 @@ class ECUHandler(threading.Thread):
 						(x, self.logs[i]) = self.findNumberBefore("+", data, x)
 					# Find last data
 					(x, self.logs[8]) = self.findNumberBefore("&", data, x)
-					
-					print("Logs found!\n")
 					'''
+					print("Logs found!\n")
+					
 					for i in range(0,9):
 						printStr = self.logNames[i] + ": " + str(self.logs[i])
 						print(printStr)

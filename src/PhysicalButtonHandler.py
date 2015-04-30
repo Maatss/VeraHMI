@@ -1,39 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import serial, threading, time
-import RPi.GPIO as GPIO
+import serial, threading, time, sys
+from ButtonHandler import ButtonHandler
 
 class PhysicalButtonHandler(threading.Thread):
 
-	def __init__(self, gui):
+	def __init__(self, gui = None):
 		threading.Thread.__init__(self)
+		self.deamon = True
 		self.stopStartButton = 36
 		self.lapButton = 38
 		self.resetButton = 40
 		self.gui = gui
 
-		GPIO.setmode(GPIO.BOARD)
-		GPIO.setup(self.stopStartButton, GPIO.IN)
-		GPIO.setup(self.lapButton, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-		GPIO.setup(self.resetButton, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
-	def checkForPress(self):
-		if self.gui.timerIsRunning():
-			pass
-			'''
-			print("timer is running")
-			if(GPIO.input(self.stopStartButton) ==1):
-				self.gui.stopTimer()
-				print("timer stopped")
-		else:
-			if(GPIO.input(self.stopStartButton) ==0):
-				self.gui.startTimer()
-				'''
 	def run(self):
 		try:
-			while True:
-				self.checkForPress()
-		except KeyboardInterrupt:
+			stopButtonHandler = ButtonHandler(self.stopStartButton, True, "startStop", self.gui)
+			stopButtonHandler.start()
+
+			lapButtonHandler = ButtonHandler(self.lapButton, True, "lap", self.gui)
+			lapButtonHandler.start()
+			
+		except (KeyboardInterrupt, SystemExit):
 			self.quit()
 			self._Thread__stop()
+
+
+
+if __name__ =='__main__':
+	try:
+		item = PhysicalButtonHandler()
+		item.start()
+	except (KeyboardInterrupt, SystemExit):
+		sys.exit()
