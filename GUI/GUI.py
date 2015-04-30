@@ -12,11 +12,11 @@ import time
 
 class GUI(Tk):
 
-	def __init__(self, mysql, gps):
+	def __init__(self, mysql):
 		Tk.__init__(self)
 
 		self.mysql = mysql
-		self.gps = gps
+		self.gps = None
 		#Setup screen
 		self.width, self.height = 500, 300
 		self.config(bg="black")
@@ -83,9 +83,9 @@ class GUI(Tk):
 		self.GPS_ECU_status.ECU_connected(False)
 
 	def setStatus(self, level, module, message):
-		#modules: 1=GPSHAndler, 2=ECUHandler
+		#modules: 1=GPSHAndler, 2=ECUHandler, 3=StopWatch
 		self.status.set_status(int(level), int(module), message)
-		if sys.platform == "linux2":
+		if sys.platform == "linux2" and self.gps != None:
 			(lat, lon, alt, speed) = self.gps.getGPSPos()
 		else:
 			(lat, lon, alt, speed) = (None, None, None, None)
@@ -105,7 +105,11 @@ class GUI(Tk):
 	    self.attributes("-fullscreen", True)
 
 
+	def setMySQL(self, mysql):
+		self.mysql = mysql
 
+	def setGPS(self, gps):
+		self.gps = gps
 
 
 def checkSerial(GUI):

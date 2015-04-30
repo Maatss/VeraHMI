@@ -7,7 +7,7 @@ elif sys.platform == "darwin":
 
 class MySQLConnection:
 
-	def __init__(self, parent=None, **options):
+	def __init__(self):
 		self.hostName 	= "localhost"
 		self.userID 	= "root"
 		self.password	= "verateam"
@@ -60,8 +60,10 @@ class MySQLConnection:
 
 	def saveHMILog(self, date, level, module, message, gpsPos):
 		message = "INSERT INTO HMILog (day,level,module,msg,lat_loc,long_loc) VALUES (\'" + date + "','" + str(level) + "','" + str(module) + "','" +  message  + "','" + str(gpsPos[0])  + "','" + str(gpsPos[1]) + "')"
-		print(message)
+		#print(message)
 		self.runSQLCommand(message)
+
+
 	def saveLog(self, logValues):
 		values = ""
 		for x in range(len(logValues)):
@@ -71,6 +73,7 @@ class MySQLConnection:
 				values += str(logValues[x]) + "','"
 			else:
 				values += str(logValues[x]) + "'"
+		print(values)
 		query = "INSERT INTO ECULog" + str(self.id) + " (tempcylinder, temptoplock, tempmotorblock, batterispanning , lufttryck, lufttemp, rpm, branslemassa, tandpos, lat_loc, long_loc) VALUES (" + values +  ");" 
 		self.runSQLCommand(query)
 

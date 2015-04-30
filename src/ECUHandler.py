@@ -10,31 +10,34 @@ class ECUHandler(threading.Thread):
 		threading.Thread.__init__(self)
 		self.daemon=True
 		self.mysql = mysql
-
 		self.gui = gui
-		self.gui.setStatus(1, 2, "Started")
-		if sys.platform == "linux2":
-			from GPSHandler import GPSHandler
-			self.GPSHandler = GPSHandler()
-			self.GPSHandler.start()
+		self.gps = gps
 
 		self.unavailableCount = 0
 		self.gui = gui
 		self.logNames= ["cylinder temp", "topplock temp", "motorblock temp", "batterispänning", "lufttryck", "lufttemperatur", "varvtal", "bränslemassa", "error code"]
-		
-		# Set the device name depending on the OS ("darwin" = OS X, "linux2" = raspbian)
-		if sys.platform == "darwin":
-			self.portName = "/dev/tty.usbserial-A96T5FJN"
-		else:
-			self.portName = "/dev/ttyUSB0"
+		self.gui.setStatus(1, 2, "Started")
+
+		self.portName = self.findUSB()
+		#print("Port name: " + self.portName)
 
 		try:
 			self.port = serial.Serial(self.portName, baudrate=115200, timeout=3.0)
 			self.port.flushInput()
 		except:
+			print("Could not connect to ECU, continuing...")
 			pass
 		return None
 
+	def findUSB(self):
+		# Set the device name depending on the OS ("darwin" = OS X, "linux2" = raspbian)
+		if sys.platform == "darwin":
+			return "/dev/tty.usbserial-A96T5FJN"
+		else:
+			if os.path.exists("/dev/ttyUSB0"):
+				return "/dev/ttyUSB0"
+			elif os.path.exists("/dev/ttyUSB1"):
+				return "/dev/ttyUSB1"
 
 	def readECU(self):
 	    rv = ""
@@ -106,6 +109,7 @@ class ECUHandler(threading.Thread):
 				except:
 					pass
 			try:
+				self.portName = self.findUSB()
 				self.port = serial.Serial(self.portName, baudrate=115200, timeout=3.0)
 			except:
 				pass
@@ -113,7 +117,7 @@ class ECUHandler(threading.Thread):
 
 	def getGPSPos(self):
 		if sys.platform == "linux2":
-			(lat, lon, alt, speed) = self.GPSHandler.getGPSPos()
+			(lat, lon, alt, speed) = self.gps.getGPSPos()
 			#print("lat: " + str(lat) + "Lon: " + str(lon) + "Alt: " + str(alt) + "Speed: " + str(speed))
 			return [lat, lon, alt, speed]
 		else:
@@ -127,8 +131,10 @@ class ECUHandler(threading.Thread):
 
 		while True:
 			if(self.findNextLog() != None):
-				gpsPos = self.getGPSPos()
-				self.mysql.saveLog(self.logs + gpsPos[0:2])
+				gpsData = self.getGPSPos()
+				if gpsData[3] != None:
+					self.gui.setSpeed(gpsData[3])
+				self.mysql.saveLog(self.logs + gpsData[0:2])
 				self.updateGUI()
 
 if __name__ == '__main__':

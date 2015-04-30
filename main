@@ -1,21 +1,18 @@
 #!/usr/bin/env python
 
-import GUI.GUI as gui
+from GUI.GUI import GUI
 from src.ECUHandler import ECUHandler
 from src.MySQLConnection import MySQLConnection
+
 import sys, os.path
 
 import threading
 
-
-
-
-
 try:
-	MySQL = MySQLConnection()
+	mysql = MySQLConnection()
+	gui = GUI(mysql)
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
 	if sys.platform == "linux2":
-
 		from src.PhysicalButtonHandler import PhysicalButtonHandler
 		#Start to listen for button presses
 		#PhysicalButtonHandler = PhysicalButtonHandler(gui)
@@ -25,18 +22,15 @@ try:
 		GPSHandler = GPSHandler(gui)
 		GPSHandler.start()
 
-		gui = gui.GUI(MySQL, GPSHandler)
-
-		ECUHandler = ECUHandler(gui, GPSHandler, MySQL)
+		ECUHandler = ECUHandler(gui, GPSHandler, mysql)
 		ECUHandler.start()
-
-
 	else:
-		gui = gui.GUI(MySQL, None)
-
-		ECUHandler = ECUHandler(gui, None, MySQL)
+		ECUHandler = ECUHandler(gui, None, mysql)
 		ECUHandler.start()
-		print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be diabled, continuing...")
+		print("""
+				You're not running this program on Raspberry Pi, 
+				button presses will be ignored and GPS will be disabled, 
+				continuing...""")
 
 	gui.mainloop()
 	
