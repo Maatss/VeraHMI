@@ -26,7 +26,7 @@ class ECUHandler(threading.Thread):
 		#print("Port name: " + self.portName)
 
 		try:
-			self.port = serial.Serial(self.portName, baudrate=115200, timeout=3.0)
+			self.port = serial.Serial(self.portName, baudrate=460800, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			self.port.flushInput()
 		except:
 			print("Could not connect to ECU, continuing...")
@@ -69,7 +69,7 @@ class ECUHandler(threading.Thread):
 		data = self.readECU()
 		if(data != None):
 			y=0
-			x=0
+			x=2
 			# Set ECU to be connected
 			if self.gui:
 				self.gui.connectECU()
@@ -81,6 +81,7 @@ class ECUHandler(threading.Thread):
 				while data[x] != ":":
 					command += data[x]
 					x += 1
+				#print("Command: " + command)
 				if command == "BASE":
 					x += 1
 					for i in range(0, 8):
@@ -98,7 +99,8 @@ class ECUHandler(threading.Thread):
 					return self.logs
 
 			else:
-				print("jibberish found... :( \n")
+				#print("jibberish found... :(")
+				print(data)
 		else:
 			print("Serial not available")
 			time.sleep(1)
@@ -114,7 +116,7 @@ class ECUHandler(threading.Thread):
 					pass
 			try:
 				self.portName = self.findUSB()
-				self.port = serial.Serial(self.portName, baudrate=115200, timeout=3.0)
+				self.port = serial.Serial(self.portName, baudrate=115200, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			except:
 				pass
 
