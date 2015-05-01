@@ -8,7 +8,7 @@ class GPSHandler(threading.Thread):
 		self.deamon = True
 		self.GPSValues = [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
 		self.attributeNames = {'time': 0, 'lon': 1, 'lat': 2, 'alt': 3, 'climb': 4, 'speed': 5, 'device': 6, 'mode': 7, 'ept': 8, 'epx': 9, 'epy': 10, 'epv': 11, 'track': 12, 'epd': 13, 'eps': 14, 'epc': 15}
-
+		self.gpsClass = None
 		self.unavailableCount = 0
 
 		if gui != None:
@@ -25,10 +25,15 @@ class GPSHandler(threading.Thread):
 				# Wait for a 'TPV' report and display the current time
 				# To see all report data, uncomment the line below
 				#print report
-				if report['class'] == 'TPV':
+				self.gpsClass = report['class']
+				if  self.gpsClass == 'TPV':
+
 					if self.gui != None:
 						self.gui.connectGPS()
-					self.unavailableCount = 0
+					if self.unavailableCount >=5:
+						self.unavailableCount = 0
+						print("GPS Connected")
+
 					for attr in self.attributeNames.keys():
 						if hasattr(report, attr):
 							self.GPSValues[self.attributeNames[attr]] = report[attr]
@@ -39,14 +44,20 @@ class GPSHandler(threading.Thread):
 					if self.gui != None and self.GPSValues[self.attributeNames['speed']] != None:
 						#print(self.GPSValues[self.attributeNames['speed']])
 						self.gui.setSpeed(self.GPSValues[self.attributeNames['speed']])
-							
+
 				else:
+					for x in range(len(self.GPSValues)):
+						self.GPSValues[x] = None
 					time.sleep(1)
-					if self.gui != None:
-						self.unavailableCount += 1
-						if self.unavailableCount >= 5:
-							self.gui.disconnectGPS()
+					self.unavailableCount +=1
+					if self.unavailableCount >=5:
+						if self.unavailableCount <6:
+							if self.gui != None:
+								self.gui.disconnectGPS()
 							print("GPS disconnected")
+						self.unavailableCount +=1
+						
+				time.sleep(0.1)
 
 			except KeyError:
 				pass
@@ -65,8 +76,8 @@ if __name__ == '__main__':
 		gps = GPSHandler()
 		gps.start()
 		while True:
-			(lat, lon, alt, speed) = gps.getGPSPos()
-			print(lat, lon, alt, speed)
+			(lat, lon, speed) = gps.getGPSPos()
+			print(lat, lon, speed)
 			time.sleep(1)
 
 	except (KeyboardInterrupt, SystemExit):

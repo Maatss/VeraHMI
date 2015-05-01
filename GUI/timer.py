@@ -13,7 +13,7 @@ class TimerFrame(Frame):
         self.label.pack(side=TOP)
         self.config(bg=self.bgColor)
         # Number of laps frame
-        (self.currLapFrame, dontCare, self.lapsLabel) = self.createTimeFrame("Curr lap:", "1", 30)
+        (self.currLapFrame, dontCare, self.lapsLabel) = self.createTimeFrame("Current lap:", "1", 30)
         
         # lap frames
         (lap2Frame, self.lap2Label, self.lap2) = self.createTimeFrame("-", "--:--", 30)

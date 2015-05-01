@@ -50,7 +50,6 @@ class GUI(Tk):
 		self.status = Status_bar()
 		self.status.config(padx=10)
 		self.status.grid(row=0, column=0, columnspan=3, sticky=W)
-		self.status.set_status(1, 0, "Session started")
 
 		# Speed
 		self.speed = Speed()
@@ -84,19 +83,22 @@ class GUI(Tk):
 
 	def connectGPS(self):
 		self.GPS_ECU_status.GPS_connected(True)
+		#self.saveHMILog(1, 1, "Connected")
 
 	def disconnectGPS(self):
 		self.GPS_ECU_status.GPS_connected(False)
+		#self.saveHMILog(1, 1, "Disconnected")
 
 	def connectECU(self):
 		self.GPS_ECU_status.ECU_connected(True)
+		self.saveHMILog(1, 2, "Connected")
 
 	def disconnectECU(self):
 		self.GPS_ECU_status.ECU_connected(False)
+		self.saveHMILog(1, 2, "Disconnected")
 
-	def setStatus(self, level, module, message):
+	def saveHMILog(self, level, module, message):
 		#modules: 1=GPSHAndler, 2=ECUHandler, 3=StopWatch
-		self.status.set_status(int(level), int(module), message)
 		if sys.platform == "linux2" and self.gps != None:
 			(lat, lon, speed) = self.gps.getGPSPos()
 		else:
@@ -104,6 +106,11 @@ class GUI(Tk):
 		date = time.strftime("%Y-%m-%d")
 		if self.mysql != None:
 			self.mysql.saveHMILog(date, level, module, message, [lat, lon])
+
+	def setStatus(self, level, module, message):
+		
+		self.status.set_status(int(level), int(module), message)
+		self.saveHMILog(level, module, message)
 
 	def setSpeed(self, speed):
 		self.speed.setSpeed(speed)

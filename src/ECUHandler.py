@@ -122,6 +122,8 @@ class ECUHandler(threading.Thread):
 	def getGPSPos(self):
 		if sys.platform == "linux2" and self.gps != None:
 			(lat, lon, speed) = self.gps.getGPSPos()
+			if speed:
+				speed = speed * 3.6 # want speed in Km/h not m/s
 			#print("lat: " + str(lat) + " Lon: " + str(lon) + " Alt: " + str(alt) + " Speed: " + str(speed))
 			return [lat, lon, speed]
 		else:
@@ -141,7 +143,10 @@ class ECUHandler(threading.Thread):
 		while True:
 			if(self.findNextLog()):
 				gpsData = self.getGPSPos()
+				#Handle error codes
 				self.checkForError(self.logs[8])
+
+				#Save logs in MySQL
 				self.mysql.saveLog(self.logs + gpsData)
 				if self.gui:
 					if gpsData[2]:

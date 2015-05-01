@@ -7,9 +7,6 @@ from GUI.GUI import GUI
 import sys, os.path, threading, os, time
 
 try:
-	#Restart gpsd (dont log speed otherwise...)
-	os.system("sudo killall gpsd")
-	os.system("sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock")
 	global gui
 	mysql = MySQLConnection()
 	mysql_hmi = MySQLConnection(mysql.getID())
