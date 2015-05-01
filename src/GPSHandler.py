@@ -1,7 +1,7 @@
 import gps, threading, time, sys
  
 class GPSHandler(threading.Thread):
-	def __init__(self, gui = None):
+	def __init__(self, gui = None, debug = False):
 		threading.Thread.__init__(self)
 		self.session = gps.gps("localhost", "2947")
 		self.session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
@@ -31,11 +31,15 @@ class GPSHandler(threading.Thread):
 					self.unavailableCount = 0
 					for attr in self.attributeNames.keys():
 						if hasattr(report, attr):
-							#print("attr: " + attr + " number: " + str(self.attributeNames[attr]))
 							self.GPSValues[self.attributeNames[attr]] = report[attr]
+							#print("attr: " + attr + " number: " + str(self.attributeNames[attr]))
 						else:
 							self.GPSValues[self.attributeNames[attr]] = None
 							#print("Can't find " + attr)
+					if self.gui != None and self.GPSValues[self.attributeNames['speed']] != None:
+						#print(self.GPSValues[self.attributeNames['speed']])
+						self.gui.setSpeed(self.GPSValues[self.attributeNames['speed']])
+							
 				else:
 					time.sleep(1)
 					if self.gui != None:
@@ -51,12 +55,10 @@ class GPSHandler(threading.Thread):
 				print "GPSD has terminated"
 
 	def getGPSAttr(self, value):
-		for attr in self.attributeNames.keys():
-			if(attr == value):
-				return self.GPSValues[self.attributeNames[attr]]
+		return self.GPSValues[self.attributeNames[value]]
 
 	def getGPSPos(self):
-		return (self.getGPSAttr("lat"), self.getGPSAttr('lon'), self.getGPSAttr('alt'), self.getGPSAttr('speed'))
+		return (self.getGPSAttr("lat"), self.getGPSAttr('lon'), self.getGPSAttr('speed'))
 
 if __name__ == '__main__':
 	try:

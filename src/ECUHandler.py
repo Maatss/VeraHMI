@@ -121,17 +121,19 @@ class ECUHandler(threading.Thread):
 
 	def getGPSPos(self):
 		if sys.platform == "linux2" and self.gps != None:
-			(lat, lon, alt, speed) = self.gps.getGPSPos()
-			#print("lat: " + str(lat) + "Lon: " + str(lon) + "Alt: " + str(alt) + "Speed: " + str(speed))
-			return [lat, lon, alt, speed]
+			(lat, lon, speed) = self.gps.getGPSPos()
+			#print("lat: " + str(lat) + " Lon: " + str(lon) + " Alt: " + str(alt) + " Speed: " + str(speed))
+			return [lat, lon, speed]
 		else:
-			return [None, None, None, None]
+			return [None, None, None]
 		
 	def updateGUI(self):
 		self.gui.setRPM(self.logs[6])
+
+
 	def checkForError(self, error_code):
 		error_code = uint32(error_code)
-		print(error_code)
+		#print(error_code)
 
 
 	def run(self):
@@ -140,10 +142,10 @@ class ECUHandler(threading.Thread):
 			if(self.findNextLog()):
 				gpsData = self.getGPSPos()
 				self.checkForError(self.logs[8])
-				self.mysql.saveLog(self.logs + [gpsData[0], gpsData[1], gpsData[3]])
+				self.mysql.saveLog(self.logs + gpsData)
 				if self.gui:
-					if gpsData[3]:
-						self.gui.setSpeed(gpsData[3])
+					if gpsData[2]:
+						self.gui.setSpeed(gpsData[2])
 					self.updateGUI()
 
 				if self.debug:
@@ -153,12 +155,20 @@ class ECUHandler(threading.Thread):
 
 if __name__ == '__main__':
 	try:
-		ecu = ECUHandler(debug=True)
+		if sys.platform == "linux2":
+			from GPSHandler import GPSHandler
+			GPSHandler = GPSHandler()
+			GPSHandler.start()
+			ecu = ECUHandler(gps = GPSHandler, debug=True)
+		else:
+			ecu = ECUHandler(debug=True)
 		ecu.start()
 		while True:
 			time.sleep(1)
 			
 	except (KeyboardInterrupt, SystemExit):
+		if sys.platform == "linux2":
+			GPSHandler._Thread__stop()
 		ecu._Thread__stop()
 		sys.exit()
 

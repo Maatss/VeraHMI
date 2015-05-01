@@ -98,9 +98,9 @@ class GUI(Tk):
 		#modules: 1=GPSHAndler, 2=ECUHandler, 3=StopWatch
 		self.status.set_status(int(level), int(module), message)
 		if sys.platform == "linux2" and self.gps != None:
-			(lat, lon, alt, speed) = self.gps.getGPSPos()
+			(lat, lon, speed) = self.gps.getGPSPos()
 		else:
-			(lat, lon, alt, speed) = (None, None, None, None)
+			(lat, lon, speed) = (None, None, None)
 		date = time.strftime("%Y-%m-%d")
 		if self.mysql != None:
 			self.mysql.saveHMILog(date, level, module, message, [lat, lon])

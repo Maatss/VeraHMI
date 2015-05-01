@@ -4,13 +4,17 @@ from src.ECUHandler import ECUHandler
 from src.MySQLConnection import MySQLConnection
 from GUI.GUI import GUI
 
-import sys, os.path, threading
+import sys, os.path, threading, os, time
 
 try:
+	#Restart gpsd (dont log speed otherwise...)
+	os.system("sudo killall gpsd")
+	os.system("sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock")
 	global gui
 	mysql = MySQLConnection()
 	mysql_hmi = MySQLConnection(mysql.getID())
 	gui = GUI(mysql_hmi)
+	time.sleep(1)
 
 	gui.attributes("-fullscreen", True)
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
