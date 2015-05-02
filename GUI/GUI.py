@@ -21,6 +21,8 @@ class GUI(Tk):
 
 		self.mysql = mysql
 		self.gps = None
+
+		self.logging = True
 		#Setup screen
 		self.width, self.height = 500, 300
 		self.config(bg="black")
@@ -65,6 +67,9 @@ class GUI(Tk):
 		self.timer.stopCount()
 		self.setStatus(1, 3, "Stopped")
 
+	def isLogging(self):
+		return self.logging
+
 	def timerIsRunning(self):
 		return self.timer.isRunning()
 
@@ -72,14 +77,18 @@ class GUI(Tk):
 		self.timer.reset()
 		self.speed.reset()
 		self.setStatus(1, 3, "Reset timer")
+		self.logging = False
 
 	def newLap(self):
-		self.timer.newLap()
-		self.setStatus(1, 3, "New lap")
+		if self.timerIsRunning:
+			self.timer.newLap()
+			self.setStatus(1, 3, "New lap")
 
 	def startTimer(self):
 		self.timer.startCount()
 		self.setStatus(1, 3, "Started")
+		if self.logging == False:
+			self.logging = True
 
 	def connectGPS(self):
 		self.GPS_ECU_status.GPS_connected(True)

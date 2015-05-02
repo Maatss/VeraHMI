@@ -9,7 +9,7 @@ import sys, os.path, threading, os, time
 try:
 	global gui
 	mysql = MySQLConnection()
-	mysql_hmi = MySQLConnection(mysql.getID())
+	mysql_hmi = MySQLConnection(mysql.getID)
 	gui = GUI(mysql_hmi)
 	time.sleep(1)
 

@@ -49,6 +49,13 @@ class TimerFrame(Frame):
                 self.seconds = 0
             string = self.toString(self.minutes, self.seconds)
             self.label.config(text=string)
+            currLapTime = (self.minutes*60 + self.seconds)-self.timeSinceLastLap
+            totalLapTime = (self.minutes*60 + self.seconds)-self.timeSinceLastLap
+            self.timeSinceLastLap = self.minutes*60 + self.seconds
+            lapMinutes = totalLapTime//60
+            lapSeconds = totalLapTime - lapMinutes*60
+            string = self.toString(lapMinutes, lapSeconds)
+            self.lap1.config(text=string)
 
         self.after(1000, self.updateClock)
 
