@@ -44,6 +44,11 @@ class GUI(Tk):
 		self.GPS_ECU_status.grid(row=0, column=3, sticky=E)
 		self.GPS_ECU_status.config(padx=10)
 
+		# Speed
+		self.speed = Speed()
+		self.speed.grid(row=3, column=0, sticky=SW)
+		self.speed.config(padx=20, pady=10)
+		
 		#Timer
 		self.timer = TimerFrame()
 		self.timer.grid(row=3, column=2, columnspan=2, rowspan=2, sticky=SE)
@@ -54,10 +59,6 @@ class GUI(Tk):
 		self.status.config(padx=10)
 		self.status.grid(row=0, column=0, columnspan=3, sticky=W)
 
-		# Speed
-		self.speed = Speed()
-		self.speed.grid(row=3, column=0, sticky=SW)
-		self.speed.config(padx=20, pady=10)
 
 		# RPM
 		self.rpm = RPM()
