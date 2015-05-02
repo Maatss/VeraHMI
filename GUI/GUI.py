@@ -10,7 +10,8 @@ from Speed import Speed
 from RPM import RPM
 import time, sys
 
-sys.path.append('/home/pi/VeraHMI/src')
+sys.path.append('/home/pi/VeraHMI')
+sys.path.append('/Users/andreaskall/VeraHMI')
 from src.MySQLConnection import MySQLConnection
 
 
@@ -166,6 +167,16 @@ def checkSerial(GUI):
 	elif var == "rpm":
 		r = raw_input("Enter RPM: ")
 		GUI.setRPM(r)
+	elif var == "btn1":
+		if GUI.timerIsRunning():
+			GUI.stopTimer()
+		else:
+			GUI.startTimer()
+	elif var == "btn2":
+		if GUI.timerIsRunning():
+			GUI.newLap()
+		else:
+			GUI.reset()
 	else:
 		print("No valid command.. TRY AGAIN!")
 	root.after(1, checkSerial(GUI))

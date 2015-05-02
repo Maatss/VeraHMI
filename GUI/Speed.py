@@ -29,7 +29,7 @@ class Speed(Frame):
 		#self.meanSpeedLabel.config(text=str(meanSpeed))
     def reset(self):
         self.meanSpeed = 0
-        self.speedLabel.config(text="0" + " (" + str('%.1f' % self.meanSpeed) + ")" )
+        self.speedLabel.config(text="0" + " (0)")
 
 
 if __name__ =='__main__':

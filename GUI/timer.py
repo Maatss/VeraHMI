@@ -17,13 +17,13 @@ class TimerFrame(Frame):
         
         # lap frames
         (lap2Frame, self.lap2Label, self.lap2) = self.createTimeFrame("-", "--:--", 30)
-        (lap1Frame, self.lap1Label, self.lap1) = self.createTimeFrame("-", "--:--", 40)
+        (lap1Frame, self.lap1Label, self.lap1) = self.createTimeFrame("1.", "--:--", 40)
         self.lap2Label.config(font=('times', 30, 'bold'), bg=self.bgColor, fg=self.fgColor)
         self.lap1Label.config(font=('times', 40, 'bold'), bg=self.bgColor, fg=self.fgColor)
         
         self.seconds = 0
         self.minutes = 0
-        self.laps = 0
+        self.laps = 1
         self.timeSinceLastLap = 0
         self.stopped = False
         self.after(1000, self.updateClock)
@@ -50,12 +50,11 @@ class TimerFrame(Frame):
             string = self.toString(self.minutes, self.seconds)
             self.label.config(text=string)
             currLapTime = (self.minutes*60 + self.seconds)-self.timeSinceLastLap
-            totalLapTime = (self.minutes*60 + self.seconds)-self.timeSinceLastLap
-            self.timeSinceLastLap = self.minutes*60 + self.seconds
-            lapMinutes = totalLapTime//60
-            lapSeconds = totalLapTime - lapMinutes*60
-            string = self.toString(lapMinutes, lapSeconds)
-            self.lap1.config(text=string)
+            lapMinutes = currLapTime//60
+            lapSeconds = currLapTime - lapMinutes*60
+            string2 = self.toString(lapMinutes, lapSeconds)
+            #print("Total time: " + string + " Lap time: " + string2)
+            self.lap1.config(text=string2)
 
         self.after(1000, self.updateClock)
 
@@ -98,19 +97,19 @@ class TimerFrame(Frame):
         self.lap1.config(text=string)
         self.lap1Label.config(text=str(self.laps)+".")
         
-        self.lapsLabel.config(text=str(self.laps+1))
+        self.lapsLabel.config(text=str(self.laps))
 
     def reset(self):
         self.seconds = 0
         self.minutes = 0
-        self.laps = 0
+        self.laps = 1
         self.timeSinceLastLap = 0
         self.stopped = True
 
         self.label.config(text="00:00")
         
-        self.lap1Label.config(text="-")
-        self.lap1.config(text="--:--")
+        self.lap1Label.config(text="1.")
+        self.lap1.config(text="00:00")
         
         self.lap2Label.config(text="-")
         self.lap2.config(text="--:--")
