@@ -14,7 +14,13 @@ class Status_bar(Frame):
 		
 	def set_status(self,level, module, message):
 		self.label.config(text=self.modules[module - 1] + " - " + message)
-		# TODO: implement MySQL connection to insert into HMILog and more...
-        # Maybe make the status go away after x seconds?? 
 
         
+#######################################################################################
+################################ If running as main ###################################
+#######################################################################################
+#This looks like crap when run as main due tue the fact that there is nothing in the gui at runtime
+if __name__ =='__main__':
+	root = Tk()
+	Status_bar().pack()
+	root.mainloop()

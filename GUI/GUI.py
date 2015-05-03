@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+
+#Import GUI module 
 from Tkinter import *
 
 #Import our own modules/objects
@@ -8,22 +10,23 @@ from status_bar import Status_bar
 from GPS_ECU_status import GPS_ECU_status
 from Speed import Speed
 from RPM import RPM
-import time, sys
 
+#Append parent folder in order to be able to import from src folder
+import sys
 sys.path.append('/home/pi/VeraHMI')
 sys.path.append('/Users/andreaskall/VeraHMI')
 from src.MySQLConnection import MySQLConnection
 
 
 class GUI(Tk):
-
 	def __init__(self, mysql = None):
 		Tk.__init__(self)
-
 		self.mysql = mysql
 		self.gps = None
 
+		#Variable to keep track wether or not to log data (only log data when timer is running)
 		self.logging = True
+
 		#Setup screen
 		self.width, self.height = 500, 300
 		self.config(bg="black")
@@ -35,7 +38,7 @@ class GUI(Tk):
 		self.title("Vera HMI")
 		self.config(cursor="none")
 
-		#center screen 
+		#Put GUI in the center of the screen 
 		x = (self.winfo_screenwidth() / 2) - (self.width / 2)
 		y = (self.winfo_screenheight() / 2) - (self.height / 2)
 		self.geometry('{}x{}+{}+{}'.format(self.width, self.height, x, y))
@@ -65,6 +68,11 @@ class GUI(Tk):
 		self.rpm = RPM()
 		self.rpm.grid(row=4, column=0, sticky=SW)
 		self.rpm.config(padx=20, pady=10)
+
+
+#######################################################################################
+################################## Class functions ####################################
+#######################################################################################
 
 	def stopTimer(self):
 		self.timer.stopCount()
@@ -146,51 +154,61 @@ class GUI(Tk):
 		self.gps = gps
 
 
-def checkSerial(GUI):
-	var = raw_input("Enter command: " )
-	if var == "stop":
-		GUI.stopTimer()
-	elif var == "lap":
-		GUI.newLap()
-	elif var == "start":
-		GUI.startTimer()
-	elif var == "GPS_ON":
-		GUI.connectGPS()
-	elif var == "GPS_OFF":
-		GUI.disconnectGPS()
-	elif var == "ECU_ON":
-		GUI.connectECU()
-	elif var == "ECU_OFF":
-		GUI.disconnectECU()
-	elif var == "status":
-		level = raw_input("Enter level: ")
-		module = raw_input("enter module number: ")
-		string = raw_input("Enter status: ")
-		GUI.setStatus(level, module, string)
-	elif var == "q":
-		GUI.quit()
-	elif var == "speed":
-		spd = raw_input("Enter speed: ")
-		GUI.setSpeed(spd)
-	elif var == "rpm":
-		r = raw_input("Enter RPM: ")
-		GUI.setRPM(r)
-	elif var == "btn1":
-		if GUI.timerIsRunning():
-			GUI.stopTimer()
-		else:
-			GUI.startTimer()
-	elif var == "btn2":
-		if GUI.timerIsRunning():
-			GUI.newLap()
-		else:
-			GUI.reset()
-	else:
-		print("No valid command.. TRY AGAIN!")
-	root.after(1, checkSerial(GUI))
 
+#######################################################################################
+################################ If running as main ###################################
+#######################################################################################
 
 if __name__ == '__main__':
 	root = GUI()
 	root.after(100, checkSerial(root))
 	root.mainloop()
+
+
+	def checkSerial(GUI):
+		var = raw_input("Enter command: " )
+		if var == "stop":
+			GUI.stopTimer()
+		elif var == "lap":
+			GUI.newLap()
+		elif var == "start":
+			GUI.startTimer()
+		elif var == "GPS_ON":
+			GUI.connectGPS()
+		elif var == "GPS_OFF":
+			GUI.disconnectGPS()
+		elif var == "ECU_ON":
+			GUI.connectECU()
+		elif var == "ECU_OFF":
+			GUI.disconnectECU()
+		elif var == "status":
+			level = raw_input("Enter level: ")
+			module = raw_input("enter module number: ")
+			string = raw_input("Enter status: ")
+			GUI.setStatus(level, module, string)
+		elif var == "q":
+			GUI.quit()
+		elif var == "speed":
+			spd = raw_input("Enter speed: ")
+			GUI.setSpeed(spd)
+		elif var == "rpm":
+			r = raw_input("Enter RPM: ")
+			GUI.setRPM(r)
+		elif var == "btn1":
+			if GUI.timerIsRunning():
+				GUI.stopTimer()
+			else:
+				GUI.startTimer()
+		elif var == "btn2":
+			if GUI.timerIsRunning():
+				GUI.newLap()
+			else:
+				GUI.reset()
+		else:
+			print("No valid command.. TRY AGAIN!")
+		root.after(1, checkSerial(GUI))
+
+
+
+
+
