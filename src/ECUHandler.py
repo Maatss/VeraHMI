@@ -26,7 +26,7 @@ class ECUHandler(threading.Thread):
 		#print("Port name: " + self.portName)
 
 		try:
-			self.port = serial.Serial(self.portName, baudrate=460800, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+			self.port = serial.Serial(self.portName, baudrate=230400, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			self.port.flushInput()
 		except:
 			print("Could not connect to ECU, continuing...")
@@ -99,10 +99,11 @@ class ECUHandler(threading.Thread):
 					return self.logs
 
 			else:
-				#print("jibberish found... :(")
-				print(data)
+				if self.debug:
+					print("jibberish found: " + str(data))
 		else:
-			print("Serial not available")
+			if self.debug:
+				print("Serial not available")
 			time.sleep(1)
 			self.unavailableCount += 1
 			if self.unavailableCount == 5:

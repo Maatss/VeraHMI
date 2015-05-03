@@ -7,7 +7,7 @@ elif sys.platform == "darwin":
 
 class MySQLConnection:
 
-	def __init__(self, id = None):
+	def __init__(self):
 		self.hostName 	= "localhost"
 		self.userID 	= "root"
 		self.password	= "verateam"
@@ -93,6 +93,7 @@ class MySQLConnection:
 			#print(values)
 			query = "INSERT INTO ECULog" + str(self.id) + " (tempcylinder, temptoplock, tempmotorblock, batterispanning , lufttryck, lufttemp, rpm, branslemassa, error_code, lat_loc, long_loc, speed) VALUES (" + values + ");" 
 			self.runSQLCommand(query)
+			
 
 
 if __name__ == '__main__':

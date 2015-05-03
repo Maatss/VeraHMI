@@ -84,8 +84,11 @@ class GUI(Tk):
 
 	def newLap(self):
 		if self.timerIsRunning:
-			self.timer.newLap()
+			(lapTime, lapNr) = self.timer.newLap()
 			self.setStatus(1, 3, "New lap")
+			date = time.strftime("%Y-%m-%d")
+			(lat, lon, speed) = self.getGPSPos()
+			self.mysql.saveHMILog(date, 1, 3, "Lap #" + str(lapNr) + " time: " + lapTime, [lat, lon])
 
 	def startTimer(self):
 		self.timer.startCount()
@@ -109,12 +112,15 @@ class GUI(Tk):
 		self.GPS_ECU_status.ECU_connected(False)
 		self.saveHMILog(1, 2, "Disconnected")
 
+	def getGPSPos(self):
+		if sys.platform == "linux2" and self.gps != None:
+			return self.gps.getGPSPos()
+		else:
+			return (None, None, None)
+
 	def saveHMILog(self, level, module, message):
 		#modules: 1=GPSHAndler, 2=ECUHandler, 3=StopWatch
-		if sys.platform == "linux2" and self.gps != None:
-			(lat, lon, speed) = self.gps.getGPSPos()
-		else:
-			(lat, lon, speed) = (None, None, None)
+		(lat, lon, speed) = self.getGPSPos()
 		date = time.strftime("%Y-%m-%d")
 		if self.mysql != None:
 			self.mysql.saveHMILog(date, level, module, message, [lat, lon])

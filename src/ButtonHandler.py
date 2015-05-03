@@ -9,19 +9,20 @@ class ButtonHandler(threading.Thread):
 		threading.Thread.__init__(self)
 		self.gui = gui
 		self.mysql = mysql
-
+		self.startStopBtn = 38
+		self.lapResetBtn = 40
 		#Setup GPIO in order to enable button presses
 		GPIO.setmode(GPIO.BOARD)
-		GPIO.setup(38, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.setup(40, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.add_event_detect(38, GPIO.RISING, callback=self.buttonEvent, bouncetime=300) 
-		GPIO.add_event_detect(40, GPIO.RISING, callback=self.buttonEvent, bouncetime=300)
+		GPIO.setup(self.startStopBtn, GPIO.IN)
+		GPIO.setup(self.lapResetBtn, GPIO.IN)
+		GPIO.add_event_detect(self.startStopBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=1000) 
+		GPIO.add_event_detect(self.lapResetBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=1000)
 	
 	def run(self):
 		time.sleep(1)
 		
 	def buttonEvent(self, channel):
-		if channel == 38:
+		if channel == self.startStopBtn:
 			if self.gui != None:
 				if self.gui.timerIsRunning():
 					self.gui.newLap()
@@ -32,7 +33,7 @@ class ButtonHandler(threading.Thread):
 			else:
 				print("New lap/Reset button pressed")
 
-		if channel == 40:
+		if channel == self.lapResetBtn:
 			if self.gui != None:
 				if self.gui.timerIsRunning():
 					self.gui.stopTimer()

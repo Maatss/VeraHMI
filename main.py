@@ -9,7 +9,7 @@ import sys, os.path, threading, os, time
 try:
 	global gui
 	mysql = MySQLConnection()
-	mysql_hmi = MySQLConnection(mysql.getID)
+	mysql_hmi = MySQLConnection()
 	gui = GUI(mysql_hmi)
 	time.sleep(1)
 
@@ -32,7 +32,7 @@ try:
 		buttonHandler = ButtonHandler(gui, mysql)
 		buttonHandler.start()
 	else:
-		ECUHandler = ECUHandler(gui, None, mysql)
+		ECUHandler = ECUHandler(gui, None, mysql, debug=True)
 		ECUHandler.start()
 		print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be disabled, continuing...")
 

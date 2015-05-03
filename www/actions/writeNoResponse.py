@@ -17,7 +17,7 @@ GPIO.setup(13, GPIO.OUT)
 GPIO.output(13, True)
 #time.sleep(0.5)
 
-port = serial.Serial("/dev/ttyUSB0", baudrate=460800, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+port = serial.Serial("/dev/ttyUSB0", baudrate=230400, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 port.write("OP:"+sys.argv[1]+"_ID:"+sys.argv[2]+"_VAL:"+sys.argv[3]+"&\r\n")
 
 GPIO.output(13, False)
