@@ -5,9 +5,11 @@ import threading, sys, time
 
 class ButtonHandler(threading.Thread):
 
-	def __init__(self, gui = None):
+	def __init__(self, gui=None, mysql=None):
 		threading.Thread.__init__(self)
 		self.gui = gui
+		self.mysql = mysql
+
 		#Setup GPIO in order to enable button presses
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(38, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -34,9 +36,13 @@ class ButtonHandler(threading.Thread):
 			if self.gui != None:
 				if self.gui.timerIsRunning():
 					self.gui.stopTimer()
+					self.mysql.stopLogging()
+					self.gui.saveHMILog(1, 2, "Stopped logging")
 					print("Stop pressed")
 				else:
 					self.gui.startTimer()
+					self.mysql.startLogging()
+					self.gui.saveHMILog(1, 2, "Started logging")
 					print("Start pressed")
 			else:
 				print("Start/Stop timer button pressed")

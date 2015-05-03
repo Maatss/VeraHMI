@@ -29,7 +29,7 @@ try:
 
 		# Handle button presses 
 		from src.ButtonHandler import ButtonHandler
-		buttonHandler = ButtonHandler(gui)
+		buttonHandler = ButtonHandler(gui, mysql)
 		buttonHandler.start()
 	else:
 		ECUHandler = ECUHandler(gui, None, mysql)

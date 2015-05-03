@@ -12,8 +12,18 @@ class MySQLConnection:
 		self.userID 	= "root"
 		self.password	= "verateam"
 		self.dataBase	= "Vera"
-			
-		if id == None:
+		self.logging = False
+
+	def getID(self):
+		return self.id
+
+
+	def stopLogging(self):
+		self.logging = False
+
+	def startLogging(self):
+		if not self.logging:
+			self.logging = True
 			#Insert ID and timestamp in ECULogs table
 			self.runSQLCommand("INSERT INTO ECULogs () values ();")
 			self.id = self.cursor.lastrowid
@@ -39,12 +49,6 @@ class MySQLConnection:
 							PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci AUTO_INCREMENT=1;
 							""" % str(self.id)	
 			self.runSQLCommand(createDBquery)
-		else:
-			self.id = id
-
-
-	def getID(self):
-		return self.id
 
 
 	def runSQLCommand(self, sql_string):
@@ -77,17 +81,18 @@ class MySQLConnection:
 
 
 	def saveLog(self, logValues):
-		values = ""
-		for x in range(len(logValues)):
-			if(x==0):
-				values += "'" + str(logValues[x]) + "','"
-			elif(x != len(logValues)-1):
-				values += str(logValues[x]) + "','"
-			else:
-				values += str(logValues[x]) + "'"
-		#print(values)
-		query = "INSERT INTO ECULog" + str(self.id) + " (tempcylinder, temptoplock, tempmotorblock, batterispanning , lufttryck, lufttemp, rpm, branslemassa, error_code, lat_loc, long_loc, speed) VALUES (" + values + ");" 
-		self.runSQLCommand(query)
+		if self.logging:
+			values = ""
+			for x in range(len(logValues)):
+				if(x==0):
+					values += "'" + str(logValues[x]) + "','"
+				elif(x != len(logValues)-1):
+					values += str(logValues[x]) + "','"
+				else:
+					values += str(logValues[x]) + "'"
+			#print(values)
+			query = "INSERT INTO ECULog" + str(self.id) + " (tempcylinder, temptoplock, tempmotorblock, batterispanning , lufttryck, lufttemp, rpm, branslemassa, error_code, lat_loc, long_loc, speed) VALUES (" + values + ");" 
+			self.runSQLCommand(query)
 
 
 if __name__ == '__main__':

@@ -33,6 +33,7 @@ class GUI(Tk):
 		self.columnconfigure(3, weight=1)
 		self.rowconfigure(3, weight=1)
 		self.title("Vera HMI")
+		self.config(cursor="none")
 
 		#center screen 
 		x = (self.winfo_screenwidth() / 2) - (self.width / 2)

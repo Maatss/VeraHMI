@@ -25,7 +25,7 @@ class TimerFrame(Frame):
         self.minutes = 0
         self.laps = 1
         self.timeSinceLastLap = 0
-        self.stopped = False
+        self.stopped = True
         self.after(1000, self.updateClock)
 
 
