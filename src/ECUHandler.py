@@ -1,37 +1,47 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import serial, threading, time, sys, os.path
 from MySQLConnection import MySQLConnection
+
+import serial, threading, time, sys, os.path
 from numpy import uint32
+
 
 class ECUHandler(threading.Thread):
 
 	def __init__(self, gui = None, gps = None, mysql = None, debug = False):
 		threading.Thread.__init__(self)
 		self.daemon=True
+
+		#Baudrate
+		self.BAUDRATE = 230400
+		#This if statement is only here to make it work when modul is run as main thread
 		if mysql != None:
 			self.mysql = mysql
 		else:
 			self.mysql = MySQLConnection()
-		self.gui = gui
-		self.gps = gps
-		self.debug = debug
+
+		self.gui, self.gps, self.debug = gui, gps, debug
 
 		self.unavailableCount = 0
 		self.logNames= ["cylinder temp", "topplock temp", "motorblock temp", "batterispänning", "lufttryck", "lufttemperatur", "varvtal", "bränslemassa", "error code"]
 		if self.gui != None:
 			self.gui.setStatus(1, 2, "Started")
-		self.portName = self.findUSB()
+		self.portName = self.findPort()
 		#print("Port name: " + self.portName)
 
 		try:
-			self.port = serial.Serial(self.portName, baudrate=230400, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+			self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			self.port.flushInput()
 		except:
 			print("Could not connect to ECU, continuing...")
 
-	def findUSB(self):
+
+#######################################################################################
+################################## Class functions ####################################
+#######################################################################################
+
+	def findPort(self):
 		# Set the device name depending on the OS ("darwin" = OS X, "linux2" = raspbian)
 		if sys.platform == "darwin":
 			return "/dev/tty.usbserial-A96T5FJN"
@@ -88,14 +98,7 @@ class ECUHandler(threading.Thread):
 						(x, self.logs[i]) = self.findNumberBefore("+", data, x)
 					# Find last data
 					(x, self.logs[8]) = self.findNumberBefore("&", data, x)
-					'''
-					print("Logs found!\n")
-					
-					for i in range(0,9):
-						printStr = self.logNames[i] + ": " + str(self.logs[i])
-						print(printStr)
-					print("\n")
-					'''
+
 					return self.logs
 
 			else:
@@ -106,7 +109,7 @@ class ECUHandler(threading.Thread):
 				print("Serial not available")
 			time.sleep(1)
 			self.unavailableCount += 1
-			if self.unavailableCount == 5:
+			if self.unavailableCount >= 5:
 				print("ECU disconnected")
 				if self.gui:
 					self.gui.disconnectECU()
@@ -116,8 +119,8 @@ class ECUHandler(threading.Thread):
 				except:
 					pass
 			try:
-				self.portName = self.findUSB()
-				self.port = serial.Serial(self.portName, baudrate=115200, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+				self.portName = self.findPort()
+				self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			except:
 				pass
 
@@ -139,7 +142,9 @@ class ECUHandler(threading.Thread):
 	def checkForError(self, error_code):
 		error_code = uint32(error_code)
 		#print(error_code)
-
+		'''
+		TODO: Implement this...
+		'''
 
 	def run(self):
 
@@ -151,15 +156,23 @@ class ECUHandler(threading.Thread):
 
 				#Save logs in MySQL
 				self.mysql.saveLog(self.logs + gpsData)
+
+				#Update GUI data
 				if self.gui:
 					if gpsData[2]:
 						self.gui.setSpeed(gpsData[2])
 					self.updateGUI()
 
+				#Print data if in debug mode
 				if self.debug:
 					print(self.logs + gpsData)
 				
 					
+
+
+#######################################################################################
+################################ If running as main ###################################
+#######################################################################################
 
 if __name__ == '__main__':
 	try:

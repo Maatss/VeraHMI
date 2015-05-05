@@ -1,9 +1,14 @@
 #!/usr/bin/env python
-import time, sys
+
+import sys, time
+
+#Import different mysql modules depending on OS (MySQLdb doesn't work in OS X and mysql.connector doesn't work in linux...)
 if sys.platform == "linux2":
 	import MySQLdb
 elif sys.platform == "darwin":
 	import mysql.connector
+
+
 
 class MySQLConnection:
 
@@ -14,9 +19,13 @@ class MySQLConnection:
 		self.dataBase	= "Vera"
 		self.logging = False
 
+
+#######################################################################################
+################################## Class functions ####################################
+#######################################################################################
+
 	def getID(self):
 		return self.id
-
 
 	def stopLogging(self):
 		self.logging = False
@@ -27,7 +36,7 @@ class MySQLConnection:
 			#Insert ID and timestamp in ECULogs table
 			self.runSQLCommand("INSERT INTO ECULogs () values ();")
 			self.id = self.cursor.lastrowid
-			print("Session ID: " + str(self.id));
+			print("Database session started, ID: " + str(self.id));
 
 			#Create table for this session
 			createDBquery = """
@@ -76,11 +85,12 @@ class MySQLConnection:
 
 	def saveHMILog(self, date, level, module, message, gpsPos):
 		message = "INSERT INTO HMILog (day,level,module,msg,lat_loc,long_loc) VALUES (\'" + date + "','" + str(level) + "','" + str(module) + "','" +  message  + "','" + str(gpsPos[0])  + "','" + str(gpsPos[1]) + "')"
-		#print(message)
 		self.runSQLCommand(message)
 
 
 	def saveLog(self, logValues):
+		#Only log values if timer is running (self.logging == True)
+		
 		if self.logging:
 			values = ""
 			for x in range(len(logValues)):
@@ -96,7 +106,12 @@ class MySQLConnection:
 			
 
 
+#######################################################################################
+################################ If running as main ###################################
+#######################################################################################
+
 if __name__ == '__main__':
 		conn = MySQLConnection()
 		conn.runSQLCommand("SHOW TABLES")
 		print(conn.cursor.fetchall())
+

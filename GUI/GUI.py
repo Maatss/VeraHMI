@@ -12,7 +12,7 @@ from Speed import Speed
 from RPM import RPM
 
 #Append parent folder in order to be able to import from src folder
-import sys
+import sys, time
 sys.path.append('/home/pi/VeraHMI')
 sys.path.append('/Users/andreaskall/VeraHMI')
 from src.MySQLConnection import MySQLConnection

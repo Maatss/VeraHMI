@@ -11,13 +11,21 @@ class ButtonHandler(threading.Thread):
 		self.mysql = mysql
 		self.startStopBtn = 38
 		self.lapResetBtn = 40
+
 		#Setup GPIO in order to enable button presses
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(self.startStopBtn, GPIO.IN)
 		GPIO.setup(self.lapResetBtn, GPIO.IN)
+
+		#Attach interupts to detect rising edge
 		GPIO.add_event_detect(self.startStopBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=1000) 
 		GPIO.add_event_detect(self.lapResetBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=1000)
 	
+
+#######################################################################################
+################################## Class functions ####################################
+#######################################################################################
+
 	def run(self):
 		time.sleep(1)
 		
@@ -25,32 +33,34 @@ class ButtonHandler(threading.Thread):
 		if channel == self.startStopBtn:
 			if self.gui != None:
 				if self.gui.timerIsRunning():
-					self.gui.newLap()
 					print("New lap pressed")
+					self.gui.newLap()
 				else:
-					self.gui.reset()
 					print("Reset pressed")
+					self.gui.reset()	
 			else:
 				print("New lap/Reset button pressed")
 
 		if channel == self.lapResetBtn:
 			if self.gui != None:
 				if self.gui.timerIsRunning():
+					print("Stop pressed")
 					self.gui.stopTimer()
 					self.mysql.stopLogging()
 					self.gui.saveHMILog(1, 2, "Stopped logging")
-					print("Stop pressed")
 				else:
+					print("Start pressed")
 					self.gui.startTimer()
 					self.mysql.startLogging()
 					self.gui.saveHMILog(1, 2, "Started logging")
-					print("Start pressed")
 			else:
 				print("Start/Stop timer button pressed")
-				
-			
-				
+							
 
+
+#######################################################################################
+################################ If running as main ###################################
+#######################################################################################
 
 if __name__ == '__main__':
 	try:
