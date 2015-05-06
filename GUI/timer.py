@@ -12,9 +12,7 @@ class TimerFrame(Frame):
         self.label = Label(self, text="00:00", font=('times', 80, 'bold'), bg=self.bgColor, fg=self.fgColor)
         self.label.pack(side=TOP)
         self.config(bg=self.bgColor)
-        # Number of laps frame
-        (self.currLapFrame, dontCare, self.lapsLabel) = self.createTimeFrame("Current lap:", "1", 30)
-        
+
         # lap frames
         (lap2Frame, self.lap2Label, self.lap2) = self.createTimeFrame("-", "--:--", 30)
         (lap1Frame, self.lap1Label, self.lap1) = self.createTimeFrame("1.", "00:00", 40)
@@ -96,7 +94,6 @@ class TimerFrame(Frame):
         string = self.toString(lapMinutes, lapSeconds)
         self.lap1.config(text="00:00")
         self.lap1Label.config(text=str(self.laps)+".")
-        self.lapsLabel.config(text=str(self.laps))
         return (string, self.laps-1)
 
     def reset(self):

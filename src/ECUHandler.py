@@ -137,6 +137,7 @@ class ECUHandler(threading.Thread):
 		
 	def updateGUI(self):
 		self.gui.setRPM(self.logs[6])
+		self.gui.setTemp(self.logs[1], self.logs[2], self.logs[0])
 
 
 	def checkForError(self, error_code):

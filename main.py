@@ -3,7 +3,7 @@
 from src.ECUHandler import ECUHandler
 from src.MySQLConnection import MySQLConnection
 from GUI.GUI import GUI
-import sys, threading
+import sys, threading, thread
 
 try:
 	mysql = MySQLConnection()
@@ -13,6 +13,11 @@ try:
 
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
 	if sys.platform == "linux2":
+		
+		#Set time according to GPS
+		import gpstime
+		thread.start_new_thread(gpstime.setTImeFromGPS, (2,))
+
 		#initalize GPS
 		from src.GPSHandler import GPSHandler
 		GPSHandler = GPSHandler(gui)
@@ -20,7 +25,7 @@ try:
 		gui.setGPS(GPSHandler)
 
 		#Initialize ECUHandler
-		ECUHandler = ECUHandler(gui, GPSHandler, mysql, debug=True)
+		ECUHandler = ECUHandler(gui, GPSHandler, mysql, debug=False)
 		ECUHandler.start()
 
 		# Handle button presses 
@@ -30,7 +35,7 @@ try:
 	else:
 
 		#If this is running on other systems than Raspbian only the ECUHandler will be able to run
-		ECUHandler = ECUHandler(gui, None, mysql, debug=True)
+		ECUHandler = ECUHandler(gui, None, mysql, debug=False)
 		ECUHandler.start()
 		print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be disabled, continuing...")
 	

@@ -10,6 +10,7 @@ from status_bar import Status_bar
 from GPS_ECU_status import GPS_ECU_status
 from Speed import Speed
 from RPM import RPM
+from temp import Temp
 
 #Append parent folder in order to be able to import from src folder
 import sys, time
@@ -28,7 +29,7 @@ class GUI(Tk):
 		self.logging = True
 
 		#Setup screen
-		self.width, self.height = 500, 300
+		self.width, self.height = 700, 480
 		self.config(bg="black")
 		self.bind('<Escape>', self.end_fullscreen)
 		self.bind('<space>', self.start_fullscreen)
@@ -36,7 +37,7 @@ class GUI(Tk):
 		self.columnconfigure(3, weight=1)
 		self.rowconfigure(3, weight=1)
 		self.title("Vera HMI")
-		self.config(cursor="none")
+		#self.config(cursor="none")
 
 		#Put GUI in the center of the screen 
 		x = (self.winfo_screenwidth() / 2) - (self.width / 2)
@@ -60,14 +61,18 @@ class GUI(Tk):
 
 		# Status
 		self.status = Status_bar()
-		self.status.config(padx=10)
+		self.status.config(padx=20)
 		self.status.grid(row=0, column=0, columnspan=3, sticky=W)
-
 
 		# RPM
 		self.rpm = RPM()
 		self.rpm.grid(row=4, column=0, sticky=SW)
 		self.rpm.config(padx=20, pady=10)
+
+		#Temp status
+		self.temp = Temp()
+		self.temp.grid(row=1, column=0, rowspan=2, sticky=NW)
+		self.temp.config(padx=20)
 
 
 #######################################################################################
@@ -153,6 +158,9 @@ class GUI(Tk):
 	def setGPS(self, gps):
 		self.gps = gps
 
+	def setTemp(self, tempTopplock, tempMotor, tempCylinder):
+		self.temp.setTemp(tempTopplock, tempMotor, tempCylinder)
+
 
 
 #######################################################################################
@@ -160,11 +168,6 @@ class GUI(Tk):
 #######################################################################################
 
 if __name__ == '__main__':
-	root = GUI()
-	root.after(100, checkSerial(root))
-	root.mainloop()
-
-
 	def checkSerial(GUI):
 		var = raw_input("Enter command: " )
 		if var == "stop":
@@ -207,6 +210,12 @@ if __name__ == '__main__':
 		else:
 			print("No valid command.. TRY AGAIN!")
 		root.after(1, checkSerial(GUI))
+
+
+	root = GUI()
+	root.after(100, checkSerial(root))
+	root.mainloop()
+
 
 
 
