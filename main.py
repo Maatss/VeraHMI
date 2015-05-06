@@ -25,7 +25,7 @@ try:
 		gui.setGPS(GPSHandler)
 
 		#Initialize ECUHandler
-		ECUHandler = ECUHandler(gui, GPSHandler, mysql, debug=False)
+		ECUHandler = ECUHandler(gui, GPSHandler, mysql, debug=True)
 		ECUHandler.start()
 
 		# Handle button presses 
@@ -35,7 +35,7 @@ try:
 	else:
 
 		#If this is running on other systems than Raspbian only the ECUHandler will be able to run
-		ECUHandler = ECUHandler(gui, None, mysql, debug=False)
+		ECUHandler = ECUHandler(gui, None, mysql, debug=True)
 		ECUHandler.start()
 		print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be disabled, continuing...")
 	

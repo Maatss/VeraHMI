@@ -12,6 +12,7 @@ class ECUHandler(threading.Thread):
 	def __init__(self, gui = None, gps = None, mysql = None, debug = False):
 		threading.Thread.__init__(self)
 		self.daemon=True
+		self.connected = False
 
 		#Baudrate
 		self.BAUDRATE = 230400
@@ -57,11 +58,10 @@ class ECUHandler(threading.Thread):
 	    	try:
 	        	ch = self.port.read()
 	        except:
-	        	self.connected = False
 	        	return None
 		rv += ch
 	        if ch=='&':
-	            return rv
+	        	return rv
 
 
 	def findNumberBefore(self, char, data, x):
@@ -81,9 +81,11 @@ class ECUHandler(threading.Thread):
 			y=0
 			x=2
 			# Set ECU to be connected
+			self.connected = True
 			self.gui.connectECUNoLog()
 			if self.gui and self.unavailableCount>=5:
 				self.gui.connectECU()
+				print("ECU connected")
 			self.unavailableCount = 0
 
 			if data[x] == "#":
@@ -110,10 +112,14 @@ class ECUHandler(threading.Thread):
 				print("Serial not available")
 			time.sleep(1)
 			self.unavailableCount += 1
+			print("unavailableCount: " + str(self.unavailableCount) + "Connected: " + str(self.connected))
 			if self.unavailableCount >= 5:
-				print("ECU disconnected")
-				if self.gui:
+				if self.gui and self.connected:
 					self.gui.disconnectECU()
+					print("ECU disconnected")
+				elif self.gui:
+					self.gui.disconnectECUNoLog()
+				
 				self.connected = False
 				try:
 					self.port.close()

@@ -8,8 +8,6 @@ if sys.platform == "linux2":
 elif sys.platform == "darwin":
 	import mysql.connector
 
-
-
 class MySQLConnection:
 
 	def __init__(self):

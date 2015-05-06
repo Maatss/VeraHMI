@@ -111,8 +111,6 @@ class TimerFrame(Frame):
         self.lap2Label.config(text="-")
         self.lap2.config(text="--:--")
 
-        self.lapsLabel.config(text="0")
-
 
 if __name__ == '__main__':
     

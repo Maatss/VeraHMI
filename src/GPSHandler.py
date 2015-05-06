@@ -39,7 +39,8 @@ class GPSHandler(threading.Thread):
 				# To see all report data, uncomment the line below
 				#print report
 				if report['class'] == 'TPV':
-					if self.gui != None:
+					self.gui.connectGPSNoLog()
+					if self.gui and self.unavailableCount>=5:
 						self.gui.connectGPS()
 					self.unavailableCount = 0
 

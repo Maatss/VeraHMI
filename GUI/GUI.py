@@ -113,10 +113,16 @@ class GUI(Tk):
 		self.GPS_ECU_status.GPS_connected(True)
 		self.saveHMILog(1, 1, "Connected")
 
+	def connectGPSNoLog(self):
+		self.GPS_ECU_status.GPS_connected(True)
+
 	def disconnectGPS(self):
 		self.GPS_ECU_status.GPS_connected(False)
 		self.saveHMILog(1, 1, "Disconnected")
 
+	def disconnectGPSNoLog(self):
+		self.GPS_ECU_status.GPS_connected(False)
+		
 	def connectECU(self):
 		self.GPS_ECU_status.ECU_connected(True)
 		self.saveHMILog(1, 2, "Connected")
