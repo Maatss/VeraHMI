@@ -5,17 +5,19 @@ import threading, sys, time
 
 class ButtonHandler(threading.Thread):
 
-	def __init__(self, gui=None, mysql=None):
+	def __init__(self, gui=None, mysql=None, threadLock=None):
 		threading.Thread.__init__(self)
 		self.gui = gui
 		self.mysql = mysql
-		self.startStopBtn = 38
-		self.lapResetBtn = 40
+		self.startStopBtn = 40
+		self.lapResetBtn = 38
+
+		self.threadLock = threadLock
 
 		#Setup GPIO in order to enable button presses
 		GPIO.setmode(GPIO.BOARD)
-		GPIO.setup(self.startStopBtn, GPIO.IN)
-		GPIO.setup(self.lapResetBtn, GPIO.IN)
+		GPIO.setup(self.startStopBtn, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+		GPIO.setup(self.lapResetBtn, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 		#Attach interupts to detect rising edge
 		GPIO.add_event_detect(self.startStopBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=1000) 
@@ -30,7 +32,7 @@ class ButtonHandler(threading.Thread):
 		time.sleep(1)
 		
 	def buttonEvent(self, channel):
-		if channel == self.startStopBtn:
+		if channel == self.lapResetBtn:
 			if self.gui != None:
 				if self.gui.timerIsRunning():
 					print("New lap pressed")
@@ -41,17 +43,21 @@ class ButtonHandler(threading.Thread):
 			else:
 				print("New lap/Reset button pressed")
 
-		if channel == self.lapResetBtn:
+		if channel == self.startStopBtn:
 			if self.gui != None:
 				if self.gui.timerIsRunning():
 					print("Stop pressed")
 					self.gui.stopTimer()
+					self.threadLock.acquire()
 					self.mysql.stopLogging()
+					self.threadLock.release()
 					self.gui.saveHMILog(1, 2, "Stopped logging")
 				else:
 					print("Start pressed")
 					self.gui.startTimer()
+					self.threadLock.acquire()
 					self.mysql.startLogging()
+					self.threadLock.release()
 					self.gui.saveHMILog(1, 2, "Started logging")
 			else:
 				print("Start/Stop timer button pressed")

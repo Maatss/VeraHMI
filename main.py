@@ -10,6 +10,7 @@ try:
 	mysql_hmi = MySQLConnection()
 	gui = GUI(mysql_hmi)
 	gui.start_fullscreen()
+	threadLock = threading.Lock()
 
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
 	if sys.platform == "linux2":
@@ -25,17 +26,17 @@ try:
 		gui.setGPS(GPSHandler)
 
 		#Initialize ECUHandler
-		ECUHandler = ECUHandler(gui, GPSHandler, mysql, debug=True)
+		ECUHandler = ECUHandler(gui, GPSHandler, mysql, True, threadLock)
 		ECUHandler.start()
 
 		# Handle button presses 
 		from src.ButtonHandler import ButtonHandler
-		buttonHandler = ButtonHandler(gui, mysql)
+		buttonHandler = ButtonHandler(gui, mysql, threadLock)
 		buttonHandler.start()
 	else:
 
 		#If this is running on other systems than Raspbian only the ECUHandler will be able to run
-		ECUHandler = ECUHandler(gui, None, mysql, debug=True)
+		ECUHandler = ECUHandler(gui, None, mysql, True, threadLock)
 		ECUHandler.start()
 		print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be disabled, continuing...")
 	

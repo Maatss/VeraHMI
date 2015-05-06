@@ -88,7 +88,6 @@ class MySQLConnection:
 
 	def saveLog(self, logValues):
 		#Only log values if timer is running (self.logging == True)
-		
 		if self.logging:
 			values = ""
 			for x in range(len(logValues)):
@@ -98,7 +97,7 @@ class MySQLConnection:
 					values += str(logValues[x]) + "','"
 				else:
 					values += str(logValues[x]) + "'"
-			#print(values)
+			print(values)
 			query = "INSERT INTO ECULog" + str(self.id) + " (tempcylinder, temptoplock, tempmotorblock, batterispanning , lufttryck, lufttemp, rpm, branslemassa, error_code, lat_loc, long_loc, speed) VALUES (" + values + ");" 
 			self.runSQLCommand(query)
 			

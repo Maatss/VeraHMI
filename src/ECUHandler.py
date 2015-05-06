@@ -9,10 +9,11 @@ from numpy import uint32
 
 class ECUHandler(threading.Thread):
 
-	def __init__(self, gui = None, gps = None, mysql = None, debug = False):
+	def __init__(self, gui = None, gps = None, mysql = None, debug = False, threadLock=None):
 		threading.Thread.__init__(self)
 		self.daemon=True
 		self.connected = False
+		self.threadLock = threadLock
 
 		#Baudrate
 		self.BAUDRATE = 230400
@@ -163,7 +164,9 @@ class ECUHandler(threading.Thread):
 				self.checkForError(self.logs[8])
 
 				#Save logs in MySQL
+				self.threadLock.acquire()
 				self.mysql.saveLog(self.logs + gpsData)
+				self.threadLock.release()
 
 				#Update GUI data
 				if self.gui:
