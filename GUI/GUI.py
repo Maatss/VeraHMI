@@ -33,11 +33,11 @@ class GUI(Tk):
 		self.config(bg="black")
 		self.bind('<Escape>', self.end_fullscreen)
 		self.bind('<space>', self.start_fullscreen)
-		self.minsize(self.width, self.height)
+		#self.minsize(self.width, self.height)
 		self.columnconfigure(3, weight=1)
 		self.rowconfigure(3, weight=1)
 		self.title("Vera HMI")
-		#self.config(cursor="none")
+		self.config(cursor="none")
 
 		#Put GUI in the center of the screen 
 		x = (self.winfo_screenwidth() / 2) - (self.width / 2)
@@ -111,20 +111,26 @@ class GUI(Tk):
 
 	def connectGPS(self):
 		self.GPS_ECU_status.GPS_connected(True)
-		#self.saveHMILog(1, 1, "Connected")
+		self.saveHMILog(1, 1, "Connected")
 
 	def disconnectGPS(self):
 		self.GPS_ECU_status.GPS_connected(False)
-		#self.saveHMILog(1, 1, "Disconnected")
+		self.saveHMILog(1, 1, "Disconnected")
 
 	def connectECU(self):
 		self.GPS_ECU_status.ECU_connected(True)
 		self.saveHMILog(1, 2, "Connected")
 
+	def connectECUNoLog(self):
+		self.GPS_ECU_status.ECU_connected(True)
+
 	def disconnectECU(self):
 		self.GPS_ECU_status.ECU_connected(False)
 		self.saveHMILog(1, 2, "Disconnected")
 
+	def disconnectECUNoLog(self):
+		self.GPS_ECU_status.ECU_connected(False)
+		
 	def getGPSPos(self):
 		if sys.platform == "linux2" and self.gps != None:
 			return self.gps.getGPSPos()

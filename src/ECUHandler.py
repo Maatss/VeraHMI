@@ -81,7 +81,8 @@ class ECUHandler(threading.Thread):
 			y=0
 			x=2
 			# Set ECU to be connected
-			if self.gui:
+			self.gui.connectECUNoLog()
+			if self.gui and self.unavailableCount>=5:
 				self.gui.connectECU()
 			self.unavailableCount = 0
 
