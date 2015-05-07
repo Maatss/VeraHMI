@@ -33,34 +33,36 @@ class ButtonHandler(threading.Thread):
 		
 	def buttonEvent(self, channel):
 		if channel == self.lapResetBtn:
-			if self.gui != None:
-				if self.gui.timerIsRunning():
-					print("New lap pressed")
-					self.gui.newLap()
+			if GPIO.input(self.lapResetBtn):
+				if self.gui != None:
+					if self.gui.timerIsRunning():
+						print("New lap pressed")
+						self.gui.newLap()
+					else:
+						print("Reset pressed")
+						self.gui.reset()	
 				else:
-					print("Reset pressed")
-					self.gui.reset()	
-			else:
-				print("New lap/Reset button pressed")
+					print("New lap/Reset button pressed")
 
 		if channel == self.startStopBtn:
-			if self.gui != None:
-				if self.gui.timerIsRunning():
-					print("Stop pressed")
-					self.gui.stopTimer()
-					self.threadLock.acquire()
-					self.mysql.stopLogging()
-					self.threadLock.release()
-					self.gui.saveHMILog(1, 2, "Stopped logging")
+			if GPIO.input(self.startStopBtn):
+				if self.gui != None:
+					if self.gui.timerIsRunning():
+						print("Stop pressed")
+						self.gui.stopTimer()
+						self.threadLock.acquire()
+						self.mysql.stopLogging()
+						self.threadLock.release()
+						self.gui.saveHMILog(1, 2, "Stopped logging")
+					else:
+						print("Start pressed")
+						self.gui.startTimer()
+						self.threadLock.acquire()
+						self.mysql.startLogging()
+						self.threadLock.release()
+						self.gui.saveHMILog(1, 2, "Started logging")
 				else:
-					print("Start pressed")
-					self.gui.startTimer()
-					self.threadLock.acquire()
-					self.mysql.startLogging()
-					self.threadLock.release()
-					self.gui.saveHMILog(1, 2, "Started logging")
-			else:
-				print("Start/Stop timer button pressed")
+					print("Start/Stop timer button pressed")
 							
 
 
