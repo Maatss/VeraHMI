@@ -1,4 +1,4 @@
-Vera HMI
+<b>Vera HMI</b>
 
 This is a program that is meant for use in Vera, a car developed by Chalmers Vera Team at Chalmers University of technology in Gothenburg, Sweden (www.chalmersverateam.se). The team participates in primarily two European competitions, Shell Eco Marathon in Rotterdam and Pisaralla Pisimälle in Nokia Finland. These competitions challenges student teams from around the world to design, build and test ultra energy-efficient vehicles. With annual events first in the Americas, then Europe and Asia, the winners are the teams that go the furthest using the least amount of energy. The events spark debate about the future of mobility and inspire young engineers to push the boundaries of fuel efficiency.
 
