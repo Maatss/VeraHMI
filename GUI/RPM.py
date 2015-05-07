@@ -14,6 +14,9 @@ class RPM(Frame):
         
     def setRPM(self, rpm):
 		self.label.config(text="RPM: " + str(rpm))
+
+    def reset(self):
+        self.label.config(text="RPM: ----")
 	
 
 #######################################################################################

@@ -72,7 +72,7 @@ class GUI(Tk):
 		#Temp status
 		self.temp = Temp()
 		self.temp.grid(row=1, column=0, rowspan=2, sticky=NW)
-		self.temp.config(padx=20)
+		self.temp.config(padx=20, pady=20)
 
 
 #######################################################################################
@@ -132,6 +132,8 @@ class GUI(Tk):
 
 	def disconnectECU(self):
 		self.GPS_ECU_status.ECU_connected(False)
+		self.temp.reset()
+		self.rpm.reset()
 		self.saveHMILog(1, 2, "Disconnected")
 
 	def disconnectECUNoLog(self):

@@ -10,7 +10,9 @@ class GPS_ECU_status(Frame):
 		self.bgColor = "black"
 		self.GPS_label = Label(self, text="GPS", font = ('times', 24, 'bold'), fg="red", bg=self.bgColor)
 		self.ECU_label = Label(self, text="ECU", font = ('times', 24, 'bold'), fg="red", bg=self.bgColor)
+		self.splitLine = Label(self, text="|", font = ('times', 40), fg="white", bg=self.bgColor)
 		self.GPS_label.pack(side=LEFT)
+		self.splitLine.pack(side=LEFT)
 		self.ECU_label.pack(side=RIGHT)
 		self.config(bg=self.bgColor)
 		
