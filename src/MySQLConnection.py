@@ -78,7 +78,8 @@ class MySQLConnection:
 
 		except Exception as e:
 			print("Error in MySQLConnection: " + str(e))
-			self.conn.close()
+			if self.conn.open:
+				self.conn.close()
 				
 
 	def saveHMILog(self, date, level, module, message, gpsPos):
