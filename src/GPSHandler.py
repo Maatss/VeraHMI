@@ -53,9 +53,9 @@ class GPSHandler(threading.Thread):
 							self.GPSValues[self.attributeNames[attr]] = None
 							#print("Can't find " + attr)
 
-					if self.gui != None and self.GPSValues[self.attributeNames['speed']] != None:
+					#if self.gui != None and self.GPSValues[self.attributeNames['speed']] != None:
 						#print(self.GPSValues[self.attributeNames['speed']])
-						self.gui.setSpeed(self.GPSValues[self.attributeNames['speed']])
+						#self.gui.setSpeed(self.GPSValues[self.attributeNames['speed']])
 
 				else:
 					#GPS not connected, set all values to None

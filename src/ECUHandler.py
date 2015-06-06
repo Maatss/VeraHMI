@@ -6,6 +6,7 @@ from MySQLConnection import MySQLConnection
 import serial, threading, time, sys, os.path
 from numpy import uint32
 from Speedometer import Speedometer
+from LiveData import LiveData
 
 
 class ECUHandler(threading.Thread):
@@ -41,6 +42,10 @@ class ECUHandler(threading.Thread):
 
 		self.speedometer = Speedometer(self.gui)
 		self.speedometer.start()
+
+		self.liveData = LiveData()
+		self.liveData.start()
+
 
 
 #######################################################################################
@@ -87,7 +92,8 @@ class ECUHandler(threading.Thread):
 			x=2
 			# Set ECU to be connected
 			self.connected = True
-			self.gui.connectECUNoLog()
+			if self.gui:
+				self.gui.connectECUNoLog()
 			if self.gui and self.unavailableCount>=5:
 				self.gui.connectECU()
 				print("ECU connected")
@@ -164,19 +170,18 @@ class ECUHandler(threading.Thread):
 		while True:
 			if(self.findNextLog()):
 				gpsData = self.getGPSPos()
-				speedometerSpeed = self.speedometer.speed()
+				speedometerSpeed = self.speedometer.speed
 				#Handle error codes
 				self.checkForError(self.logs[8])
 
 				#Save logs in MySQL
 				self.threadLock.acquire()
-				self.mysql.saveLog(self.logs + gpsData[0] + gpsData[1] + speedometerSpeed)
+				self.mysql.saveLog(self.logs + [gpsData[0]] + [gpsData[1]] + [speedometerSpeed])
 				self.threadLock.release()
+				self.liveData.sendECUValues(self.logs)
 
 				#Update GUI data
 				if self.gui:
-				#	if gpsData[2]:
-				#		self.gui.setSpeed(gpsData[2])
 					self.updateGUI()
 
 				#Print data if in debug mode

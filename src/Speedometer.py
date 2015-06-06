@@ -12,8 +12,10 @@ class Speedometer(threading.Thread):
 		self.gui = gui
 
 		self.sensorPin = 31
-		self.diameterOfWheel = 0.5 # [m]
-		self.wheelCircumference = math.pi*self.diameterOfWheel
+		diameterOfWheel = 0.5 # [m]
+		numersOfMagnets = 1
+		self.wheelCircumference = math.pi*diameterOfWheel
+		self.distancePerMagnet = self.wheelCircumference / numersOfMagnets
 
 		self.speed = 0
 		self.lastTime = time.time()
@@ -37,13 +39,14 @@ class Speedometer(threading.Thread):
 		if GPIO.input(self.sensorPin):
 			self.newTime = time.time()
 			passedTime = self.newTime - self.lastTime
-			speed = self.wheelCircumference / passedTime
+			metersPerSecond = self.wheelCircumference / passedTime # [m/s]
+			speed = metersPerSecond * 3.6 # [km/h]
 			#print(speed)
 			if self.gui:
 				self.gui.setSpeed(speed)
 			self.lastTime = self.newTime
 
-	def speed(self):
+	def getSpeed(self):
 		return self.speed
 					
 
