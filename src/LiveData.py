@@ -124,6 +124,18 @@ class LiveData(threading.Thread):
 ###########################################################################
 # Layouts
 #
+        self.speed_layout = Layout(
+            title='Speed',
+            showlegend=True,
+            yaxis=YAxis(title='Speed [Km/h]')
+        )
+
+        self.rpm_layout = Layout(
+            title='RPM',
+            showlegend=True,
+            yaxis=YAxis(title='RPM')
+        )
+
         self.speed_rpm_layout = Layout(
             title='Speed and RPM',
             showlegend=True,
@@ -200,13 +212,15 @@ class LiveData(threading.Thread):
 # Init figures and streams
 #
 
-        self.speed_rpm_fig = Figure(data=[self.speed, self.rpm], layout=self.speed_rpm_layout)
+        self.speed_fig = Figure(data=[self.speed], layout=self.speed_layout)
+        self.rpm_fig = Figure(data=[self.rpm], layout=self.rpm_layout)
         self.temp_fig = Figure(data=[self.eng_block_temp, self.cylinder_temp, self.cylinder_head_temp], layout=self.temp_layout)
         self.air_fig = Figure(data=[self.air_temp, self.air_pressure], layout=self.air_layout)
 
 
 
-        py.plot(self.speed_rpm_fig, filename='Speed and RPM', auto_open=False)
+        py.plot(self.speed_fig, filename='Speed', auto_open=False)
+        py.plot(self.rpm_fig, filename='RPM', auto_open=False)
         py.plot(self.temp_fig, filename='Temperatures', auto_open=False)
         py.plot(self.air_fig, filename='Environment data', auto_open=False)
 
@@ -242,10 +256,12 @@ class LiveData(threading.Thread):
             self.rpm_stream.write({'x': datetime.datetime.now(), 'y': logs[6]})
             self.air_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[5]})
             self.air_pressure_stream.write({'x': datetime.datetime.now(), 'y': logs[4]})
-            self.speed_stream.write({'x': datetime.datetime.now(), 'y': 1})
 
 
 
+    def sendSpeed(self, speed):
+        if self.readyForData and self.streaming:
+            self.speed_stream.write({'x': datetime.datetime.now(), 'y': speed})
 
 ###########################################################################
 # If run as main

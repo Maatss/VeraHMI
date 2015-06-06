@@ -12,7 +12,7 @@ class Speed(Frame):
         self.meanSpeed = 0
         self.numberOfDataPoints = 0
         self.totalSpeed = 0
-        self.speedLabel = Label(self, text="0 (0)", font=('times', 60, 'bold'), bg = self.bgColor, fg = self.fgColor)
+        self.speedLabel = Label(self, text="0 (0)", font=('times', 50, 'bold'), bg = self.bgColor, fg = self.fgColor)
         self.speedLabel.pack(side=TOP, anchor=W)
         
         #self.meanSpeedLabel = Label(self, text="0", font=('times', 40, 'bold'), bg = self.bgColor, fg = self.fgColor)

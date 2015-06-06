@@ -5,11 +5,12 @@ import threading, sys, time, math
 
 class Speedometer(threading.Thread):
 
-	def __init__(self, gui):
+	def __init__(self, gui, liveData=None):
 		threading.Thread.__init__(self)
 		self.daemon = True
 		
 		self.gui = gui
+		self.liveData = liveData
 
 		self.sensorPin = 31
 		diameterOfWheel = 0.5 # [m]
@@ -44,6 +45,7 @@ class Speedometer(threading.Thread):
 			#print(speed)
 			if self.gui:
 				self.gui.setSpeed(speed)
+			self.liveData.sendSpeed(speed)
 			self.lastTime = self.newTime
 
 	def getSpeed(self):

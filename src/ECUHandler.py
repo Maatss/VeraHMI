@@ -5,18 +5,17 @@ from MySQLConnection import MySQLConnection
 
 import serial, threading, time, sys, os.path
 from numpy import uint32
-from Speedometer import Speedometer
-from LiveData import LiveData
 
 
 class ECUHandler(threading.Thread):
 
-	def __init__(self, gui = None, gps = None, mysql = None, debug = False, threadLock=None):
+	def __init__(self, gui = None, gps = None, mysql = None, debug = False, threadLock=None, speedometer=None, liveData=None):
 		threading.Thread.__init__(self)
 		self.daemon=True
 		self.connected = False
 		self.threadLock = threadLock
-
+		self.liveData = liveData
+		self.speedometer = speedometer
 		#Baudrate
 		self.BAUDRATE = 230400
 		#This if statement is only here to make it work when modul is run as main thread
@@ -39,12 +38,6 @@ class ECUHandler(threading.Thread):
 			self.port.flushInput()
 		except:
 			print("Could not connect to ECU, continuing...")
-
-		self.speedometer = Speedometer(self.gui)
-		self.speedometer.start()
-
-		self.liveData = LiveData()
-		self.liveData.start()
 
 
 
