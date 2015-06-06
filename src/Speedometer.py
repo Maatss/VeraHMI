@@ -5,10 +5,12 @@ import threading, sys, time, math
 
 class Speedometer(threading.Thread):
 
-	def __init__(self):
+	def __init__(self, gui):
 		threading.Thread.__init__(self)
 
-		self.sensorPin = 40
+		self.gui = gui
+
+		self.sensorPin = 31
 		self.diameterOfWheel = 0.5 # [m]
 		self.wheelCircumference = math.pi*self.diameterOfWheel
 
@@ -35,6 +37,7 @@ class Speedometer(threading.Thread):
 			self.newTime = time.time()
 			passedTime = self.newTime - self.lastTIme
 			speed = self.wheelCircumference / passedTime
+			self.gui.setSpeed(speed)
 
 	def speed(self):
 		return self.speed
