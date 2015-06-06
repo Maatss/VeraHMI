@@ -7,7 +7,8 @@ class Speedometer(threading.Thread):
 
 	def __init__(self, gui):
 		threading.Thread.__init__(self)
-
+		self.daemon = True
+		
 		self.gui = gui
 
 		self.sensorPin = 31
