@@ -16,7 +16,7 @@ class Speedometer(threading.Thread):
 		self.wheelCircumference = math.pi*self.diameterOfWheel
 
 		self.speed = 0
-		self.lastTIme = time.time()
+		self.lastTime = time.time()
 		self.newTime = time.time()
 
 		#Setup GPIO in order to enable button presses
@@ -36,9 +36,12 @@ class Speedometer(threading.Thread):
 	def buttonEvent(self, channel):
 		if GPIO.input(self.sensorPin):
 			self.newTime = time.time()
-			passedTime = self.newTime - self.lastTIme
+			passedTime = self.newTime - self.lastTime
 			speed = self.wheelCircumference / passedTime
-			self.gui.setSpeed(speed)
+			#print(speed)
+			if self.gui:
+				self.gui.setSpeed(speed)
+			self.lastTime = self.newTime
 
 	def speed(self):
 		return self.speed
@@ -51,10 +54,10 @@ class Speedometer(threading.Thread):
 
 if __name__ == '__main__':
 	try:
-		speed = Speedometer()
+		speed = Speedometer(None)
 		speed.start()
 		while True:
-			print(speed.speed)
+			time.sleep(0.5)
 	except (KeyboardInterrupt, SystemExit):
 		speed._Thread__stop()
 		sys.exit()

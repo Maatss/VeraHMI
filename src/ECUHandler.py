@@ -117,7 +117,7 @@ class ECUHandler(threading.Thread):
 				print("Serial not available")
 			time.sleep(1)
 			self.unavailableCount += 1
-			print("unavailableCount: " + str(self.unavailableCount) + "Connected: " + str(self.connected))
+			#print("unavailableCount: " + str(self.unavailableCount) + "Connected: " + str(self.connected))
 			if self.unavailableCount >= 5:
 				if self.gui and self.connected:
 					self.gui.disconnectECU()
