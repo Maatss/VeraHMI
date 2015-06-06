@@ -71,7 +71,7 @@ class LiveData(threading.Thread):
         self.cylinder_temp = Scatter(
             x=[],
             y=[],
-            name = 'Cylinder block',
+            name = 'Cylinder',
             line=Line(
                 shape='spline'
             ),

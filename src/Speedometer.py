@@ -22,6 +22,9 @@ class Speedometer(threading.Thread):
 		self.lastTime = time.time()
 		self.newTime = time.time()
 
+		self.values = [0, 0, 0, 0, 0]
+		self.i = 0
+
 		#Setup GPIO in order to enable button presses
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(self.sensorPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -34,18 +37,40 @@ class Speedometer(threading.Thread):
 #######################################################################################
 
 	def run(self):
-		time.sleep(1)
+		while True:
+			if time.time() - self.lastTime > 10:
+				self.speed = 0
+				for x in range(len(self.values)):
+					self.values[x] = 0
+				if self.gui:
+					self.gui.setSpeed(self.speed)
+				self.liveData.sendSpeed(self.speed)
+			time.sleep(1)
+
+
 		
 	def buttonEvent(self, channel):
 		if GPIO.input(self.sensorPin):
 			self.newTime = time.time()
 			passedTime = self.newTime - self.lastTime
+			
 			metersPerSecond = self.wheelCircumference / passedTime # [m/s]
-			speed = metersPerSecond * 3.6 # [km/h]
+			if passedTime < 10:
+				self.speed = metersPerSecond * 3.6 # [km/h]
+			else:
+				self.speed = 0
+
+			if self.speed - (sum(self.values) / len(self.values)) > 10:
+				self.values[self.i] = self.speed
+				self.speed = sum(self.values) / len(self.values)
+				self.i += 1
+				if self.i > len(self.values)-1:
+					self.i = 0
+		
 			#print(speed)
 			if self.gui:
-				self.gui.setSpeed(speed)
-			self.liveData.sendSpeed(speed)
+				self.gui.setSpeed(self.speed)
+			self.liveData.sendSpeed(self.speed)
 			self.lastTime = self.newTime
 
 	def getSpeed(self):
