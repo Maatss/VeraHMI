@@ -7,6 +7,8 @@ class GPS_ECU_status(Frame):
 		Frame.__init__(self, parent, **options)
 		self.connectedColor = "green"
 		self.notConnectedColor = "red"
+		self.GPSConnected = False
+		self.ECUConnected = False
 		self.bgColor = "black"
 		self.GPS_label = Label(self, text="GPS", font = ('times', 24, 'bold'), fg="red", bg=self.bgColor)
 		self.ECU_label = Label(self, text="ECU", font = ('times', 24, 'bold'), fg="red", bg=self.bgColor)
@@ -19,14 +21,24 @@ class GPS_ECU_status(Frame):
 	def GPS_connected(self, trueOrFalse):
 		if trueOrFalse:
 			self.GPS_label.config(fg=self.connectedColor)
+			self.GPSConnected = True
 		else:
 			self.GPS_label.config(fg=self.notConnectedColor)
+			self.GPSConnected = False
+
+	def isGPSConnected(self):
+		return self.GPSConnected
+
+	def isECUConnected(self):
+		return self.ECUConnected
 			
 	def ECU_connected(self, trueOrFalse):
 		if trueOrFalse:
 			self.ECU_label.config(fg=self.connectedColor)
+			self.ECUConnected = True
 		else:
 			self.ECU_label.config(fg=self.notConnectedColor)
+			self.ECUConnected = False
 		
 
 #######################################################################################

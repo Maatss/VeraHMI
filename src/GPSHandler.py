@@ -38,7 +38,7 @@ class GPSHandler(threading.Thread):
 				# Wait for a 'TPV' report and display the current time,
 				# To see all report data, uncomment the line below
 				#print report
-				if report['class'] == 'TPV':
+				if report['mode'] > 1:
 					self.gui.connectGPSNoLog()
 					if self.gui and self.unavailableCount>=5:
 						self.gui.connectGPS()
@@ -47,7 +47,10 @@ class GPSHandler(threading.Thread):
 					#itterate over all the data points in GPS module and save them in self.GPSValues if they exists
 					for attr in self.attributeNames.keys():
 						if hasattr(report, attr):
-							self.GPSValues[self.attributeNames[attr]] = report[attr]
+							if attr == 'speed':
+								self.GPSValues[self.attributeNames[attr]] = report[attr]*3.6
+							else:
+								self.GPSValues[self.attributeNames[attr]] = report[attr]
 							#print("attr: " + attr + " number: " + str(self.attributeNames[attr]))
 						else:
 							self.GPSValues[self.attributeNames[attr]] = None

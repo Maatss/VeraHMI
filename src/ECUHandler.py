@@ -79,7 +79,6 @@ class ECUHandler(threading.Thread):
 		self.logs = [-1, -1, -1, -1, -1, -1, "----", -1, -1]
 		data = self.readECU()
 		if(data != None):
-			y=0
 			x=2
 			# Set ECU to be connected
 			self.connected = True
@@ -113,7 +112,7 @@ class ECUHandler(threading.Thread):
 				print("Serial not available")
 			time.sleep(1)
 			self.unavailableCount += 1
-			print("unavailableCount: " + str(self.unavailableCount) + "Connected: " + str(self.connected))
+			#print("unavailableCount: " + str(self.unavailableCount) + "Connected: " + str(self.connected))
 			if self.unavailableCount >= 5:
 				if self.gui and self.connected:
 					self.gui.disconnectECU()
@@ -137,7 +136,7 @@ class ECUHandler(threading.Thread):
 		if sys.platform == "linux2" and self.gps != None:
 			(lat, lon, speed) = self.gps.getGPSPos()
 			if speed:
-				speed = speed * 3.6 # want speed in Km/h not m/s
+				speed = speed # want speed in Km/h not m/s
 			#print("lat: " + str(lat) + " Lon: " + str(lon) + " Alt: " + str(alt) + " Speed: " + str(speed))
 			return [lat, lon, speed]
 		else:

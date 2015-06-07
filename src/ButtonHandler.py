@@ -9,8 +9,8 @@ class ButtonHandler(threading.Thread):
 		threading.Thread.__init__(self)
 		self.gui = gui
 		self.mysql = mysql
-		self.startStopBtn = 40
-		self.lapResetBtn = 38
+		self.startStopBtn = 11
+		self.lapResetBtn = 12 
 
 		self.threadLock = threadLock
 
@@ -20,8 +20,8 @@ class ButtonHandler(threading.Thread):
 		GPIO.setup(self.lapResetBtn, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 		#Attach interupts to detect rising edge
-		GPIO.add_event_detect(self.startStopBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=1000) 
-		GPIO.add_event_detect(self.lapResetBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=1000)
+		GPIO.add_event_detect(self.startStopBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=200) 
+		GPIO.add_event_detect(self.lapResetBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=200)
 	
 
 #######################################################################################

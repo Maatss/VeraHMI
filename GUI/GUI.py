@@ -110,31 +110,35 @@ class GUI(Tk):
 			self.logging = True
 
 	def connectGPS(self):
-		self.GPS_ECU_status.GPS_connected(True)
-		self.saveHMILog(1, 1, "Connected")
+		if not self.GPS_ECU_status.isGPSConnected():
+			self.GPS_ECU_status.GPS_connected(True)
+			self.saveHMILog(1, 1, "Connected")
 
 	def connectGPSNoLog(self):
 		self.GPS_ECU_status.GPS_connected(True)
 
 	def disconnectGPS(self):
-		self.GPS_ECU_status.GPS_connected(False)
-		self.saveHMILog(1, 1, "Disconnected")
+		if self.GPS_ECU_status.isGPSConnected():
+			self.GPS_ECU_status.GPS_connected(False)
+			self.saveHMILog(1, 1, "Disconnected")
 
 	def disconnectGPSNoLog(self):
 		self.GPS_ECU_status.GPS_connected(False)
 		
 	def connectECU(self):
-		self.GPS_ECU_status.ECU_connected(True)
-		self.saveHMILog(1, 2, "Connected")
+		if not self.GPS_ECU_status.isECUConnected():
+			self.GPS_ECU_status.ECU_connected(True)
+			self.saveHMILog(1, 2, "Connected")
 
 	def connectECUNoLog(self):
 		self.GPS_ECU_status.ECU_connected(True)
 
 	def disconnectECU(self):
-		self.GPS_ECU_status.ECU_connected(False)
-		self.temp.reset()
-		self.rpm.reset()
-		self.saveHMILog(1, 2, "Disconnected")
+		if self.GPS_ECU_status.isGPSConnected():
+			self.GPS_ECU_status.ECU_connected(False)
+			self.temp.reset()
+			self.rpm.reset()
+			self.saveHMILog(1, 2, "Disconnected")
 
 	def disconnectECUNoLog(self):
 		self.GPS_ECU_status.ECU_connected(False)
