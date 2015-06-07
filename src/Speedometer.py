@@ -13,8 +13,8 @@ class Speedometer(threading.Thread):
 		self.liveData = liveData
 
 		self.sensorPin = 31
-		diameterOfWheel = 0.5 # [m]
-		numersOfMagnets = 1
+		diameterOfWheel = 0.478 # [m]
+		numersOfMagnets = 2
 		self.wheelCircumference = math.pi*diameterOfWheel
 		self.distancePerMagnet = self.wheelCircumference / numersOfMagnets
 
