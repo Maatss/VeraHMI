@@ -9,12 +9,13 @@ from numpy import uint32
 
 class ECUHandler(threading.Thread):
 
-	def __init__(self, gui = None, gps = None, mysql = None, debug = False, threadLock=None):
+	def __init__(self, gui = None, gps = None, mysql = None, debug = False, threadLock=None, speedometer=None, liveData=None):
 		threading.Thread.__init__(self)
 		self.daemon=True
 		self.connected = False
 		self.threadLock = threadLock
-
+		self.liveData = liveData
+		self.speedometer = speedometer
 		#Baudrate
 		self.BAUDRATE = 230400
 		#This if statement is only here to make it work when modul is run as main thread
@@ -37,6 +38,7 @@ class ECUHandler(threading.Thread):
 			self.port.flushInput()
 		except:
 			print("Could not connect to ECU, continuing...")
+
 
 
 #######################################################################################
@@ -82,7 +84,8 @@ class ECUHandler(threading.Thread):
 			x=2
 			# Set ECU to be connected
 			self.connected = True
-			self.gui.connectECUNoLog()
+			if self.gui:
+				self.gui.connectECUNoLog()
 			if self.gui and self.unavailableCount>=5:
 				self.gui.connectECU()
 				print("ECU connected")
@@ -159,18 +162,18 @@ class ECUHandler(threading.Thread):
 		while True:
 			if(self.findNextLog()):
 				gpsData = self.getGPSPos()
+				speedometerSpeed = self.speedometer.speed
 				#Handle error codes
 				self.checkForError(self.logs[8])
 
 				#Save logs in MySQL
 				self.threadLock.acquire()
-				self.mysql.saveLog(self.logs + gpsData)
+				self.mysql.saveLog(self.logs + [gpsData[0]] + [gpsData[1]] + [speedometerSpeed])
 				self.threadLock.release()
+				self.liveData.sendECUValues(self.logs)
 
 				#Update GUI data
 				if self.gui:
-					if gpsData[2]:
-						self.gui.setSpeed(gpsData[2])
 					self.updateGUI()
 
 				#Print data if in debug mode

@@ -15,6 +15,12 @@ try:
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
 	if sys.platform == "linux2":
 		
+		# Live data thread
+		from src.LiveData import LiveData
+		liveData = LiveData()
+		liveData.streaming = True
+		liveData.start()
+
 		#Set time according to GPS
 		import gpstime
 		thread.start_new_thread(gpstime.setTImeFromGPS, (2,))
@@ -25,8 +31,13 @@ try:
 		GPSHandler.start()
 		gui.setGPS(GPSHandler)
 
+		#Speedometer Init
+		from src.Speedometer import Speedometer
+		speedometer = Speedometer(gui, liveData)
+		speedometer.start()
+
 		#Initialize ECUHandler
-		ECUHandler = ECUHandler(gui, GPSHandler, mysql, False, threadLock)
+		ECUHandler = ECUHandler(gui, GPSHandler, mysql, False, threadLock, speedometer, liveData)
 		ECUHandler.start()
 
 		# Handle button presses 

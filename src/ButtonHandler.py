@@ -29,7 +29,7 @@ class ButtonHandler(threading.Thread):
 #######################################################################################
 
 	def run(self):
-		time.sleep(1)
+		pass
 		
 	def buttonEvent(self, channel):
 		if channel == self.lapResetBtn:

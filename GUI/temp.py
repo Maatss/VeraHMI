@@ -14,11 +14,11 @@ class Temp(Frame):
         self.cylinderTemp = 0
         #self.title = Label(self, text="Temperature:", font=('times', 24, 'bold'), bg = self.bgColor, fg = self.fgColor)
         #self.title.pack(side=TOP, anchor=W)
-        self.topplockLabel = Label(self, text="Topplock: \t--℃", font=('times', 16), bg = self.bgColor, fg = self.fgColor)
+        self.topplockLabel = Label(self, text="Topplock: \t--℃", font=('times', 18), bg = self.bgColor, fg = self.fgColor)
         self.topplockLabel.pack(side=TOP, anchor=W)
-        self.motorLabel = Label(self, text="Motor: \t\t--℃", font=('times', 16), bg = self.bgColor, fg = self.fgColor)
+        self.motorLabel = Label(self, text="Motor: \t\t--℃", font=('times', 18), bg = self.bgColor, fg = self.fgColor)
         self.motorLabel.pack(side=TOP, anchor=W)
-        self.cylinderLabel = Label(self, text="Cylinder: \t\t--℃", font=('times', 16), bg = self.bgColor, fg = self.fgColor)
+        self.cylinderLabel = Label(self, text="Cylinder: \t--℃", font=('times', 18), bg = self.bgColor, fg = self.fgColor)
         self.cylinderLabel.pack(side=TOP, anchor=W)
 
         self.config(bg=self.bgColor)
@@ -32,12 +32,12 @@ class Temp(Frame):
     def updateGUI(self):
         self.topplockLabel.config(text="Topplock: \t" + str(self.topplockTemp) + "℃")
         self.motorLabel.config(text="Motor: \t\t" + str(self.motorTemp) + "℃")
-        self.cylinderLabel.config(text="Cylinder: \t\t" + str(self.cylinderTemp) + "℃")
+        self.cylinderLabel.config(text="Cylinder: \t" + str(self.cylinderTemp) + "℃")
 
     def reset(self):
         self.topplockLabel.config(text="Topplock: \t--℃")
         self.motorLabel.config(text="Motor: \t\t--℃")
-        self.cylinderLabel.config(text="Cylinder: \t\t--℃")
+        self.cylinderLabel.config(text="Cylinder: \t--℃")
 
 
 #######################################################################################
