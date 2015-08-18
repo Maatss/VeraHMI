@@ -1,28 +1,32 @@
 #!/usr/bin/env python
 
 import RPi.GPIO as GPIO
+from MySQLConnection import MySQLConnection
 import threading, sys, time, math
 
 class Speedometer(threading.Thread):
 
-	def __init__(self, gui, liveData=None):
+	def __init__(self, gui, liveData=None, mysql=None, threadLock=None):
 		threading.Thread.__init__(self)
 		self.daemon = True
+		self.mysql = mysql
+		self.threadLock = threadLock
 		
 		self.gui = gui
 		self.liveData = liveData
 
 		self.sensorPin = 31
 		diameterOfWheel = 0.478 # [m]
-		numersOfMagnets = 2
+		numersOfMagnets = 4
 		self.wheelCircumference = math.pi*diameterOfWheel
 		self.distancePerMagnet = self.wheelCircumference / numersOfMagnets
 
 		self.speed = 0
 		self.lastTime = time.time()
 		self.newTime = time.time()
+		self.mysqlTimeSinceLastSave = 0
 
-		self.values = [0, 0, 0, 0, 0]
+		self.values = [0]
 		self.i = 0
 
 		#Setup GPIO in order to enable button presses
@@ -38,13 +42,16 @@ class Speedometer(threading.Thread):
 
 	def run(self):
 		while True:
-			if time.time() - self.lastTime > 10:
+			if time.time() - self.lastTime > 5:
 				self.speed = 0
 				for x in range(len(self.values)):
 					self.values[x] = 0
 				if self.gui:
 					self.gui.setSpeed(self.speed)
 				self.liveData.sendSpeed(self.speed)
+				self.threadLock.acquire()
+				self.mysql.saveSpeed(self.speed)
+				self.threadLock.release()
 			time.sleep(1)
 
 
@@ -54,7 +61,7 @@ class Speedometer(threading.Thread):
 			self.newTime = time.time()
 			passedTime = self.newTime - self.lastTime
 			
-			metersPerSecond = self.wheelCircumference / passedTime # [m/s]
+			metersPerSecond = self.distancePerMagnet / passedTime # [m/s]
 			if passedTime < 10:
 				self.speed = metersPerSecond * 3.6 # [km/h]
 			else:
@@ -70,6 +77,14 @@ class Speedometer(threading.Thread):
 			#print(speed)
 			if self.gui:
 				self.gui.setSpeed(self.speed)
+			
+			self.mysqlTimeSinceLastSave += passedTime
+			if self.mysqlTimeSinceLastSave > 0.25:
+				self.threadLock.acquire()
+				self.mysql.saveSpeed(self.speed)
+				self.threadLock.release()
+				self.mysqlTimeSinceLastSave = 0
+
 			self.liveData.sendSpeed(self.speed)
 			self.lastTime = self.newTime
 

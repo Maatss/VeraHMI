@@ -33,7 +33,7 @@ try:
 
 		#Speedometer Init
 		from src.Speedometer import Speedometer
-		speedometer = Speedometer(gui, liveData)
+		speedometer = Speedometer(gui, liveData, mysql, threadLock)
 		speedometer.start()
 
 		#Initialize ECUHandler

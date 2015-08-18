@@ -57,6 +57,17 @@ class MySQLConnection:
 							""" % str(self.id)	
 			self.runSQLCommand(createDBquery)
 
+			#Create table for this session
+			createDBquery = """
+							CREATE TABLE IF NOT EXISTS SpeedLog%s
+							(`id` int(11) NOT NULL AUTO_INCREMENT,
+							`speed` varchar(15) NOT NULL,
+							`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+							PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci AUTO_INCREMENT=1;
+							""" % str(self.id)	
+
+			self.runSQLCommand(createDBquery)
+
 
 	def runSQLCommand(self, sql_string):
 		try:
@@ -85,6 +96,11 @@ class MySQLConnection:
 	def saveHMILog(self, date, level, module, message, gpsPos):
 		message = "INSERT INTO HMILog (day,level,module,msg,lat_loc,long_loc) VALUES (\'" + date + "','" + str(level) + "','" + str(module) + "','" +  message  + "','" + str(gpsPos[0])  + "','" + str(gpsPos[1]) + "')"
 		self.runSQLCommand(message)
+
+	def saveSpeed(self, speed):
+		if self.logging:
+			message = "INSERT INTO SpeedLog" + str(self.id) +  " (speed) VALUES (\'" + str(speed) + "')"
+			self.runSQLCommand(message)
 
 
 	def saveLog(self, logValues):
