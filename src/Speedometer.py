@@ -42,7 +42,7 @@ class Speedometer(threading.Thread):
 
 	def run(self):
 		while True:
-			if time.time() - self.lastTime > 5:
+			if time.time() - self.lastTime > 2:
 				self.speed = 0
 				for x in range(len(self.values)):
 					self.values[x] = 0
@@ -84,8 +84,7 @@ class Speedometer(threading.Thread):
 				self.mysql.saveSpeed(self.speed)
 				self.threadLock.release()
 				self.mysqlTimeSinceLastSave = 0
-
-			self.liveData.sendSpeed(self.speed)
+				self.liveData.sendSpeed(self.speed)
 			self.lastTime = self.newTime
 
 	def getSpeed(self):
