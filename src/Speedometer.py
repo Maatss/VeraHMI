@@ -62,17 +62,7 @@ class Speedometer(threading.Thread):
 			passedTime = self.newTime - self.lastTime
 			
 			metersPerSecond = self.distancePerMagnet / passedTime # [m/s]
-			if passedTime < 10:
-				self.speed = metersPerSecond * 3.6 # [km/h]
-			else:
-				self.speed = 0
-
-			if self.speed - (sum(self.values) / len(self.values)) > 10:
-				self.values[self.i] = self.speed
-				self.speed = sum(self.values) / len(self.values)
-				self.i += 1
-				if self.i > len(self.values)-1:
-					self.i = 0
+			self.speed = metersPerSecond * 3.6 # [km/h]
 
 			#print(speed)
 			if self.gui:
