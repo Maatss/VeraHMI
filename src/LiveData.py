@@ -22,7 +22,7 @@ class LiveData(threading.Thread):
         self.air_pressure_token = 'ud1r76dcmb'
 
         #Check if connected to internet
-        While True:
+        while True:
             try:
                 urllib2.urlopen("http://www.google.com").close()
             except urllib2.URLError:
