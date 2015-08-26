@@ -77,10 +77,10 @@ class Speedometer(threading.Thread):
 			self.mysqlTimeSinceLastSave += passedTime
 
 			#print(speed)
-			if self.gui and self.mysqlTimeSinceLastSave > 0.2:
+			if self.gui and self.mysqlTimeSinceLastSave > 1:
 				self.gui.setSpeed(self.speed)
 			
-			if self.mysqlTimeSinceLastSave > 0.25:
+			if self.mysqlTimeSinceLastSave > 1:
 				self.threadLock.acquire()
 				self.mysql.saveSpeed(self.speed)
 				self.threadLock.release()
