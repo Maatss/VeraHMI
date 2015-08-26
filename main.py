@@ -5,9 +5,6 @@ from src.MySQLConnection import MySQLConnection
 from GUI.GUI import GUI
 import sys, threading, thread, os
 
-os.system("sudo ifdown usb0")
-os.system("sudo ifup usb0")
-
 try:
 	mysql = MySQLConnection()
 	mysql_hmi = MySQLConnection()

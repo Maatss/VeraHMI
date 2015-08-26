@@ -1,6 +1,7 @@
 import plotly.plotly as py # plotly library
 from plotly.graph_objs import * # plotly graph objects
 import time, datetime, random, math, threading # timer functions
+import urllib2 
 
 class LiveData(threading.Thread):
     def __init__(self):
@@ -19,6 +20,18 @@ class LiveData(threading.Thread):
         self.cylinder_head_temp_token = '13dcofwzp8'
         self.air_temp_token = 'l0kjn8nu3q'
         self.air_pressure_token = 'ud1r76dcmb'
+
+        #Check if connected to internet
+        for x in range(0,5):
+            try:
+                urllib2.urlopen("http://www.google.com").close()
+            except urllib2.URLError:
+                print "Not Connected to internet, trying again"
+                time.sleep(1)
+            else:
+                print "Connected to internet"
+                break
+
 
         py.sign_in(self.username, self.api_key)
         self.readyForData = False
