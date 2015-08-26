@@ -31,7 +31,7 @@ class Speedometer(threading.Thread):
 		GPIO.setup(self.sensorPin, GPIO.IN)
 
 		#Attach interupts to detect rising edge
-		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.buttonEvent, bouncetime=20) 
+		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.buttonEvent, bouncetime=5) 
 
 #######################################################################################
 ################################## Class functions ####################################
