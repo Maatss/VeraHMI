@@ -26,15 +26,12 @@ class Speedometer(threading.Thread):
 		self.newTime = time.time()
 		self.mysqlTimeSinceLastSave = 0
 
-		self.values = [0]
-		self.i = 0
-
 		#Setup GPIO in order to enable button presses
 		GPIO.setmode(GPIO.BOARD)
-		GPIO.setup(self.sensorPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+		GPIO.setup(self.sensorPin, GPIO.IN)
 
 		#Attach interupts to detect rising edge
-		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.buttonEvent, bouncetime=100) 
+		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.buttonEvent, bouncetime=20) 
 
 #######################################################################################
 ################################## Class functions ####################################
