@@ -1,7 +1,7 @@
 import plotly.plotly as py # plotly library
 from plotly.graph_objs import * # plotly graph objects
 import time, datetime, random, math, threading # timer functions
-import urllib2 
+import urllib2, os
 
 class LiveData(threading.Thread):
     def __init__(self):
@@ -20,6 +20,7 @@ class LiveData(threading.Thread):
         self.cylinder_head_temp_token = '13dcofwzp8'
         self.air_temp_token = 'l0kjn8nu3q'
         self.air_pressure_token = 'ud1r76dcmb'
+        self.connectionTries = 0
 
         #Check if connected to internet
         while True:
@@ -28,6 +29,11 @@ class LiveData(threading.Thread):
             except urllib2.URLError:
                 print "Not Connected to internet, trying again"
                 self.connectedToInternet = False
+                self.connectionTries += 1
+                if self.connectionTries > 5:
+                    os.system("sudo ifdown usb0")
+                    time.sleep(0.5)
+                    os.system("sudo ifup usb0")
                 time.sleep(1)
             else:
                 print "Connected to internet"
