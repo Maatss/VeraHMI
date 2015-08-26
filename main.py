@@ -3,7 +3,7 @@
 from src.ECUHandler import ECUHandler
 from src.MySQLConnection import MySQLConnection
 from GUI.GUI import GUI
-import sys, threading, thread, os
+import sys, threading, thread
 
 try:
 	mysql = MySQLConnection()

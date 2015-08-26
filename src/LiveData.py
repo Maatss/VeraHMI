@@ -22,14 +22,16 @@ class LiveData(threading.Thread):
         self.air_pressure_token = 'ud1r76dcmb'
 
         #Check if connected to internet
-        for x in range(0,5):
+        While True:
             try:
                 urllib2.urlopen("http://www.google.com").close()
             except urllib2.URLError:
                 print "Not Connected to internet, trying again"
+                self.connectedToInternet = False
                 time.sleep(1)
             else:
                 print "Connected to internet"
+                self.connectedToInternet = True
                 break
 
 
@@ -224,36 +226,36 @@ class LiveData(threading.Thread):
 ###########################################################################
 # Init figures and streams
 #
+        if self.connectedToInternet:
+            self.speed_fig = Figure(data=[self.speed], layout=self.speed_layout)
+            self.rpm_fig = Figure(data=[self.rpm], layout=self.rpm_layout)
+            self.temp_fig = Figure(data=[self.eng_block_temp, self.cylinder_temp, self.cylinder_head_temp], layout=self.temp_layout)
+            self.air_fig = Figure(data=[self.air_temp, self.air_pressure], layout=self.air_layout)
 
-        self.speed_fig = Figure(data=[self.speed], layout=self.speed_layout)
-        self.rpm_fig = Figure(data=[self.rpm], layout=self.rpm_layout)
-        self.temp_fig = Figure(data=[self.eng_block_temp, self.cylinder_temp, self.cylinder_head_temp], layout=self.temp_layout)
-        self.air_fig = Figure(data=[self.air_temp, self.air_pressure], layout=self.air_layout)
 
 
+            py.plot(self.speed_fig, filename='Speed', auto_open=False)
+            py.plot(self.rpm_fig, filename='RPM', auto_open=False)
+            py.plot(self.temp_fig, filename='Temperatures', auto_open=False)
+            py.plot(self.air_fig, filename='Environment data', auto_open=False)
 
-        py.plot(self.speed_fig, filename='Speed', auto_open=False)
-        py.plot(self.rpm_fig, filename='RPM', auto_open=False)
-        py.plot(self.temp_fig, filename='Temperatures', auto_open=False)
-        py.plot(self.air_fig, filename='Environment data', auto_open=False)
+            self.speed_stream = py.Stream(self.speed_token)
+            self.speed_stream.open()
+            self.rpm_stream = py.Stream(self.rpm_token)
+            self.rpm_stream.open()
 
-        self.speed_stream = py.Stream(self.speed_token)
-        self.speed_stream.open()
-        self.rpm_stream = py.Stream(self.rpm_token)
-        self.rpm_stream.open()
+            self.eng_block_temp_stream = py.Stream(self.eng_block_token)
+            self.eng_block_temp_stream.open()
+            self.cylinder_temp_stream = py.Stream(self.cylinder_temp_token)
+            self.cylinder_temp_stream.open()
+            self.cylinder_head_temp_stream = py.Stream(self.cylinder_head_temp_token)
+            self.cylinder_head_temp_stream.open()
 
-        self.eng_block_temp_stream = py.Stream(self.eng_block_token)
-        self.eng_block_temp_stream.open()
-        self.cylinder_temp_stream = py.Stream(self.cylinder_temp_token)
-        self.cylinder_temp_stream.open()
-        self.cylinder_head_temp_stream = py.Stream(self.cylinder_head_temp_token)
-        self.cylinder_head_temp_stream.open()
-
-        self.air_temp_stream = py.Stream(self.air_temp_token)
-        self.air_temp_stream.open()
-        self.air_pressure_stream = py.Stream(self.air_pressure_token)
-        self.air_pressure_stream.open()
-        self.readyForData = True
+            self.air_temp_stream = py.Stream(self.air_temp_token)
+            self.air_temp_stream.open()
+            self.air_pressure_stream = py.Stream(self.air_pressure_token)
+            self.air_pressure_stream.open()
+            self.readyForData = True
 
 
 
@@ -261,7 +263,7 @@ class LiveData(threading.Thread):
 # Update values
 #
     def sendECUValues(self, logs):
-        if self.readyForData and self.streaming:
+        if self.readyForData and self.streaming and self.connectedToInternet:
             # Order in logs param: cylinder_temp, cylinder_head_temp, eng_block_temp, battery_voltage, air_pressure, air_temp, rpm, fuel_mass, error_code
             self.cylinder_temp_stream.write({'x': datetime.datetime.now(), 'y':logs[0]})
             self.cylinder_head_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[1]})
@@ -273,7 +275,7 @@ class LiveData(threading.Thread):
 
 
     def sendSpeed(self, speed):
-        if self.readyForData and self.streaming:
+        if self.readyForData and self.streaming and self.connectedToInternet:
             self.speed_stream.write({'x': datetime.datetime.now(), 'y': speed})
 
 ###########################################################################
