@@ -3,7 +3,7 @@
 from src.ECUHandler import ECUHandler
 from src.MySQLConnection import MySQLConnection
 from GUI.GUI import GUI
-import sys, threading, thread, os.system
+import sys, threading, thread, os
 
 os.system("sudo ifdown usb0")
 os.system("sudo ifup usb0")
