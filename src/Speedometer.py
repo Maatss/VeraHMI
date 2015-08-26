@@ -57,6 +57,7 @@ class Speedometer(threading.Thread):
 
 		
 	def buttonEvent(self, channel):
+		startTimeTest = time.time()
 		if GPIO.input(self.sensorPin):
 			self.newTime = time.time()
 			passedTime = self.newTime - self.lastTime
@@ -86,6 +87,9 @@ class Speedometer(threading.Thread):
 				self.mysqlTimeSinceLastSave = 0
 				self.liveData.sendSpeed(self.speed)
 			self.lastTime = self.newTime
+			endTimeTest = time.time()
+			excecutionTime = endTimeTest - startTimeTest
+			print excecutionTime
 
 	def getSpeed(self):
 		return self.speed
