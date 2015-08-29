@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 
-import gps, threading, time, sys
+import gps, threading, time, sys, os
  
 class GPSHandler(threading.Thread):
 	def __init__(self, gui = None, debug = False):
 		threading.Thread.__init__(self)
 		self.gui = gui
 
+		os.system("sudo killall gpsd")
+		time.sleep(0.5)
+		os.system("sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock")
+		time.sleep(0.5)
+
+		
 		#Initialize GPS 
 		self.session = gps.gps("localhost", "2947")
 		self.session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)

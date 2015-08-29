@@ -25,7 +25,7 @@ class LiveData(threading.Thread):
         self.streaming = False
         self.connectedToInternet = False
 
-        thread.start_new_thread(checkForInternetConnection, ())
+        thread.start_new_thread(self.checkForInternetConnection, ())
 ###########################################################################
 # Traces
 #
