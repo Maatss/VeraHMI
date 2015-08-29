@@ -1,6 +1,6 @@
 import plotly.plotly as py # plotly library
 from plotly.graph_objs import * # plotly graph objects
-import time, datetime, random, math, threading # timer functions
+import time, datetime, random, math, threading, thread # timer functions
 import urllib2, os
 
 class LiveData(threading.Thread):
@@ -21,31 +21,11 @@ class LiveData(threading.Thread):
         self.air_temp_token = 'l0kjn8nu3q'
         self.air_pressure_token = 'ud1r76dcmb'
         self.connectionTries = 0
-
-        #Check if connected to internet
-        while True:
-            try:
-                urllib2.urlopen("http://www.google.com").close()
-            except urllib2.URLError:
-                print "Not Connected to internet, trying again"
-                self.connectedToInternet = False
-                self.connectionTries += 1
-                if self.connectionTries > 5:
-                    os.system("sudo ifdown usb0")
-                    time.sleep(0.5)
-                    os.system("sudo ifup usb0")
-                time.sleep(1)
-            else:
-                print "Connected to internet"
-                self.connectedToInternet = True
-                break
-
-
-        py.sign_in(self.username, self.api_key)
         self.readyForData = False
         self.streaming = False
+        self.connectedToInternet = False
 
-
+        thread.start_new_thread(checkForInternetConnection, ())
 ###########################################################################
 # Traces
 #
@@ -226,6 +206,31 @@ class LiveData(threading.Thread):
 
             )
         )
+
+    def checkForInternetConnection(self):
+
+        #Check if connected to internet
+        while True:
+            try:
+                urllib2.urlopen("http://www.google.com").close()
+            except urllib2.URLError:
+                print "Not Connected to internet, trying again"
+                self.connectedToInternet = False
+                self.connectionTries += 1
+                if self.connectionTries > 5:
+                    os.system("sudo ifdown usb0")
+                    time.sleep(0.5)
+                    os.system("sudo ifup usb0")
+                    self.connectionTries = 0
+                time.sleep(1)
+            else:
+                print "Connected to internet"
+                self.connectedToInternet = True
+                break
+
+        py.sign_in(self.username, self.api_key)
+
+
 
     def run(self):
 
