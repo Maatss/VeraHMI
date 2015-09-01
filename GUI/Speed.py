@@ -24,11 +24,12 @@ class Speed(Frame):
 		self.numberOfDataPoints += 1
 		self.totalSpeed += self.speed
 		self.meanSpeed = self.totalSpeed / self.numberOfDataPoints
-		self.speedLabel.config(text=str('%.1f' % self.speed) + " (" + str('%.1f' % self.meanSpeed) + ")" )
+		self.speedLabel.config(text=str('%.0f' % self.speed) + " (" + str('%.0f' % self.meanSpeed) + ")" )
 		
 		#self.meanSpeedLabel.config(text=str(meanSpeed))
     def reset(self):
         self.meanSpeed = 0
+        self.numberOfDataPoints = 0
         self.speedLabel.config(text="0" + " (0)")
 
 

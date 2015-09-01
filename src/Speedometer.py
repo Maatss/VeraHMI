@@ -26,7 +26,7 @@ class Speedometer(threading.Thread):
 		self.newTime = time.time()
 		self.mysqlTimeSinceLastSave = 0
 
-		self.values = [0]
+		self.values = [0, 0, 0]
 		self.i = 0
 
 		#Setup GPIO in order to enable button presses
@@ -74,12 +74,13 @@ class Speedometer(threading.Thread):
 				if self.i > len(self.values)-1:
 					self.i = 0
 
-			#print(speed)
-			if self.gui:
-				self.gui.setSpeed(self.speed)
 			
 			self.mysqlTimeSinceLastSave += passedTime
 			if self.mysqlTimeSinceLastSave > 0.2:
+				#print(speed)
+				if self.gui:
+					self.gui.setSpeed(self.speed)
+
 				self.threadLock.acquire()
 				self.mysql.saveSpeed(self.speed)
 				self.threadLock.release()
