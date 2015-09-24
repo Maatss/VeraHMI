@@ -30,6 +30,7 @@ class Speed(Frame):
     def reset(self):
         self.meanSpeed = 0
         self.numberOfDataPoints = 0
+        self.totalSpeed = 0
         self.speedLabel.config(text="0" + " (0)")
 
 

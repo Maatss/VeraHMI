@@ -89,6 +89,10 @@ class GUI(Tk):
 	def timerIsRunning(self):
 		return self.timer.isRunning()
 
+	def resetMeanSpeed(self):
+		self.speed.reset()
+
+
 	def reset(self):
 		self.timer.reset()
 		self.speed.reset()

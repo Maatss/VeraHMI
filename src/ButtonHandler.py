@@ -56,6 +56,7 @@ class ButtonHandler(threading.Thread):
 						self.gui.saveHMILog(1, 2, "Stopped logging")
 					else:
 						print("Start pressed")
+						self.gui.resetMeanSpeed()
 						self.gui.startTimer()
 						self.threadLock.acquire()
 						self.mysql.startLogging()
