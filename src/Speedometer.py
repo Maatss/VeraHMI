@@ -21,12 +21,15 @@ class Speedometer(threading.Thread):
 		self.wheelCircumference = math.pi*diameterOfWheel
 		self.distancePerMagnet = self.wheelCircumference / numersOfMagnets
 
+		self.refreshTimeGUI = 0.5 # [every X seconds]
 		self.speed = 0
 		self.lastTime = time.time()
 		self.newTime = time.time()
 		self.mysqlTimeSinceLastSave = 0
+		self.timeSinceGUIUpdate = 0
 
 		self.values = [0, 0, 0]
+		self.GUISpeed = []
 		self.i = 0
 
 		#Setup GPIO in order to enable button presses
@@ -34,7 +37,7 @@ class Speedometer(threading.Thread):
 		GPIO.setup(self.sensorPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 		#Attach interupts to detect rising edge
-		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.buttonEvent, bouncetime=10) 
+		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.buttonEvent, bouncetime=50) 
 
 #######################################################################################
 ################################## Class functions ####################################
@@ -42,10 +45,12 @@ class Speedometer(threading.Thread):
 
 	def run(self):
 		while True:
-			if time.time() - self.lastTime > 2:
+			if time.time() - self.lastTime > 1:
 				self.speed = 0
 				for x in range(len(self.values)):
 					self.values[x] = 0
+					self.GUISpeed = []
+					self.timeSinceGUIUpdate += time.time() - self.lastTime
 				if self.gui: 
 					self.gui.setSpeed(self.speed)
 				self.liveData.sendSpeed(self.speed)
@@ -62,25 +67,29 @@ class Speedometer(threading.Thread):
 			passedTime = self.newTime - self.lastTime
 			
 			metersPerSecond = self.distancePerMagnet / passedTime # [m/s]
-			if passedTime < 2:
+			if passedTime < 1:
 				self.speed = metersPerSecond * 3.6 # [km/h]
 			else:
 				self.speed = 0
 
-			if self.speed - (sum(self.values) / len(self.values)) > 10:
-				self.values[self.i] = self.speed
-				self.speed = sum(self.values) / len(self.values)
-				self.i += 1
-				if self.i > len(self.values)-1:
-					self.i = 0
+			self.values[self.i] = self.speed
+			self.GUISpeed.append(self.speed)
+			self.speed = sum(self.values) / len(self.values)
+			self.i += 1
+			if self.i > len(self.values)-1:
+				self.i = 0
 
+			self.timeSinceGUIUpdate += passedTime
 			
+			if self.gui and self.timeSinceGUIUpdate > self.refreshTimeGUI:
+				#print(speed)
+				speedToGUI = sum(self.GUISpeed) / len(self.GUISpeed)
+				self.gui.setSpeed(speedToGUI)
+				self.timeSinceGUIUpdate = 0
+				self.GUISpeed = []
+
 			self.mysqlTimeSinceLastSave += passedTime
 			if self.mysqlTimeSinceLastSave > 0.2:
-				#print(speed)
-				if self.gui:
-					self.gui.setSpeed(self.speed)
-
 				self.threadLock.acquire()
 				self.mysql.saveSpeed(self.speed)
 				self.threadLock.release()
