@@ -11,33 +11,35 @@ class Speedometer(threading.Thread):
 		self.daemon = True
 		self.mysql = mysql
 		self.threadLock = threadLock
-		
 		self.gui = gui
 		self.liveData = liveData
 
+		#System parameters
 		self.sensorPin = 31
 		diameterOfWheel = 0.4816 # [m]
 		numersOfMagnets = 4
 		self.wheelCircumference = math.pi*diameterOfWheel
 		self.distancePerMagnet = self.wheelCircumference / numersOfMagnets
-
 		self.refreshTimeGUI = 0.5 # [every X seconds]
+
+		#Initial values
 		self.speed = 0
 		self.lastTime = time.time()
 		self.newTime = time.time()
 		self.mysqlTimeSinceLastSave = 0
 		self.timeSinceGUIUpdate = 0
 
+		#Running mean vector (the size of the vector can be changed to the desired number of entries)
 		self.values = [0, 0, 0]
 		self.GUISpeed = []
 		self.i = 0
 
-		#Setup GPIO in order to enable button presses
+		#Setup GPIO for the sensor
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(self.sensorPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 		#Attach interupts to detect rising edge
-		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.buttonEvent, bouncetime=50) 
+		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.sensorEvent, bouncetime=50) 
 
 #######################################################################################
 ################################## Class functions ####################################
@@ -61,7 +63,7 @@ class Speedometer(threading.Thread):
 
 
 		
-	def buttonEvent(self, channel):
+	def sensorEvent(self, channel):
 		if GPIO.input(self.sensorPin):
 			self.newTime = time.time()
 			passedTime = self.newTime - self.lastTime
