@@ -8,7 +8,8 @@ class SpeedometerGUI(Frame):
    def __init__(self, width, max_number, number_of_labels):
       Frame.__init__(self)
 
-      self.orange_color = '#DE4004'
+      self.orange_color = '#F38A1D'
+      self.blue_color = '#36CCFB'
       self.speed = 0
       self.meanSpeed = 0
       self.numberOfDataPoints = 0
@@ -82,13 +83,13 @@ class SpeedometerGUI(Frame):
          if j == 0:
             x2 = self.x0 + (self.r2+7) * sin(phi)
             y2 = self.y0 - (self.r2+7) * cos(phi)
-            self.canvas.create_line(x1, y1, x2, y2, fill="blue", width=3)
+            self.canvas.create_line(x1, y1, x2, y2, fill=self.blue_color, width=3)
          elif j == 55:
             break
          else:
             x2 = self.x0 + self.r2 * sin(phi)
             y2 = self.y0 - self.r2 * cos(phi)
-            self.canvas.create_line(x1, y1, x2, y2, fill="blue", width=3)
+            self.canvas.create_line(x1, y1, x2, y2, fill=self.blue_color, width=3)
 
 
 
@@ -107,8 +108,8 @@ class SpeedometerGUI(Frame):
       self.canvas.create_text(self.x0, self.y0+(1*self.r1/2)+6, fill=self.fgColor, font=('times', 38), text="00:00")
       
       #GPS and ECU label
-      self.canvas.create_text(self.x0-self.width/12, self.height*8.5/10, fill="red", font=('times', 28), text="GPS")
-      self.canvas.create_text(self.x0+self.width/12, self.width*8.5/10, fill="green", font=('times', 28), text="ECU")
+      self.canvas.create_text(self.x0-self.width/12, self.height*8.5/10, fill="#EE2B2E", font=('times', 28), text="GPS")
+      self.canvas.create_text(self.x0+self.width/12, self.width*8.5/10, fill="#138C03", font=('times', 28), text="ECU")
      
 
       self.speedLabel = self.canvas.create_text(self.x0, self.y0-(2*self.r1/3), font=('times', 44, 'bold'), text="0")
@@ -167,10 +168,10 @@ class SpeedometerGUI(Frame):
       y2 = self.y0 - (self.r6+3) * cos(phi)
       self.canvas.delete(self.rpmArrow)   
       self.canvas.delete(self.rpmArc)                              
-      self.rpmArrow = self.canvas.create_line(x1, y1, x2, y2, fill="blue", width=4)
-      self.rpmArc = self.canvas.create_arc(self.x0-self.r2-3, self.y0-self.r2-3, self.x0+self.r2+3, self.y0+self.r2+3, outline="blue", extent=-(self.speed_start_angle+phi)*(180/pi), style=ARC, width=8, start=90-self.speed_angle_range*180/pi)
+      self.rpmArrow = self.canvas.create_line(x1, y1, x2, y2, fill=self.blue_color, width=4)
+      self.rpmArc = self.canvas.create_arc(self.x0-self.r2-3, self.y0-self.r2-3, self.x0+self.r2+3, self.y0+self.r2+3, outline=self.blue_color, extent=-(self.speed_start_angle+phi)*(180/pi), style=ARC, width=8, start=90-self.speed_angle_range*180/pi)
 
-   
+
 
 
    def reset(self):
