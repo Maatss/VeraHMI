@@ -31,7 +31,7 @@ class GUI(Tk):
 		self.logging = True
 
 		#Setup screen
-		self.width, self.height = 700, 480
+		self.width, self.height = 640, 480
 		self.config(bg="black")
 		self.bind('<Escape>', self.end_fullscreen)
 		self.bind('<space>', self.start_fullscreen)
@@ -52,7 +52,7 @@ class GUI(Tk):
 		self.GPS_ECU_status.config(padx=10)
 
 		# Speed
-		self.speed = SpeedometerGUI(350, 40, 8)
+		self.speed = SpeedometerGUI(350, 40, 4)
 		self.speed.grid(row=3, column=0, sticky=SW)
 		
 		#Timer

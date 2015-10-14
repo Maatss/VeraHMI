@@ -20,7 +20,7 @@ class Speedometer(threading.Thread):
 		numersOfMagnets = 4
 		self.wheelCircumference = math.pi*diameterOfWheel
 		self.distancePerMagnet = self.wheelCircumference / numersOfMagnets
-		self.refreshTimeGUI = 0.2 # [every X seconds]
+		self.refreshTimeGUI = 0.1 # [every X seconds]
 
 		#Initial values
 		self.speed = 0
