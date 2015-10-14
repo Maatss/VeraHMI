@@ -294,7 +294,7 @@ class LiveData(threading.Thread):
 #
 
 if __name__ == '__main__':
-    live = LivePlot()
+    live = LiveData()
     while True:
         sensor_data1 = math.sin(time.time())*10 + 10
         sensor_data2 = -random.random()*10
@@ -305,8 +305,9 @@ if __name__ == '__main__':
 
         air_temp = math.sin(time.time()*10) + random.random() + 20 - math.cos(time.time())/5
         air_pressure = math.sin(time.time()*9) + random.random() + 1000 - math.cos(time.time())/6
+        logs = [sensor_data1, sensor_data2, temp1, temp2, temp3, air_temp, air_pressure]
 
-        live.sendValues(sensor_data1, sensor_data2, temp1, temp2, temp3, air_temp, air_pressure)
+        live.sendECUValues(logs)
 
         time.sleep(0.5) # delay between stream posts
 
