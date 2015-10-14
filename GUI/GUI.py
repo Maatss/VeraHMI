@@ -11,12 +11,14 @@ from GPS_ECU_status import GPS_ECU_status
 from Speed import Speed
 from RPM import RPM
 from temp import Temp
+from SpeedometerGUI import SpeedometerGUI
 
 #Append parent folder in order to be able to import from src folder
 import sys, time
-sys.path.append('/home/pi/VeraHMI')
-sys.path.append('/Users/andreaskall/VeraHMI')
-from src.MySQLConnection import MySQLConnection
+if sys.platform == "linux2":
+	sys.path.append('/home/pi/VeraHMI')
+	sys.path.append('/Users/andreaskall/VeraHMI')
+	from src.MySQLConnection import MySQLConnection
 
 
 class GUI(Tk):
@@ -50,9 +52,8 @@ class GUI(Tk):
 		self.GPS_ECU_status.config(padx=10)
 
 		# Speed
-		self.speed = Speed()
+		self.speed = SpeedometerGUI(400, 40, 8)
 		self.speed.grid(row=3, column=0, sticky=SW)
-		self.speed.config(padx=20, pady=10)
 		
 		#Timer
 		self.timer = TimerFrame()
@@ -103,9 +104,10 @@ class GUI(Tk):
 		if self.timerIsRunning:
 			(lapTime, lapNr) = self.timer.newLap()
 			self.setStatus(1, 3, "New lap")
-			date = time.strftime("%Y-%m-%d")
-			(lat, lon, speed) = self.getGPSPos()
-			self.mysql.saveHMILog(date, 1, 3, "Lap #" + str(lapNr) + " time: " + lapTime, [lat, lon])
+			if sys.platform == "linux2":
+				date = time.strftime("%Y-%m-%d")
+				(lat, lon, speed) = self.getGPSPos()
+				self.mysql.saveHMILog(date, 1, 3, "Lap #" + str(lapNr) + " time: " + lapTime, [lat, lon])
 
 	def startTimer(self):
 		self.timer.startCount()
@@ -154,11 +156,12 @@ class GUI(Tk):
 			return (None, None, None)
 
 	def saveHMILog(self, level, module, message):
-		#modules: 1=GPSHAndler, 2=ECUHandler, 3=StopWatch
-		(lat, lon, speed) = self.getGPSPos()
-		date = time.strftime("%Y-%m-%d")
-		if self.mysql != None:
-			self.mysql.saveHMILog(date, level, module, message, [lat, lon])
+		if sys.platform == "linux2":
+			#modules: 1=GPSHAndler, 2=ECUHandler, 3=StopWatch
+			(lat, lon, speed) = self.getGPSPos()
+			date = time.strftime("%Y-%m-%d")
+			if self.mysql != None:
+				self.mysql.saveHMILog(date, level, module, message, [lat, lon])
 
 	def setStatus(self, level, module, message):
 		

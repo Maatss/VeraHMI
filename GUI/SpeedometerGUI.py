@@ -5,11 +5,12 @@ from math import *
 
 class SpeedometerGUI(Frame):
 
-   def __init__(self, width, height, max_number, number_of_labels):
+   def __init__(self, width, max_number, number_of_labels):
       Frame.__init__(self)
       self.bgColor = "black"
       self.fgColor = "white"
-      self.canvas = Canvas(self, width=width, height=height, bg=self.bgColor)
+      height = width/2
+      self.canvas = Canvas(self, width=width, height=height, highlightthickness=0, bg=self.bgColor)
       self.canvas.pack()
 
       self.x0 = width/2; lx = 9*width/20              # center and half-width of clock face
@@ -41,15 +42,17 @@ class SpeedometerGUI(Frame):
          self.canvas.create_line(x1, y1, x2, y2, fill="red", width=1)
 
       self.arrow = self.canvas.create_line(self.x0, self.y0, x, y, arrow=LAST, fill="orange", width=3)  
-      self.setValue(0)
+      self.setSpeed(0)
 
-   def setValue(self, value):
+   def setSpeed(self, value):
       phi = -pi/2 + pi/50*value
       x = self.x0 + self.r2 * sin(phi)  
       y = self.y0 - self.r2 * cos(phi)
       self.canvas.delete(self.arrow)                               
       self.arrow = self.canvas.create_line(self.x0, self.y0, x, y, arrow=LAST, fill="orange", width=3)
 
+   def reset(self):
+      self.setSpeed(0)
 
 # main
 if __name__ =='__main__':
