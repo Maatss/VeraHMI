@@ -7,6 +7,7 @@ class SpeedometerGUI(Frame):
 
    def __init__(self, width, max_number, number_of_labels):
       Frame.__init__(self)
+
       self.orange_color = '#DE4004'
       self.speed = 0
       self.meanSpeed = 0
@@ -34,8 +35,8 @@ class SpeedometerGUI(Frame):
       self.r6 = self.r2+4
       self.r7 =self.r2-2
 
-      self.canvas.create_oval(self.x0-lx-9, self.y0-ly-9, self.x0+lx+9, self.y0+ly+9, outline=self.fgColor, width=4)
-      self.canvas.create_oval(self.x0-self.r1, self.y0-self.r1, self.x0+self.r1, self.y0+self.r1, outline=self.fgColor, width=3)
+      self.canvas.create_oval(self.x0-lx-9, self.y0-ly-9, self.x0+lx+9, self.y0+ly+9, outline='#7E7E7E', width=4)
+      self.canvas.create_oval(self.x0-self.r1, self.y0-self.r1, self.x0+self.r1, self.y0+self.r1, outline='#7E7E7E', width=3)
 
       for i in range(0,self.max_number+1):
          phi = self.speed_start_angle + self.speed_angle_range/self.max_number * i
@@ -68,7 +69,7 @@ class SpeedometerGUI(Frame):
          if j%10 == 0 and j != 0:   
             x = self.x0 + self.r0 * sin(phi)
             y = self.y0 - self.r0 * cos(phi)
-            self.canvas.create_text(x, y, fill="blue", font=('times', 26, 'bold'), text=str(j/10))
+            self.canvas.create_text(x, y, fill=self.fgColor, font=('times', 26, 'bold'), text=str(j/10))
 
          if j%5 != 0:
             x1 = self.x0 + r3 * sin(phi)
@@ -92,13 +93,13 @@ class SpeedometerGUI(Frame):
 
 
       y = self.y0-(self.height/8)
-      self.canvas.create_line(self.x0, self.y0-self.r1, self.x0, self.y0-ly-9, fill=self.fgColor, width=4)
+      self.canvas.create_line(self.x0, self.y0-self.r1, self.x0, self.y0-ly-9, fill='#7E7E7E', width=4)
       x_1 = self.x0 + self.r1 * sin(self.speed_start_angle-2*pi/180)
       y_1 = self.y0 - self.r1 * cos(self.speed_start_angle-2*pi/180)
       x_2 = self.x0 + (self.r6+4) * sin(self.speed_start_angle-2*pi/180)
       y_2 = self.y0 - (self.r6+4) * cos(self.speed_start_angle-2*pi/180)
-      self.canvas.create_line(x_1, y_1, x_2, y_2, fill=self.fgColor, width=4)
-      self.canvas.create_line(self.x0+(self.x0-x_1), y_1, self.x0+(self.x0-x_2), y_2, fill=self.fgColor, width=4)
+      self.canvas.create_line(x_1, y_1, x_2, y_2, fill='#7E7E7E', width=4)
+      self.canvas.create_line(self.x0+(self.x0-x_1), y_1, self.x0+(self.x0-x_2), y_2, fill='#7E7E7E', width=4)
 
       #self.canvas.create_rectangle(self.x0-30, y-16, self.x0+30, y+16, outline=self.fgColor, width=3)
       self.canvas.create_text(self.x0, self.y0-(2*self.r1/3)+22, fill=self.orange_color, font=('times', 16), text="km/h")
@@ -106,18 +107,20 @@ class SpeedometerGUI(Frame):
       self.canvas.create_text(self.x0, self.y0+(1*self.r1/2)+6, fill=self.fgColor, font=('times', 38), text="00:00")
       
       #GPS and ECU label
-      self.canvas.create_text(self.x0-30, self.y0+108, fill="red", font=('times', 28), text="GPS")
-      self.canvas.create_text(self.x0+30, self.y0+108, fill="green", font=('times', 28), text="ECU")
+      self.canvas.create_text(self.x0-self.width/12, self.height*8.5/10, fill="red", font=('times', 28), text="GPS")
+      self.canvas.create_text(self.x0+self.width/12, self.width*8.5/10, fill="green", font=('times', 28), text="ECU")
      
 
       self.speedLabel = self.canvas.create_text(self.x0, self.y0-(2*self.r1/3), font=('times', 44, 'bold'), text="0")
       
+      self.meanSpeedArrow = self.canvas.create_line(self.x0, self.y0, x, y, dash=(4,4), fill="yellow", width=4)  
       self.speedArrow = self.canvas.create_line(self.x0, self.y0, x, y, fill=self.orange_color, width=4)  
+      
       self.speedArc = self.canvas.create_arc(self.x0-self.r2-3, self.y0-self.r2-3, self.x0+self.r2+3, self.y0+self.r2+3, outline=self.orange_color, extent=20, style=ARC, width=8, start=180)
       
       self.rpmArrow = self.canvas.create_line(self.x0, self.y0, x, y, fill=self.orange_color, width=4)  
       self.rpmArc = self.canvas.create_arc(self.x0-self.r2-3, self.y0-self.r2-3, self.x0+self.r2+3, self.y0+self.r2+3, outline=self.orange_color, extent=-20, style=ARC, width=8, start=180)
-      
+
       self.setSpeed(0)
       self.setRPM(0)
 
@@ -127,6 +130,19 @@ class SpeedometerGUI(Frame):
       self.totalSpeed += self.speed
       self.meanSpeed = self.totalSpeed / self.numberOfDataPoints
 
+      self.canvas.delete(self.speedArrow) 
+      self.canvas.delete(self.speedLabel)   
+      self.canvas.delete(self.speedArc) 
+      self.canvas.delete(self.meanSpeedArrow)  
+
+      meanAngle = self.speed_start_angle + self.speed_angle_range/self.max_number*self.meanSpeed
+      x1 = self.x0 + (self.r1+1) * sin(meanAngle)
+      y1 = self.y0 - (self.r1+1) * cos(meanAngle)
+      x2 = self.x0 + (self.r6+3) * sin(meanAngle)
+      y2 = self.y0 - (self.r6+3) * cos(meanAngle)
+      self.meanSpeedArrow = self.canvas.create_line(x1, y1, x2, y2, dash=(4,4), fill="yellow", width=3)  
+      
+
       phi = self.speed_start_angle + self.speed_angle_range/self.max_number*value
       if phi>self.speed_start_angle + self.speed_angle_range-1.5*pi/180:
          phi = self.speed_start_angle + self.speed_angle_range-1.5*pi/180
@@ -135,13 +151,12 @@ class SpeedometerGUI(Frame):
       x1 = self.x0 + (self.r1+1) * sin(phi)
       y1 = self.y0 - (self.r1+1) * cos(phi)
       x2 = self.x0 + (self.r6+3) * sin(phi)
-      y2 = self.y0 - (self.r6+3) * cos(phi)
-      self.canvas.delete(self.speedArrow) 
-      self.canvas.delete(self.speedLabel)   
-      self.canvas.delete(self.speedArc)                              
+      y2 = self.y0 - (self.r6+3) * cos(phi)                             
       self.speedLabel = self.canvas.create_text(self.x0, self.y0-(2*self.r1/3), font=('times', 38, 'bold'), fill=self.orange_color, text=str('%.0f' % self.speed))
       self.speedArrow = self.canvas.create_line(x1, y1, x2, y2, fill=self.orange_color, width=4)
       self.speedArc = self.canvas.create_arc(self.x0-self.r2-3, self.y0-self.r2-3, self.x0+self.r2+3, self.y0+self.r2+3, outline=self.orange_color, extent=(-self.speed_start_angle+phi)*(180/pi), style=ARC, width=8, start=90-(phi*180/pi))
+      
+      
 
    def setRPM(self, rpm):
 
@@ -156,6 +171,7 @@ class SpeedometerGUI(Frame):
       self.rpmArc = self.canvas.create_arc(self.x0-self.r2-3, self.y0-self.r2-3, self.x0+self.r2+3, self.y0+self.r2+3, outline="blue", extent=-(self.speed_start_angle+phi)*(180/pi), style=ARC, width=8, start=90-self.speed_angle_range*180/pi)
 
    
+
 
    def reset(self):
       self.meanSpeed = 0
@@ -180,8 +196,8 @@ if __name__ =='__main__':
       root.after(1, checkSerial(speed))
 
 
-   root = Tk()  
-   c = SpeedometerGUI(300, 40, 4) 
+   root = Tk() 
+   c = SpeedometerGUI(350, 40, 4) 
    c.pack() 
    root.after(1, checkSerial(c))
    root.mainloop()

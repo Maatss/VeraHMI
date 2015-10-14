@@ -52,9 +52,10 @@ class GUI(Tk):
 		self.GPS_ECU_status.config(padx=10)
 
 		# Speed
-		self.speed = SpeedometerGUI(350, 40, 4)
+		self.speed = Speed()
 		self.speed.grid(row=3, column=0, sticky=SW)
-		
+		self.speed.config(padx=20, pady=10)
+
 		#Timer
 		self.timer = TimerFrame()
 		self.timer.grid(row=3, column=2, columnspan=2, rowspan=2, sticky=SE)
