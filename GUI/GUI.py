@@ -47,34 +47,34 @@ class GUI(Tk):
 		self.geometry('{}x{}+{}+{}'.format(self.width, self.height, x, y))
 
 		#GPS and ECU Status
-		self.GPS_ECU_status = GPS_ECU_status()
-		self.GPS_ECU_status.grid(row=0, column=3, sticky=E)
-		self.GPS_ECU_status.config(padx=10)
+		#self.GPS_ECU_status = GPS_ECU_status()
+		#self.GPS_ECU_status.grid(row=0, column=3, sticky=E)
+		#self.GPS_ECU_status.config(padx=10)
 
 		# Speed
-		self.speed = Speed()
-		self.speed.grid(row=3, column=0, sticky=SW)
-		self.speed.config(padx=20, pady=10)
+		self.speed = SpeedometerGUI(500, 40, 4)
+		self.speed.grid(row=1, column=3, sticky=SE)
+		#self.speed.config(padx=20, pady=10)
 
 		#Timer
-		self.timer = TimerFrame()
-		self.timer.grid(row=3, column=2, columnspan=2, rowspan=2, sticky=SE)
-		self.timer.config(padx=20, pady=10)
+		#self.timer = TimerFrame()
+		#self.timer.grid(row=3, column=2, columnspan=2, rowspan=2, sticky=SE)
+		#self.timer.config(padx=20, pady=10)
 
 		# Status
-		self.status = Status_bar()
-		self.status.config(padx=20)
-		self.status.grid(row=0, column=0, columnspan=3, sticky=W)
+		#self.status = Status_bar()
+		#self.status.config(padx=20)
+		#elf.status.grid(row=0, column=0, columnspan=3, sticky=W)
 
 		# RPM
-		self.rpm = RPM()
-		self.rpm.grid(row=4, column=0, sticky=SW)
-		self.rpm.config(padx=20, pady=10)
+		#self.rpm = RPM()
+		#self.rpm.grid(row=4, column=0, sticky=SW)
+		#self.rpm.config(padx=20, pady=10)
 
 		#Temp status
-		self.temp = Temp()
-		self.temp.grid(row=1, column=0, rowspan=2, sticky=NW)
-		self.temp.config(padx=20, pady=20)
+		#self.temp = Temp()
+		#self.temp.grid(row=1, column=0, rowspan=2, sticky=NW)
+		#self.temp.config(padx=20, pady=20)
 
 
 #######################################################################################
@@ -173,7 +173,7 @@ class GUI(Tk):
 		self.speed.setSpeed(speed)
 
 	def setRPM(self, rpm):
-		self.rpm.setRPM(rpm)
+		self.speed.setRPM(rpm)
 
 	def end_fullscreen(self, event=None):
 	    self.attributes("-fullscreen", False)
@@ -219,10 +219,10 @@ if __name__ == '__main__':
 			GUI.quit()
 		elif var == "speed":
 			spd = raw_input("Enter speed: ")
-			GUI.setSpeed(spd)
+			GUI.setSpeed(float(spd))
 		elif var == "rpm":
 			r = raw_input("Enter RPM: ")
-			GUI.setRPM(r)
+			GUI.setRPM(float(r))
 		elif var == "btn1":
 			if GUI.timerIsRunning():
 				GUI.stopTimer()
