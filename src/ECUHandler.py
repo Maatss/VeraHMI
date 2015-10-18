@@ -1,37 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from MySQLConnection import MySQLConnection
-
-import serial, threading, time, sys, os.path
-from numpy import uint32
+import threading, time, sys, os.path
+if sys.platform == "linux2":
+	import serial
+	from numpy import uint32
 
 
 class ECUHandler(threading.Thread):
 
-	def __init__(self, gui = None, gps = None, mysql = None, debug = False, threadLock=None, speedometer=None, liveData=None):
+	def __init__(self, environment=None):
 		threading.Thread.__init__(self)
-		self.daemon=True
-		self.connected = False
-		self.threadLock = threadLock
-		self.liveData = liveData
-		self.speedometer = speedometer
+		self.daemon				= True
+		self.connected 			= False
+
+		self.environment		= environment
+
 		#Baudrate
-		self.BAUDRATE = 230400
-		#This if statement is only here to make it work when modul is run as main thread
-		if mysql != None:
-			self.mysql = mysql
-		else:
-			self.mysql = MySQLConnection()
+		self.BAUDRATE 			= 230400
 
-		self.gui, self.gps, self.debug = gui, gps, debug
-
-		self.unavailableCount = 0
-		self.logNames= ["cylinder temp", "topplock temp", "motorblock temp", "batterispänning", "lufttryck", "lufttemperatur", "varvtal", "bränslemassa", "error code"]
-		if self.gui != None:
-			self.gui.setStatus(1, 2, "Started")
-		self.portName = self.findPort()
-		#print("Port name: " + self.portName)
+		self.unavailableCount 	= 0
+		self.logNames			= ["cylinder temp", "topplock temp", "motorblock temp", "batterispänning", "lufttryck", "lufttemperatur", "varvtal", "bränslemassa", "error code"]
+		self.portName 			= self.findPort()
 
 		try:
 			self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
@@ -60,8 +50,9 @@ class ECUHandler(threading.Thread):
 	    while True:
 	    	try:
 	        	ch = self.port.read()
-	        except:
-	        	return None
+	        except Exception as e:
+				print(e)
+				return None
 		rv += ch
 	        if ch=='&':
 	        	return rv
@@ -78,22 +69,17 @@ class ECUHandler(threading.Thread):
 				return (x, int(numberString))
 
 	def findNextLog(self):
-		self.logs = [-1, -1, -1, -1, -1, -1, "----", -1, -1]
+		self.logs = [None, None, None, None, None, None, None, None, None]
 		data = self.readECU()
 		if(data != None):
 			x=2
 			# Set ECU to be connected
-			self.connected = True
-			if self.gui:
-				self.gui.connectECUNoLog()
-			if self.gui and self.unavailableCount>=5:
-				self.gui.connectECU()
-				print("ECU connected")
-			self.unavailableCount = 0
+			self.connected 			= True
+			self.unavailableCount 	= 0
 
 			if data[x] == "#":
-				x += 1
-				command = ""
+				x 		+= 1
+				command  = ""
 				while data[x] != ":":
 					command += data[x]
 					x += 1
@@ -105,50 +91,30 @@ class ECUHandler(threading.Thread):
 					# Find last data
 					(x, self.logs[8]) = self.findNumberBefore("&", data, x)
 
-					return self.logs
-
 			else:
-				if self.debug:
-					print("jibberish found: " + str(data))
+				print("jibberish found: " + str(data))
 		else:
-			if self.debug:
-				print("Serial not available")
+			print("Serial not available")
 			time.sleep(1)
 			self.unavailableCount += 1
 			#print("unavailableCount: " + str(self.unavailableCount) + "Connected: " + str(self.connected))
-			if self.unavailableCount >= 5:
-				if self.gui and self.connected:
-					self.gui.disconnectECU()
-					print("ECU disconnected")
-				elif self.gui:
-					self.gui.disconnectECUNoLog()
-				
+			if self.unavailableCount >= 3:
 				self.connected = False
 				try:
 					self.port.close()
-				except:
-					pass
+				except Exception as e:
+					print(e)
 			try:
-				self.portName = self.findPort()
-				self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
-			except:
-				pass
+				self.portName 	= self.findPort()
+				self.port 		= serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+			except Exception as e:
+				print(e)
 
-
-	def getGPSPos(self):
-		if sys.platform == "linux2" and self.gps != None:
-			(lat, lon, speed) = self.gps.getGPSPos()
-			if speed:
-				speed = speed # want speed in Km/h not m/s
-			#print("lat: " + str(lat) + " Lon: " + str(lon) + " Alt: " + str(alt) + " Speed: " + str(speed))
-			return [lat, lon, speed]
+		if __name__ != '__main__':
+			self.environment.sendEcuVariables(self.logs, self.connected)
 		else:
-			return [None, None, None]
+			print(self.logs)
 		
-	def updateGUI(self):
-		self.gui.setRPM(self.logs[6])
-		self.gui.setTemp(self.logs[1], self.logs[2], self.logs[0])
-
 
 	def checkForError(self, error_code):
 		error_code = uint32(error_code)
@@ -161,25 +127,7 @@ class ECUHandler(threading.Thread):
 
 		while True:
 			if(self.findNextLog()):
-				gpsData = self.getGPSPos()
-				speedometerSpeed = self.speedometer.speed
-				#Handle error codes
 				self.checkForError(self.logs[8])
-
-				#Save logs in MySQL
-				self.threadLock.acquire()
-				self.mysql.saveLog(self.logs + [gpsData[0]] + [gpsData[1]] + [speedometerSpeed])
-				self.threadLock.release()
-				self.liveData.sendECUValues(self.logs)
-
-				#Update GUI data
-				if self.gui:
-					self.updateGUI()
-
-				#Print data if in debug mode
-				if self.debug:
-					print(self.logs + gpsData)
-				
 					
 
 
@@ -189,20 +137,13 @@ class ECUHandler(threading.Thread):
 
 if __name__ == '__main__':
 	try:
-		if sys.platform == "linux2":
-			from GPSHandler import GPSHandler
-			GPSHandler = GPSHandler()
-			GPSHandler.start()
-			ecu = ECUHandler(gps = GPSHandler, debug=True)
-		else:
-			ecu = ECUHandler(debug=True)
+		ecu = ECUHandler()
 		ecu.start()
+
 		while True:
 			time.sleep(1)
 			
 	except (KeyboardInterrupt, SystemExit):
-		if sys.platform == "linux2":
-			GPSHandler._Thread__stop()
 		ecu._Thread__stop()
 		sys.exit()
 

@@ -1,0 +1,77 @@
+#!/bin/bash
+echo -e "Update Raspbian? (y/n): \c"
+read answer
+if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
+then
+  # Update raspbian
+  sudo rpi-update
+  sudo apt-get update
+  sudo apt-get upgrade
+else
+  :
+fi
+
+
+echo -e "Install dependencies? (y/n): \c"
+read answer
+if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
+then
+  # Install packages
+  sudo apt-get install apache2 mysql-server php5 php5-mysql phpmyadmin python-mysqldb
+  sudo apt-get install gpsd gpsd-clients python-gps
+else
+  :
+fi
+
+echo -e "Install X11VNC? (y/n): \c"
+read answer
+if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
+then
+  # Install X11VNC
+  sudo apt-get install x11vnc
+  x11vnc -storepasswd
+  echo "x11vnc -bg -nevershared -forever -tightfilexfer -usepw -display :0" >> ~/.xsessionrc
+  chmod 775 ~/.xsessionrc
+else
+  :
+fi
+
+# Make script start at boot
+rm /etc/rc.local
+echo "#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock &
+sudo python /home/pi/VeraHMI_new/main.py
+
+exit 0" >> /etc/rc.local
+
+
+# MySQL Setup
+user="root"
+password="verateam" 
+database="Vera"
+mysql --user="$user" --password="$password" --execute="CREATE DATABASE $database;"
+mysql --user="$user" --password="$password" --database="$database" --execute="CREATE TABLE HMILog (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, day DATE NOT NULL, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, level INT(11) NOT NULL, module VARCHAR(20) NOT NULL, msg VARCHAR(50) NOT NULL, lat_loc VARCHAR(20) NOT NULL, long_loc VARCHAR(20) NOT NULL);"
+mysql --user="$user" --password="$password" --database="$database" --execute="CREATE TABLE ECULogs (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);"
+
+
+
+
+

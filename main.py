@@ -1,59 +1,112 @@
 #!/usr/bin/env python
 
+from test import GUI
 from src.ECUHandler import ECUHandler
-from src.MySQLConnection import MySQLConnection
-from GUI.GUI import GUI
-import sys, threading, thread
+import sys, threading, time, thread
+
+
+def initClasses():
+
+	# SpeedHandler
+	from src.SpeedHandler import SpeedHandler
+	speedHandler = SpeedHandler(environment)
+	speedHandler.start()
+
+	# ECUHandler
+	ecuHandler = ECUHandler(environment)
+	ecuHandler.start()
+
+	# ButtonHandler
+	from src.ButtonHandler import ButtonHandler
+	buttonHandler = ButtonHandler(environment)
+	buttonHandler.start()
+
+	# GPSHandler
+	from src.GPSHandler import GPSHandler
+	#gpsHandler = GPSHandler(environment)
+	#gpsHandler.start()
 
 try:
-	mysql = MySQLConnection()
-	mysql_hmi = MySQLConnection()
-	gui = GUI(mysql_hmi)
-	gui.start_fullscreen()
-	threadLock = threading.Lock()
-
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
 	if sys.platform == "linux2":
-		
-		# Live data thread
-		from src.LiveData import LiveData
-		liveData = LiveData()
-		liveData.streaming = True
-		liveData.start()
 
 		#Set time according to GPS
-		import gpstime
+		from src import gpstime
 		thread.start_new_thread(gpstime.setTImeFromGPS, (2,))
 
-		#initalize GPS
-		from src.GPSHandler import GPSHandler
-		GPSHandler = GPSHandler(gui)
-		GPSHandler.start()
-		gui.setGPS(GPSHandler)
+		# Environment
+		from src.Environment import Environment
+		environment = Environment()
+		environment.start()
 
-		#Speedometer Init
-		from src.Speedometer import Speedometer
-		speedometer = Speedometer(gui, liveData, mysql, threadLock)
-		speedometer.start()
+		gui = GUI(environment)
 
-		#Initialize ECUHandler
-		ECUHandler = ECUHandler(gui, GPSHandler, mysql, False, threadLock, speedometer, liveData)
-		ECUHandler.start()
+		thread.start_new_thread(initClasses, ())
 
-		# Handle button presses 
-		from src.ButtonHandler import ButtonHandler
-		buttonHandler = ButtonHandler(gui, mysql, threadLock)
-		buttonHandler.start()
+
+		
 	else:
-
-		#If this is running on other systems than Raspbian only the ECUHandler will be able to run
-		ECUHandler = ECUHandler(gui, None, mysql, False, threadLock)
-		ECUHandler.start()
-		print("You're not running this program on Raspberry Pi, button presses will be ignored and GPS will be disabled, continuing...")
+		def checkSerial(GUI):
+			var = raw_input("Enter command: " )
+			if var == "stop":
+				GUI.stopTimer()
+			elif var == "lap":
+				GUI.newLap()
+			elif var == "start":
+				GUI.startTimer()
+			elif var == "gpsOn":
+				GUI.connectGPS()
+			elif var == "gpsOff":
+				GUI.disconnectGPS()
+			elif var == "ecuOn":
+				GUI.connectECU()
+			elif var == "ecuOff":
+				GUI.disconnectECU()
+			elif var == "status":
+				level = raw_input("Enter level: ")
+				module = raw_input("enter module number: ")
+				string = raw_input("Enter status: ")
+				GUI.setStatus(level, module, string)
+			elif var == "q":
+				print("q was pressed")
+				sys.exit()
+			elif var == "speed":
+				spd = raw_input("Enter speed: ")
+				GUI.setSpeedVariables(float(spd), float(spd)/2)
+			elif var == "rpm":
+				r = raw_input("Enter RPM: ")
+				GUI.setRPM(float(r))
+			elif var == "btn1":
+				if GUI.timerIsRunning():
+					GUI.stopTimer()
+				else:
+					GUI.startTimer()
+			elif var == "btn2":
+				if GUI.timerIsRunning():
+					GUI.newLap()
+				else:
+					GUI.reset()
+			elif var == "reset":
+				GUI.reset()
+			elif var == "temp":
+				temp1 = raw_input("Enter head temp: ")
+				temp2 = raw_input("Enter motor temp: ")
+				temp3 = raw_input("Enter cylinder temp: ")
+				GUI.setTemperatures(temp1, temp2, temp3)
+			else:
+				print("No valid command.. TRY AGAIN!")
+			GUI.after(1, checkSerial(GUI))
+			
+		print("You are not running this program on Raspberry Pi, entering debug mode...")
+		
 	
-	#Start gui and enter its main loop
-	gui.mainloop()
+	#Start gui and enter its mainloop
+	gui.start()
+	checkSerial(gui)
 	
 except (KeyboardInterrupt, SystemExit):
 	print("Exiting...")
 	sys.exit()
+
+
+
