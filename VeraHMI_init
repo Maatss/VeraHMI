@@ -58,7 +58,7 @@ if [ "$_IP" ]; then
 fi
 
 sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock &
-sudo python /home/pi/VeraHMI_new/main.py
+sudo python /home/pi/VeraHMI/main.py
 
 exit 0" >> /etc/rc.local
 
@@ -70,6 +70,18 @@ database="Vera"
 mysql --user="$user" --password="$password" --execute="CREATE DATABASE $database;"
 mysql --user="$user" --password="$password" --database="$database" --execute="CREATE TABLE HMILog (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, day DATE NOT NULL, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, level INT(11) NOT NULL, module VARCHAR(20) NOT NULL, msg VARCHAR(50) NOT NULL, lat_loc VARCHAR(20) NOT NULL, long_loc VARCHAR(20) NOT NULL);"
 mysql --user="$user" --password="$password" --database="$database" --execute="CREATE TABLE ECULogs (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);"
+
+
+# Install plotly
+sudo apt-get install python-dev
+wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | sudo python
+sudo easy_install -U distribute
+sudo apt-get install python-pip
+sudo pip install rpi.gpio
+sudo pip install plotly
+
+
+
 
 
 

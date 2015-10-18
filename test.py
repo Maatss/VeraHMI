@@ -42,7 +42,7 @@ class GUI:
         pygame.mouse.set_visible(False)
         self.done           = False
 
-        fontPath            = "/home/pi/VeraHMI_new/Fonts/gotham.ttf"
+        fontPath            = "/home/pi/VeraHMI/Fonts/gotham.ttf"
         self.bigFont        = pygame.font.Font(fontPath, 70)
         self.mediumFont     = pygame.font.Font(fontPath, 40)
         self.smallFont      = pygame.font.Font(fontPath, 20)
