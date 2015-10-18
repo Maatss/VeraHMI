@@ -17,8 +17,7 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Install packages
-  sudo apt-get install apache2 mysql-server php5 php5-mysql phpmyadmin python-mysqldb
-  sudo apt-get install gpsd gpsd-clients python-gps
+  sudo apt-get install apache2 mysql-server php5 php5-mysql phpmyadmin python-mysqldb gpsd gpsd-clients python-gps
 else
   :
 fi
@@ -38,7 +37,7 @@ fi
 
 # Make script start at boot
 rm /etc/rc.local
-echo "#!/bin/sh -e
+text='#!/bin/sh -e
 #
 # rc.local
 #
@@ -57,33 +56,73 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
+# turn off console blanking
+setterm -blank 0
+
 sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock &
 sudo python /home/pi/VeraHMI/main.py
 
-exit 0" >> /etc/rc.local
+exit 0'
+echo "$text" >> /etc/rc.local
+chmod 777 /etc/rc.local
 
 
-# MySQL Setup
-user="root"
-password="verateam" 
-database="Vera"
-mysql --user="$user" --password="$password" --execute="CREATE DATABASE $database;"
-mysql --user="$user" --password="$password" --database="$database" --execute="CREATE TABLE HMILog (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, day DATE NOT NULL, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, level INT(11) NOT NULL, module VARCHAR(20) NOT NULL, msg VARCHAR(50) NOT NULL, lat_loc VARCHAR(20) NOT NULL, long_loc VARCHAR(20) NOT NULL);"
-mysql --user="$user" --password="$password" --database="$database" --execute="CREATE TABLE ECULogs (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);"
+echo -e "Set up mysql? (y/n): \c"
+read answer
+if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
+then
+  # MySQL Setup
+  user="root"
+  password="verateam" 
+  database="Vera"
+  mysql --user="$user" --password="$password" --execute="CREATE DATABASE $database;"
+  mysql --user="$user" --password="$password" --database="$database" --execute="CREATE TABLE HMILog (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, day DATE NOT NULL, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, level INT(11) NOT NULL, module VARCHAR(20) NOT NULL, msg VARCHAR(50) NOT NULL, lat_loc VARCHAR(20) NOT NULL, long_loc VARCHAR(20) NOT NULL);"
+  mysql --user="$user" --password="$password" --database="$database" --execute="CREATE TABLE ECULogs (id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);"
+else
+  :
+fi
 
-
+echo -e "Install plotly? (y/n): \c"
+read answer
+if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
+then
 # Install plotly
-sudo apt-get install python-dev
-wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | sudo python
-sudo easy_install -U distribute
-sudo apt-get install python-pip
-sudo pip install rpi.gpio
-sudo pip install plotly
+  sudo apt-get install python-dev
+  wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | sudo python
+  sudo easy_install -U distribute
+  sudo apt-get install python-pip
+  sudo pip install rpi.gpio
+  sudo pip install plotly
+else
+  :
+fi
+
+
+# Set up screen and disable boot to GUI
+text="framebuffer_width=640
+framebuffer_height=480"
+echo "$text" >> /boot/config.txt
+
+echo "disable_splash=1" >> /boot/config.txt
+echo "max_usb_current=1" >> /boot/config.txt
+
+
+echo -e "Boot to GUI? (y/n): \c"
+read answer
+if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
+then
+  systemctl set-default graphical.target
+  ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
+  sed /etc/lightdm/lightdm.conf -i -e "s/^#autologin-user=.*/autologin-user=pi/"
+else
+  systemctl set-default multi-user.target
+  ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
+fi
 
 
 
-
-
-
+# Set up phpmyadmin
+echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
+/etc/init.d/apache2 restart
 
 

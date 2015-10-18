@@ -98,11 +98,11 @@ try:
 			GUI.after(1, checkSerial(GUI))
 			
 		print("You are not running this program on Raspberry Pi, entering debug mode...")
+		checkSerial(gui)
 		
 	
 	#Start gui and enter its mainloop
 	gui.start()
-	checkSerial(gui)
 	
 except (KeyboardInterrupt, SystemExit):
 	print("Exiting...")
