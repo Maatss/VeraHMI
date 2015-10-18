@@ -1,357 +1,301 @@
 #!/usr/bin/env python
-
-from Tkinter import *
+import pygame, os
 from math import *
-import sys
-
-class GUI(Tk):
-
-   def __init__(self):
-      Tk.__init__(self)
-      
-      # Define range of speedometer and rpm display
-      self.maxSpeed  = 45
-      self.maxRPM    = 5500 
-
-      #Setup screen
-      self.width, self.height = 640, 480
-      self.config(bg="black")
-      self.bind('<Escape>', lambda x: self.attributes("-fullscreen", False))
-      self.bind('<space>', lambda x: self.attributes("-fullscreen", True))
-      self.bind('<q>', lambda x: sys.exit())
-      self.minsize(self.width, self.height)
-      self.title("Vera HMI")
-      if sys.platform == "linux2":
-         self.attributes("-fullscreen", True)
-         self.config(cursor="none")
-      self.columnconfigure(3, weight=1)
-      self.rowconfigure(3, weight=1)
-
-      #Define colors
-      self.orange_color = '#F38A1D'
-      self.blue_color   = '#36CCFB'
-      self.grey_color   = "white"
-      self.bgColor      = "black"
-      self.fgColor      = "white"
-      self.circleColor  = "white"
-      self.redColor     = "#EE2B2E"
-      self.greenColor   = "#138C03"
-      self.yellowColor  = "yellow"
-
-      # Define font properties
-      self.fontFamily      = "gotham"
-      self.smallFontSize   = 16
-      self.mediumFontSize  = 30
-      self.largeFontSize   = 50
-      self.largerFontSize  = 70
-
-
-      # Initiate temperatures
-      self.tempTopplock = 0
-      self.tempMotor     = 0
-      self.tempCylinder = 0
-
-      # Define angle for speedometer
-      self.startAngleSpeed = -8*pi/10-3*pi/180
-      self.speedAngleRange = -self.startAngleSpeed
-      
-      self.canvas = Canvas(self, width=self.width-10, height=self.height-10, highlightthickness=0, bg=self.bgColor)
-      self.canvas.grid(row=1, column=1, sticky=S, rowspan=3, columnspan=3)
-
-      # Define center of canvas and outer limit of gui
-      self.x0 = self.width/2;    lx = 9*self.width/20
-      self.y0 = self.height/2;   ly = 9*self.height/20
-
-      # Define line widths
-      self.smallLineWidth  = 4
-      self.mediumLineWidth = 5
-      self.largeLineWidth  = 8
-      self.largerLineWidth = 16
-
-      # Define different radius
-      self.r0 = 0.65 *  min(lx,ly)  # radius of inner circle   
-      self.r1 = 0.77 *  min(lx,ly)  # distance of labels from center           
-      self.r2 = 0.95 *  min(lx,ly)  # radius for the smaller speed markers
-      self.r3 = 0.92 *  min(lx,ly)  # radius for the medium speed markers
-      self.r4 = 0.90 *  min(lx,ly)  # radius for the larger speed markers
-      self.r5 =         min(lx,ly)  # outer circle
-
-      # Initiate varibles
-      self.currentLap = 1
-
-      # Creates white circles for visual effects
-      a = self.r5+self.largerLineWidth+self.mediumLineWidth/2
-
-      # label for the lap number
-      self.lapNumberLabel = self.canvas.create_text(self.width*9/10, self.height*1/10, fill=self.fgColor, font=(self.fontFamily, self.largerFontSize), text=self.currentLap)
-
-
-      # label for the temperatures
-      self.toppTemp     = self.canvas.create_text(self.width*1/40, self.y0+self.height*3/20, anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text="--")
-      self.cylinderTemp = self.canvas.create_text(self.width*1/40, self.y0,                  anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text="--")
-      self.motorTemp    = self.canvas.create_text(self.width*1/40, self.y0-self.height*3/20, anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text="--")
+import numpy
 
 
 
-      # Creates the speed label and speed markers 
-      self.drawLinesInCircle(self.maxSpeed, 1, True)
-
-      # Creates the speed label and speed markers 
-      rpmLoop = self.maxRPM/100
-      self.drawLinesInCircle(rpmLoop, 10, False)
-
-      # Draws the line that separates Speed and RPM at angle 0
-      self.canvas.create_line(self.x0, self.y0-self.r1-2*self.largeLineWidth, self.x0, self.y0-self.r5-self.largerLineWidth, fill=self.circleColor, width=self.mediumLineWidth+1)
-
-      # Lables for the timer
-      self.totalTimeLabel = self.canvas.create_text(self.x0, self.y0, fill=self.fgColor, font=(self.fontFamily, self.largerFontSize), text="00:00")
-      self.currentLapTimeLabel = self.canvas.create_text(self.x0, self.y0+(2*self.r1/5), fill=self.fgColor, font=(self.fontFamily, self.largeFontSize), text="00:00")
-   
-      # Labels for GPS and ECU
-      self.GPS_ECU_angle = -89*pi/180
-      self.gpsLabel = self.canvas.create_text(self.x0-(self.r1*cos(self.GPS_ECU_angle)), self.y0-(self.r1*sin(self.GPS_ECU_angle)), anchor=E, fill=self.redColor, font=(self.fontFamily, self.mediumFontSize), text="GPS")
-      self.ecuLabel = self.canvas.create_text(self.x0+(self.r1*cos(self.GPS_ECU_angle)), self.y0-(self.r1*sin(self.GPS_ECU_angle)), anchor=W, fill=self.redColor, font=(self.fontFamily, self.mediumFontSize), text="ECU")
-     
-      # Creates km/h label
-      self.canvas.create_text(self.x0, self.y0-(5*self.r5/20), fill=self.fgColor, font=(self.fontFamily, self.smallFontSize), text="km/h")
-      # initiates Speed graphics and labels to None objects
-      self.speedLabel = None;    self.meanSpeedArrow = None;     self.speedArrow = None;        self.speedArc = None;
-     
-      # Initiates RPM graphics and labels
-      self.rpmArrow   = None;    self.rpmArc = None;
-
-      self.setSpeedVariables(0, 0)
-      self.setRPM(0)
-
-
-
-
-
-
-
-#############################################################################################################################
-################################## Internal functions ##########################################################################
-#############################################################################################################################
-
-   def drawLinesInCircle(self, maxValue, deliminator, speedOrRPM): # speedOrRPM is ssrt to true when speed is drawn
-      for i in range(0,maxValue+1):
-         if speedOrRPM:
-            phi = self.startAngleSpeed + self.speedAngleRange/maxValue * i
-         else:
-            phi = self.speedAngleRange/maxValue * (maxValue-i)
-
-         # One lable every 10:th value and no label at zero
-         if i%10 == 0 and i != 0:   
-            x  = self.x0 + self.r1  * sin(phi)
-            y  = self.y0 - self.r1  * cos(phi)
-            x1 = self.x0 + self.r4  * sin(phi)
-            y1 = self.y0 - self.r4  * cos(phi)
-            self.canvas.create_text(x, y, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text=str(i/deliminator))
-
-         elif i%5 == 0:                   # Large line at every 5:th value
-            x1 = self.x0 + self.r3 * sin(phi)
-            y1 = self.y0 - self.r3 * cos(phi)
-         
-         else:                            #small speed markers
-            x1 = self.x0 + self.r2 * sin(phi)
-            y1 = self.y0 - self.r2 * cos(phi)
-
-         if i == 0:
-            x2 = self.x0 + (self.r5+self.largeLineWidth+4) * sin(phi)
-            y2 = self.y0 - (self.r5+self.largeLineWidth+4) * cos(phi)
-            self.canvas.create_line(x1, y1, x2, y2, fill=self.fgColor, width=self.smallLineWidth)
-
-         elif i == maxValue:
+class GUI:
+    def __init__(self, environment=None):
+        "Ininitializes a new pygame screen using the framebuffer"
+        # Based on "Python GUI in Linux frame buffer"
+        # http://www.karoltomala.com/blog/?p=679
+        disp_no = os.getenv("DISPLAY")
+        if disp_no:
+            print "I'm running under X display = {0}".format(disp_no)
+        
+        # Check which frame buffer drivers are available
+        # Start with fbcon since directfb hangs with composite output
+        drivers = ['directfb', 'fbcon', 'svgalib']
+        found = False
+        for driver in drivers:
+            # Make sure that SDL_VIDEODRIVER is set
+            if not os.getenv('SDL_VIDEODRIVER'):
+                os.putenv('SDL_VIDEODRIVER', driver)
+            try:
+                pygame.display.init()
+            except pygame.error:
+                print 'Driver: {0} failed.'.format(driver)
+                continue
+            found = True
             break
+    
+        if not found:
+            raise Exception('No suitable video driver found!')
+        
+        self.size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
+        print "Framebuffer size: %d x %d" % (self.size[0], self.size[1])
+        self.screen = pygame.display.set_mode(self.size, pygame.FULLSCREEN)
+        # Clear the screen to start
+        self.screen.fill((0, 0, 0))        
+        # Initialise font support
+        pygame.font.init()
+        pygame.mouse.set_visible(False)
+        self.done           = False
 
-         else:
-            x2 = self.x0 + self.r5 * sin(phi)
-            y2 = self.y0 - self.r5 * cos(phi)
-            self.canvas.create_line(x1, y1, x2, y2, fill=self.blue_color, width=self.smallLineWidth)
+        fontPath            = "/home/pi/VeraHMI/Fonts/gotham.ttf"
+        self.bigFont        = pygame.font.Font(fontPath, 70)
+        self.mediumFont     = pygame.font.Font(fontPath, 40)
+        self.smallFont      = pygame.font.Font(fontPath, 20)
+        self.gpsEcuFont     = pygame.font.Font(fontPath, 40)
+        self.clock          = pygame.time.Clock()
+        self.environment    = environment
 
+        # Define range of speedometer and rpm display
+        self.maxSpeed  = 45
+        self.maxRPM    = 5500 
 
-#############################################################################################################################
-################################## Class functions ##########################################################################
-#############################################################################################################################
+        # Define colors
+        self.orangeColor    = (250, 145, 33)
+        self.blueColor      = (103, 255, 254) 
+        self.greenColor     = (40, 255, 0)
+        self.redColor       = (255, 40, 0)  
 
-   def setSpeedVariables(self, speed, meanSpeed):
-      speed = float(speed)
-      meanSpeed = float(meanSpeed)
+        # Define line widths
+        self.smallLineWidth  = 4
+        self.mediumLineWidth = 5
+        self.largeLineWidth  = 8
+        self.largerLineWidth = 16
 
-      #Delete already drawn objects
-      self.canvas.delete(self.speedArrow) 
-      self.canvas.delete(self.speedLabel)   
-      self.canvas.delete(self.speedArc) 
-      self.canvas.delete(self.meanSpeedArrow)
+        self.x0 = self.size[0]/2
+        self.y0 = self.size[1]/2
 
-      # Draw mean speed line
-      meanAngle = self.startAngleSpeed + (self.speedAngleRange/self.maxSpeed)*meanSpeed
-      if meanAngle>self.startAngleSpeed + self.speedAngleRange-1.5*pi/180:
-         meanAngle = self.startAngleSpeed + self.speedAngleRange-1.5*pi/180
-      elif meanAngle < self.startAngleSpeed:
-         meanAngle = self.startAngleSpeed
-
-      x1 = self.x0 +  self.r0                         * sin(meanAngle)
-      y1 = self.y0 -  self.r0                         * cos(meanAngle)
-      x2 = self.x0 + (self.r5 + self.largerLineWidth/2) * sin(meanAngle)
-      y2 = self.y0 - (self.r5 + self.largerLineWidth/2) * cos(meanAngle)  
-      self.meanSpeedArrow = self.canvas.create_line(x1, y1, x2, y2, dash=4, fill=self.yellowColor, width=self.smallLineWidth) 
-
-      # draw speed line
-      phi = self.startAngleSpeed + self.speedAngleRange/self.maxSpeed*speed
-      if phi>self.startAngleSpeed + self.speedAngleRange-1.5*pi/180:
-         phi = self.startAngleSpeed + self.speedAngleRange-1.5*pi/180
-      elif phi < self.startAngleSpeed:
-         phi = self.startAngleSpeed
-
-      x1 = self.x0 +  self.r0                         * sin(phi)
-      y1 = self.y0 -  self.r0                         * cos(phi)
-      x2 = self.x0 + (self.r5 + self.largerLineWidth) * sin(phi)
-      y2 = self.y0 - (self.r5 + self.largerLineWidth) * cos(phi)                             
-      self.speedLabel = self.canvas.create_text(self.x0, self.y0-(9*self.r5/20), font=(self.fontFamily, self.largerFontSize, 'bold'), fill=self.fgColor, text=str('%.0f' % speed))
-      self.speedArrow = self.canvas.create_line(x1, y1, x2, y2, fill=self.orange_color, width=self.smallLineWidth)
-      self.speedArc   = self.canvas.create_arc(self.x0-self.r5-self.largerLineWidth/2, self.y0-self.r5-self.largerLineWidth/2, self.x0+self.r5+self.largerLineWidth/2, self.y0+self.r5+self.largeLineWidth/2, outline=self.orange_color, extent=(-self.startAngleSpeed+phi)*(180/pi), style=ARC, width=self.largerLineWidth, start=90-(phi*180/pi))
-      
-      
-
-   def setRPM(self, rpm):
-
-      phi = self.speedAngleRange - self.speedAngleRange/5500*rpm
-      if phi<0:
-         phi = 1.5*pi/180
-      elif phi > self.speedAngleRange:
-         phi = self.speedAngleRange-1.5*pi/180
-      x1 = self.x0 +  self.r0                         * sin(phi)
-      y1 = self.y0 -  self.r0                         * cos(phi)
-      x2 = self.x0 + (self.r5 + self.largerLineWidth) * sin(phi)
-      y2 = self.y0 - (self.r5 + self.largerLineWidth) * cos(phi) 
-      self.canvas.delete(self.rpmArrow)   
-      self.canvas.delete(self.rpmArc)                              
-      self.rpmArrow = self.canvas.create_line(x1, y1, x2, y2, fill=self.blue_color, width=self.smallLineWidth)
-      self.rpmArc = self.canvas.create_arc(self.x0-self.r5-self.largerLineWidth/2, self.y0-self.r5-self.largerLineWidth/2, self.x0+self.r5+self.largerLineWidth/2, self.y0+self.r5+self.largeLineWidth/2, outline=self.blue_color, extent=-(self.startAngleSpeed+phi)*(180/pi), style=ARC, width=self.largerLineWidth, start=90-self.speedAngleRange*180/pi)
+        self.radius = min(self.x0, self.y0) * 0.9
 
 
+        # Render the screen
+        pygame.display.update()
+        
+
+    def __del__(self):
+        "Destructor to make sure pygame shuts down, etc."
+
+    def drawBackground(self):
+        # Draw speed and rpm meters
+        rpmLoop = self.maxRPM/100
+        self.drawLineInCirle(rpmLoop, 10, False, self.blueColor)
+        self.drawLineInCirle(self.maxSpeed, 1, True, self.orangeColor)
+        self.drawLineBetweenSpeedAndRPM()
+        
 
 
-   def reset(self):
-      self.meanSpeed = 0
-      self.numberOfDataPoints = 0
-      self.totalSpeed = 0
-      self.setSpeedVariables(float(self.canvas.itemcget(self.speedLabel, 'text')), 0)
+    def drawLineBetweenSpeedAndRPM(self):
+        y1 = self.y0 - (self.radius - 32)
+        y2 = self.y0 - (self.radius + self.largerLineWidth)
 
-      # Reset lapnumber
-      self.canvas.delete(self.lapNumberLabel) 
-      self.currentLap = 1
-      self.lapNumberLabel = self.canvas.create_text(self.width*9/10, self.height*1/10, fill=self.fgColor, font=(self.fontFamily, self.largerFontSize), text=self.currentLap)
+        pygame.draw.line(self.screen, (255, 255, 255),(self.x0, y1), (self.x0, y2), self.mediumLineWidth)
 
 
-   def newLap(self):
-      self.canvas.delete(self.lapNumberLabel) 
-      self.currentLap += 1
-      self.lapNumberLabel = self.canvas.create_text(self.width*9/10, self.height*1/10, fill=self.fgColor, font=(self.fontFamily, self.largerFontSize), text=self.currentLap)
+    def drawLineInCirle(self, maxValue, deliminator, speedOrRPM, color):
+        for i in range(0,maxValue+1):
+            if speedOrRPM:
+                phi = 21*pi/16 - (13*pi/16)/maxValue * i
+            else:
+                phi = -5*pi/16 + (13*pi/16)/maxValue * i
 
-   def connectGPS(self):
-      self.canvas.delete(self.gpsLabel)   
-      self.gpsLabel = self.canvas.create_text(self.x0-(self.r1*cos(self.GPS_ECU_angle)), self.y0-(self.r1*sin(self.GPS_ECU_angle)), anchor=E, fill=self.greenColor, font=(self.fontFamily, self.mediumFontSize), text="GPS")
-     
-   def disconnectGPS(self):
-      self.canvas.delete(self.gpsLabel)   
-      self.gpsLabel = self.canvas.create_text(self.x0-(self.r1*cos(self.GPS_ECU_angle)), self.y0-(self.r1*sin(self.GPS_ECU_angle)), anchor=E, fill=self.redColor, font=(self.fontFamily, self.mediumFontSize), text="GPS")
-     
-   def connectECU(self):
-      self.canvas.delete(self.ecuLabel)   
-      self.ecuLabel = self.canvas.create_text(self.x0+(self.r1*cos(self.GPS_ECU_angle)), self.y0-(self.r1*sin(self.GPS_ECU_angle)), anchor=W, fill=self.greenColor, font=(self.fontFamily, self.mediumFontSize), text="ECU")
-     
-   def disconnectECU(self):
-      self.canvas.delete(self.ecuLabel)   
-      self.ecuLabel = self.canvas.create_text(self.x0+(self.r1*cos(self.GPS_ECU_angle)), self.y0-(self.r1*sin(self.GPS_ECU_angle)), anchor=W, fill=self.redColor, font=(self.fontFamily, self.mediumFontSize), text="ECU")
-      self.canvas.delete(self.toppTemp)
-      self.toppTemp     = self.canvas.create_text(self.width*1/40, self.y0+self.height*3/20, anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text="--")
-      self.canvas.delete(self.cylinderTemp)     
-      self.cylinderTemp = self.canvas.create_text(self.width*1/40, self.y0,                  anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text="--")
-      self.canvas.delete(self.motorTemp)
-      self.motorTemp    = self.canvas.create_text(self.width*1/40, self.y0-self.height*3/20, anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text="--")
-  
-   def setStatus(self, level, module, message):
-      pass
+            x2 = self.x0 + self.radius * cos(phi)
+            y2 = self.y0 - self.radius * sin(phi)
 
-   def setTemperatures(self, tempTopplock, tempMotor, tempCylinder):
-      self.tempTopplock = tempTopplock
-      self.tempCylinder = tempCylinder
-      self.tempMotor    = tempMotor
+            if i == 0:
+                x1 = self.x0 + (self.radius - 25) * cos(phi)
+                y1 = self.y0 - (self.radius - 25) * sin(phi)
+                x2 = self.x0 + (self.radius + self.largerLineWidth) * cos(phi)
+                y2 = self.y0 - (self.radius + self.largerLineWidth) * sin(phi)
+                pygame.draw.line(self.screen, (255, 255, 255),(x1, y1), (x2, y2), self.mediumLineWidth)
 
+            # One lable every 10:th value and no label at zero
+            elif i%10 == 0 and i != 0:    
+                x1 = self.x0 + (self.radius - 25) * cos(phi)
+                y1 = self.y0 - (self.radius - 25) * sin(phi)
+                x  = self.x0 + (self.radius - 52) * cos(phi)
+                y  = self.y0 - (self.radius - 52) * sin(phi)
+                label = self.mediumFont.render(str(i/deliminator), 1, (255,255,255))
+                self.screen.blit(label, (x-self.mediumFont.size(str(i/deliminator))[0]/2, y-self.mediumFont.size(str(i/deliminator))[1]/2))
+                pygame.draw.line(self.screen, color,(x1, y1), (x2, y2), self.smallLineWidth)
 
-      self.canvas.delete(self.toppTemp)
-      self.toppTemp     = self.canvas.create_text(self.width*1/40, self.y0+self.height*3/20, anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text=str(self.tempTopplock))
-      self.canvas.delete(self.cylinderTemp)
-      self.cylinderTemp = self.canvas.create_text(self.width*1/40, self.y0,                  anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text=str(self.tempCylinder))
-      self.canvas.delete(self.motorTemp)
-      self.motorTemp    = self.canvas.create_text(self.width*1/40, self.y0-self.height*3/20, anchor=W, fill=self.fgColor, font=(self.fontFamily, self.mediumFontSize), text=str(self.tempMotor))
+            elif i%5 == 0 and i != maxValue:
+                x1 = self.x0 + (self.radius - 22) * cos(phi)
+                y1 = self.y0 - (self.radius - 22) * sin(phi)
+                pygame.draw.line(self.screen, color,(x1, y1), (x2, y2), self.smallLineWidth)
+
+            elif i != maxValue:
+                x1 = self.x0 + (self.radius - 15) * cos(phi)
+                y1 = self.y0 - (self.radius - 15) * sin(phi)
+                pygame.draw.line(self.screen, color,(x1, y1), (x2, y2), self.smallLineWidth)
 
 
-   def setStopWatchVariables(self, totalTime, currentLapTime):
-      self.canvas.delete(self.totalTimeLabel)
-      self.canvas.delete(self.currentLapTimeLabel)
-      self.totalTimeLabel = self.canvas.create_text(self.x0, self.y0, fill=self.fgColor, font=(self.fontFamily, self.largerFontSize), text=totalTime)
-      self.currentLapTimeLabel = self.canvas.create_text(self.x0, self.y0+(2*self.r1/5), fill=self.fgColor, font=(self.fontFamily, self.largeFontSize), text=currentLapTime)
-   
+    def drawECUandGPS(self):
+        if self.environment.ecuConnected:
+            ecuColor = self.greenColor
+        else: 
+            ecuColor = self.redColor
+
+        if self.environment.gpsConnected:
+            gpsColor = self.greenColor
+        else:
+            gpsColor = self.redColor
+
+        label = self.gpsEcuFont.render(str("GPS"), 1, gpsColor)
+        self.screen.blit(label, (self.x0-4-self.gpsEcuFont.size("GPS")[0], self.y0+self.radius*0.85-self.gpsEcuFont.size("GPS")[1]))
+        
+        label = self.gpsEcuFont.render(str("ECU"), 1, ecuColor)
+        self.screen.blit(label, (self.x0+4, self.y0+self.radius*0.85-self.gpsEcuFont.size("ECU")[1]))    
+
+
+    def drawSpeedLabel(self):
+        speed = str(int(round(self.environment.speed)))
+        label = self.bigFont.render(speed, 1, (255, 255, 255))
+        self.screen.blit(label, (self.x0 - self.bigFont.size(speed)[0]/2, self.y0-self.radius*0.75 + self.bigFont.size(speed)[1]/2)) 
+        label = self.smallFont.render("km/h", 1, (255, 255, 255))
+        self.screen.blit(label, (self.x0 - self.smallFont.size("km/h")[0]/2, self.y0 - self.radius*0.75 + self.bigFont.size(speed)[1] + self.smallFont.size("km/h")[1] + 5)) 
+
+    def drawDashedLine(self, surf, color, start_pos, end_pos, width=1, dash_length=10):
+        x1, y1 = start_pos
+        x2, y2 = end_pos
+        dl = dash_length
+
+        if (x1 == x2):
+            ycoords = [y for y in range(y1, y2, dl if y1 < y2 else -dl)]
+            xcoords = [x1] * len(ycoords)
+        elif (y1 == y2):
+            xcoords = [x for x in range(x1, x2, dl if x1 < x2 else -dl)]
+            ycoords = [y1] * len(xcoords)
+        else:
+            a = abs(x2 - x1)
+            b = abs(y2 - y1)
+            c = round(sqrt(a**2 + b**2))
+            dx = dl * a / c
+            dy = dl * b / c
+
+            xcoords = [x for x in numpy.arange(x1, x2, dx if x1 < x2 else -dx)]
+            ycoords = [y for y in numpy.arange(y1, y2, dy if y1 < y2 else -dy)]
+
+        next_coords = list(zip(xcoords[1::2], ycoords[1::2]))
+        last_coords = list(zip(xcoords[0::2], ycoords[0::2]))
+        for (x1, y1), (x2, y2) in zip(next_coords, last_coords):
+            start = (round(x1), round(y1))
+            end = (round(x2), round(y2))
+            pygame.draw.line(surf, color, start, end, width)
+
+
+    def drawArc(self, speedOrRPM, maxValue):
+        if speedOrRPM:
+            if self.environment.speed > maxValue:
+                speed = maxValue-1
+            elif self.environment.speed < 0:
+                speed = 0
+            else:
+                speed = self.environment.speed
+
+            phi         = 21*pi/16 - (13*pi/16)/maxValue * speed
+            color       = self.orangeColor
+            startAngle  = 21*pi/16
+
+            # Draw mean speed
+            if self.environment.meanSpeed > maxValue:
+                meanSpeed = maxValue-1
+            elif self.environment.meanSpeed < 0:
+                meanSpeed = 0
+            else:
+                meanSpeed = self.environment.meanSpeed
+
+            meanPhi = 21*pi/16 - (13*pi/16)/maxValue * meanSpeed
+            x1      = self.x0 + (self.radius - 70) * cos(meanPhi)
+            y1      = self.y0 - (self.radius - 70) * sin(meanPhi)
+            x2      = self.x0 + (self.radius + self.largerLineWidth) * cos(meanPhi)
+            y2      = self.y0 - (self.radius + self.largerLineWidth) * sin(meanPhi)
+            self.drawDashedLine(self.screen, (255,255,0),(x1, y1), (x2, y2), self.mediumLineWidth, 5)
+
+
+        else:
+            if self.environment.rpm != None:
+                if self.environment.rpm > maxValue:
+                    rpm = maxValue-100
+                elif self.environment.rpm < 0:
+                    rpm = 0
+                else:
+                    rpm = self.environment.rpm
+            else:
+                rpm = 0
+
+            phi         = -5*pi/16 + (13*pi/16)/maxValue * rpm
+            color       = self.blueColor
+            startAngle  = -5*pi/16
+
+
+        # Draw line
+        x1 = self.x0 + (self.radius - 70) * cos(phi)
+        y1 = self.y0 - (self.radius - 70) * sin(phi)
+        x2 = self.x0 + (self.radius + self.largerLineWidth) * cos(phi)
+        y2 = self.y0 - (self.radius + self.largerLineWidth) * sin(phi)
+        pygame.draw.line(self.screen, color,(x1, y1), (x2, y2), self.mediumLineWidth)
+
+        # Draw arc
+        if speedOrRPM:
+            pygame.draw.arc(self.screen, color, (self.x0-self.radius-self.largerLineWidth, self.y0-self.radius-self.largerLineWidth, (self.radius+self.largerLineWidth)*2, (self.radius+self.largerLineWidth)*2), phi, startAngle, self.largerLineWidth)
+        else:
+            pygame.draw.arc(self.screen, color, (self.x0-self.radius-self.largerLineWidth, self.y0-self.radius-self.largerLineWidth, (self.radius+self.largerLineWidth)*2, (self.radius+self.largerLineWidth)*2), startAngle, phi, self.largerLineWidth)
+       
+
+
+    def drawTimers(self):
+        x = self.x0
+        y = self.y0
+        s = self.environment.totalTimeString
+        label = self.bigFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (self.x0-self.bigFont.size(s)[0]/2, self.y0-self.bigFont.size(s)[1]/2))
+
+        x = self.x0
+        y = self.y0+self.bigFont.size("00:00")[1]+3
+        s = self.environment.lapTimeString
+        label = self.mediumFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (x-self.mediumFont.size(s)[0]/2, y-self.mediumFont.size(s)[1]/2))
+
+
+               
+
+    def drawLap(self):
+        x = self.x0*1.9
+        y = self.y0*0.1
+        s = str(self.environment.currentLapNumber)
+        label = self.bigFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (x-self.bigFont.size(s)[0], y))
+
+    def start(self):
+        while not self.done:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.done = True
+
+            # Make entire screen black
+            self.screen.fill((0, 0, 0))
+            
+            self.drawBackground()
+            self.drawECUandGPS()
+            self.drawSpeedLabel()
+            self.drawArc(True, self.maxSpeed)
+            self.drawArc(False, self.maxRPM)
+            self.drawTimers()
+            self.drawLap()
+
+            # Update display
+            pygame.display.flip()
+            self.clock.tick(10) # 
 
 
 
-# main
-if __name__ =='__main__':
 
-   def checkSerial(GUI):
-      var = raw_input("Enter command: " )
-      if var == "stop":
-         GUI.stopTimer()
-      elif var == "lap":
-         GUI.newLap()
-      elif var == "start":
-         GUI.startTimer()
-      elif var == "gpsOn":
-         GUI.connectGPS()
-      elif var == "gpsOff":
-         GUI.disconnectGPS()
-      elif var == "ecuOn":
-         GUI.connectECU()
-      elif var == "ecuOff":
-         GUI.disconnectECU()
-      elif var == "status":
-         level = raw_input("Enter level: ")
-         module = raw_input("enter module number: ")
-         string = raw_input("Enter status: ")
-         GUI.setStatus(level, module, string)
-      elif var == "q":
-         print("q was pressed")
-         sys.exit()
-      elif var == "speed":
-         spd = raw_input("Enter speed: ")
-         GUI.setSpeedVariables(float(spd), float(spd)/2)
-      elif var == "rpm":
-         r = raw_input("Enter RPM: ")
-         GUI.setRPM(float(r))
-      elif var == "btn1":
-         if GUI.timerIsRunning():
-            GUI.stopTimer()
-         else:
-            GUI.startTimer()
-      elif var == "btn2":
-         if GUI.timerIsRunning():
-            GUI.newLap()
-         else:
-            GUI.reset()
-      elif var == "reset":
-         GUI.reset()
-      else:
-         print("No valid command.. TRY AGAIN!")
-      root.after(1, checkSerial(GUI))
 
-      GUI.after(1, checkSerial(GUI))
- 
-   root = GUI() 
-   root.after(1, checkSerial(root))
-   root.mainloop()
 
 
 

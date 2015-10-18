@@ -10,14 +10,16 @@ class Environment(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self)
-		self.daemon = True
+		self.daemon 	= True
 		# set following variable true if debug mode is wanted
-		self.debugging = False
+		self.debugging 	= False
+
+		self.reset 		= True
 
 		# Initiate class instances 
-		self.liveData = LiveData()
+		self.liveData 	= LiveData()
 		self.liveData.start()
-		self.mysql = DatabaseHandler(self)
+		self.mysql 		= DatabaseHandler(self)
 		self.mysql.start()
 
 		#### SpeedHandler variables ####
@@ -94,7 +96,7 @@ class Environment(threading.Thread):
 	def run(self):
 		while True:
 			time.sleep(1)
-			#self.stopWatchEvent()
+			self.stopWatchEvent()
 
 	#### SpeedHandlerFunction
 	def setSpeed(self,speed):
@@ -146,16 +148,14 @@ class Environment(threading.Thread):
 				lapSeconds  = 0
 				lapMinutes += 1
 			self.currentLapTime = (lapMinutes, lapSeconds)
-
-		self.totalTimeString = self.timeToString(self.totalTime)
-		self.lapTimeString 	= self.timeToString(self.currentLapTime)
+			self.totalTimeString = self.timeToString(self.totalTime)
+			self.lapTimeString 	= self.timeToString(self.currentLapTime)
 
 	def newLapEvent(self):
 		self.currentLapNumber 	+= 1
 		self.currentLapTime 	 = (0, 0)
 		self.lapTimeStartTime	 = time.time()
-		totalTimeString 		 = self.timeToString(self.totalTime)
-		lapTimeString 			 = self.timeToString(self.currentLapTime)
+		self.lapTimeString 		 = self.timeToString(self.currentLapTime)
 
 	#### ButtonHandler functions
 	def buttonEvent1(self):
@@ -163,6 +163,7 @@ class Environment(threading.Thread):
 			self.newLapEvent()
 		else:
 			self.resetSpeedVariables()
+			self.reset = True
 		if self.debugging:
 			print("New lap/Reset button pressed")
 
@@ -171,14 +172,24 @@ class Environment(threading.Thread):
 			self.timerRunning = False
 		else:
 			self.timerRunning = True
-			# initiate new tables in database
-			self.mysql.createNewSession()
 			# Reset mean speed variables 
 			self.meanSpeed 			= 0
 			self.totalSpeed			= 0
 			self.numerOfSpeedValues = 0
 			self.totalTimeStartTime = time.time() - self.totalTime[0]*60 		- self.totalTime[1]
 			self.lapTimeStartTime	= time.time() - self.currentLapTime[0]*60 	- self.currentLapTime[1]
+			if self.reset:
+				# initiate new tables in database
+				self.mysql.createNewSession()
+				self.reset = False
+				self.totalTimeStartTime = time.time()
+				self.lapTimeStartTime	= time.time()
+
+
+			self.totalTimeString = self.timeToString(self.totalTime)
+			self.lapTimeString 	= self.timeToString(self.currentLapTime)
+
+
 		if self.debugging:
 			print("Start/Stop timer button pressed")
 
@@ -222,24 +233,11 @@ class Environment(threading.Thread):
 		self.currentLapTime 	= (0, 0) # (minutes, seconds)
 		self.totalTimeStartTime = time.time()
 		self.lapTimeStartTime	= time.time()
-		self.gui.setSpeedVariables(self.speed, self.meanSpeed)
+		self.totalTimeString = self.timeToString(self.totalTime)
+		self.lapTimeString 	= self.timeToString(self.currentLapTime)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-		
 
 
 

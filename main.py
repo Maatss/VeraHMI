@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from test import GUI
+from src.GUI import GUI
 from src.ECUHandler import ECUHandler
 import sys, threading, time, thread
 
