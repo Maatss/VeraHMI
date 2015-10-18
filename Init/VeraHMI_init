@@ -4,9 +4,9 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Update raspbian
-  sudo rpi-update
-  sudo apt-get update
-  sudo apt-get upgrade
+  rpi-update
+  apt-get update
+  apt-get upgrade
 else
   :
 fi
@@ -17,7 +17,7 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Install packages
-  sudo apt-get install apache2 mysql-server php5 php5-mysql phpmyadmin python-mysqldb gpsd gpsd-clients python-gps
+  apt-get install apache2 mysql-server php5 php5-mysql phpmyadmin python-mysqldb gpsd gpsd-clients python-gps
 else
   :
 fi
@@ -27,7 +27,7 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Install X11VNC
-  sudo apt-get install x11vnc
+  apt-get install x11vnc
   x11vnc -storepasswd
   echo "x11vnc -bg -nevershared -forever -tightfilexfer -usepw -display :0" >> ~/.xsessionrc
   chmod 775 ~/.xsessionrc
@@ -37,33 +37,7 @@ fi
 
 # Make script start at boot
 rm /etc/rc.local
-text='#!/bin/sh -e
-#
-# rc.local
-#
-# This script is executed at the end of each multiuser runlevel.
-# Make sure that the script will "exit 0" on success or any other
-# value on error.
-#
-# In order to enable or disable this script just change the execution
-# bits.
-#
-# By default this script does nothing.
-
-# Print the IP address
-_IP=$(hostname -I) || true
-if [ "$_IP" ]; then
-  printf "My IP address is %s\n" "$_IP"
-fi
-
-# turn off console blanking
-setterm -blank 0
-
-sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock &
-sudo python /home/pi/VeraHMI/main.py
-
-exit 0'
-echo "$text" >> /etc/rc.local
+mv /home/pi/VeraHMI/Init/rc.local /etc/rc.local
 chmod 777 /etc/rc.local
 
 
@@ -87,12 +61,12 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
 # Install plotly
-  sudo apt-get install python-dev
+  apt-get install python-dev
   wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | sudo python
-  sudo easy_install -U distribute
-  sudo apt-get install python-pip
-  sudo pip install rpi.gpio
-  sudo pip install plotly
+  easy_install -U distribute
+  apt-get install python-pip
+  pip install rpi.gpio
+  pip install plotly
 else
   :
 fi
@@ -125,4 +99,12 @@ fi
 echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
 /etc/init.d/apache2 restart
 
+
+# Set up splash screen (boot image)
+apt-get install fbi
+mv /home/pi/VeraHMI/Init/asplashscreen /etc/init.d/
+chmod a+x /etc/init.d/asplashscreen
+insserv /etc/init.d/asplashscreen
+
+reboot
 

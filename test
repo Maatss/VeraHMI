@@ -1,0 +1,6 @@
+#!/bin/bash
+# Set up splash screen (boot image)
+apt-get install fbi
+mv /home/pi/VeraHMI/Init/asplashscreen /etc/init.d
+chmod a+x /etc/init.d/asplashscreen
+insserv /etc/init.d/asplashscreen
