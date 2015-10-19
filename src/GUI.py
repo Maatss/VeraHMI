@@ -46,7 +46,7 @@ class GUI:
         fontPath            = "/home/pi/VeraHMI/Fonts/gotham.ttf"
         self.bigFont        = pygame.font.Font(fontPath, 70)
         self.mediumFont     = pygame.font.Font(fontPath, 40)
-        self.smallFont      = pygame.font.Font(fontPath, 20)
+        self.smallFont      = pygame.font.Font(fontPath, 25)
         self.gpsEcuFont     = pygame.font.Font(fontPath, 40)
         self.clock          = pygame.time.Clock()
         self.environment    = environment
@@ -210,8 +210,8 @@ class GUI:
                 meanSpeed = self.environment.meanSpeed
 
             meanPhi = 21*pi/16 - (13*pi/16)/maxValue * meanSpeed
-            x1      = self.x0 + (self.radius - 70) * cos(meanPhi)
-            y1      = self.y0 - (self.radius - 70) * sin(meanPhi)
+            x1      = self.x0 + (self.radius - 80) * cos(meanPhi)
+            y1      = self.y0 - (self.radius - 80) * sin(meanPhi)
             x2      = self.x0 + (self.radius + self.largerLineWidth) * cos(meanPhi)
             y2      = self.y0 - (self.radius + self.largerLineWidth) * sin(meanPhi)
             self.drawDashedLine(self.screen, (255,255,0),(x1, y1), (x2, y2), self.mediumLineWidth, 5)
@@ -234,8 +234,8 @@ class GUI:
 
 
         # Draw line
-        x1 = self.x0 + (self.radius - 70) * cos(phi)
-        y1 = self.y0 - (self.radius - 70) * sin(phi)
+        x1 = self.x0 + (self.radius - 80) * cos(phi)
+        y1 = self.y0 - (self.radius - 80) * sin(phi)
         x2 = self.x0 + (self.radius + self.largerLineWidth) * cos(phi)
         y2 = self.y0 - (self.radius + self.largerLineWidth) * sin(phi)
         pygame.draw.line(self.screen, color,(x1, y1), (x2, y2), self.mediumLineWidth)
@@ -249,17 +249,56 @@ class GUI:
 
 
     def drawTimers(self):
-        x = self.x0
-        y = self.y0
-        s = self.environment.totalTimeString
-        label = self.bigFont.render(s, 1, (255,255,255))
-        self.screen.blit(label, (self.x0-self.bigFont.size(s)[0]/2, self.y0-self.bigFont.size(s)[1]/2))
+        #x = self.x0
+        #y = self.y0
+        #s = self.environment.totalTimeString
+        #label = self.bigFont.render(s, 1, (255,255,255))
+        #self.screen.blit(label, (self.x0-self.bigFont.size(s)[0]/2, self.y0-self.bigFont.size(s)[1]/2))
+        label = self.bigFont.render(":", 1, (255,255,255))
+        self.screen.blit(label, (self.x0 - self.bigFont.size(":")[0]/2, self.y0-self.bigFont.size(":")[1]/2))
+        if self.environment.totalTime[0]<10:
+            s = "0" + str(self.environment.totalTime[0])
+        else:
+            s = str(self.environment.totalTime[0])
 
-        x = self.x0
-        y = self.y0+self.bigFont.size("00:00")[1]+3
-        s = self.environment.lapTimeString
+        label = self.bigFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (self.x0-self.bigFont.size(s)[0]-5, self.y0-self.bigFont.size(s)[1]/2))
+
+        if self.environment.totalTime[1]<10:
+            s = "0" + str(self.environment.totalTime[1])
+        else:
+            s = str(self.environment.totalTime[1])
+
+        label = self.bigFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (self.x0+5, self.y0-self.bigFont.size(s)[1]/2))
+
+
+        # Current lap time
+        label = self.mediumFont.render(":", 1, (255,255,255))
+        self.screen.blit(label, (self.x0 - self.mediumFont.size(":")[0]/2, self.y0+self.bigFont.size(":")[1]/2 + 4))
+        if self.environment.currentLapTime[0]<10:
+            s = "0" + str(self.environment.currentLapTime[0])
+        else:
+            s = str(self.environment.currentLapTime[0])
+
         label = self.mediumFont.render(s, 1, (255,255,255))
-        self.screen.blit(label, (x-self.mediumFont.size(s)[0]/2, y-self.mediumFont.size(s)[1]/2))
+        self.screen.blit(label, (self.x0-self.mediumFont.size(s)[0]-5, self.y0+self.bigFont.size("00:00")[1]/2 + 4))
+
+        if self.environment.currentLapTime[1]<10:
+            s = "0" + str(self.environment.currentLapTime[1])
+        else:
+            s = str(self.environment.currentLapTime[1])
+
+        label = self.mediumFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (self.x0+5, self.y0+self.bigFont.size("00:00")[1]/2 + 4))
+
+
+
+#        x = self.x0
+ #       y = self.y0+self.bigFont.size("00:00")[1]+3
+  #      s = self.environment.lapTimeString
+   #     label = self.mediumFont.render(s, 1, (255,255,255))
+    #    self.screen.blit(label, (x-self.mediumFont.size(s)[0]/2, y-self.mediumFont.size(s)[1]/2))
 
 
                
@@ -270,6 +309,51 @@ class GUI:
         s = str(self.environment.currentLapNumber)
         label = self.bigFont.render(s, 1, (255,255,255))
         self.screen.blit(label, (x-self.bigFont.size(s)[0], y))
+
+        x = self.x0*1.9 - self.bigFont.size(s)[0] - self.smallFont.size("Lap")[0]*1.2
+        y = self.y0*0.1
+        s = str(self.environment.currentLapNumber)
+        label = self.smallFont.render("Lap", 1, (255,255,255))
+        self.screen.blit(label, (x, y))
+
+
+
+    def drawTemperatures(self):
+
+        x = self.x0*0.05
+        y = self.y0*0.05
+        if self.environment.topplockTemp != None:
+            s = str(self.environment.topplockTemp)
+        else:
+            s = "--"
+        label = self.mediumFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (x, y))
+
+        x = self.x0*0.05
+        y = self.y0*0.25
+        if self.environment.topplockTemp != None:
+            s = str(self.environment.cylinderTemp)
+        else:
+            s = "--"
+        label = self.mediumFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (x, y))
+
+        x = self.x0*0.05
+        y = self.y0*0.45
+        if self.environment.topplockTemp != None:
+            s = str(self.environment.motorblockTemp)
+        else:
+            s = "--"
+        label = self.mediumFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (x, y))
+
+        x = self.x0*0.05 + self.mediumFont.size("00")[0]
+        y = self.y0*0.05
+        s = u'\N{DEGREE SIGN}' + "C"
+        label = self.bigFont.render(s, 1, (255,255,255))
+        self.screen.blit(label, (x, y))
+
+
 
     def start(self):
         while not self.done:
@@ -287,6 +371,7 @@ class GUI:
             self.drawArc(False, self.maxRPM)
             self.drawTimers()
             self.drawLap()
+            self.drawTemperatures()
 
             # Update display
             pygame.display.flip()

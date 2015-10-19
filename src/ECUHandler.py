@@ -98,7 +98,7 @@ class ECUHandler(threading.Thread):
 			time.sleep(1)
 			self.unavailableCount += 1
 			#print("unavailableCount: " + str(self.unavailableCount) + "Connected: " + str(self.connected))
-			if self.unavailableCount >= 3:
+			if self.unavailableCount >= 1:
 				self.connected = False
 				try:
 					self.port.close()
