@@ -2,7 +2,7 @@
 
 from src.GUI import GUI
 from src.ECUHandler import ECUHandler
-import sys, threading, time, thread
+import sys, threading, time, thread, os
 
 
 def initClasses():
@@ -23,8 +23,14 @@ def initClasses():
 
 	# GPSHandler
 	from src.GPSHandler import GPSHandler
-	#gpsHandler = GPSHandler(environment)
-	#gpsHandler.start()
+	gpsHandler = GPSHandler(environment)
+	gpsHandler.start()
+
+	# Restart 4g router 
+	os.system('sudo ifdown usb0')
+	time.sleep(0.5)
+	os.system('sudo ifup usb0')
+
 
 try:
 	# Only runs buttonHandler if the software is running on raspbian ("linux2")
