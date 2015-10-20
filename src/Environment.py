@@ -216,6 +216,8 @@ class Environment(threading.Thread):
 		if self.liveData != None:
 			if self.rpm != None:
 				self.liveData.sendECUValues(values)
+			else:
+				self.liveData.sendECUValues([0,0,0,0,0,0,0,0,0])
 
 
 	'''
