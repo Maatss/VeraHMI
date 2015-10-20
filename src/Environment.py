@@ -3,7 +3,6 @@
 from src.LiveData import LiveData
 from src.DatabaseHandler import DatabaseHandler
 import threading, time
-from test import GUI
 
 
 class Environment(threading.Thread):

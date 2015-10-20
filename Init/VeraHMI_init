@@ -150,11 +150,24 @@ then
   iptables -A FORWARD -i wlan0 -o usb0 -j ACCEPT
   sh -c "iptables-save > /etc/iptables.ipv4.nat"
 
+
+# apply routing
+iptables -t nat -A POSTROUTING -o $WAN -j MASQUERADE
+iptables -A FORWARD -i $WAN -o $LAN -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i $LAN -o $WAN -j ACCEPT
+
+
   wget http://www.adafruit.com/downloads/adafruit_hostapd.zip 
   unzip adafruit_hostapd.zip 
   mv /usr/sbin/hostapd /usr/sbin/hostapd.ORIG 
   mv hostapd /usr/sbin
   chmod 755 /usr/sbin/hostapd
+
+  service hostapd status
+  service isc-dhcp-server status
+  update-rc.d hostapd enable
+  update-rc.d isc-dhcp-server enable
+
 else
   :
 fi
