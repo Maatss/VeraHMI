@@ -80,7 +80,7 @@ if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Set up screen and disable boot to GUI
   text="framebuffer_width=640
-  framebuffer_height=480"
+framebuffer_height=480"
   echo "$text" >> /boot/config.txt
 
   echo "disable_splash=1" >> /boot/config.txt

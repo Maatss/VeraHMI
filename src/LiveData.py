@@ -6,23 +6,25 @@ import urllib2, os
 class LiveData(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
+        self.daemon = True
 
 
 ###########################################################################
 # Cridentials and sign in
 #
-        self.username = 'andreas.kall'
-        self.api_key = 'b7uwccjbpr'
-        self.speed_token = 'i6ulgqn4mp'
-        self.rpm_token = 'aj6o0eh54o'
-        self.eng_block_token = '5cggy6tthh'
-        self.cylinder_temp_token = 'ylptfineo4'
-        self.cylinder_head_temp_token = '13dcofwzp8'
-        self.air_temp_token = 'l0kjn8nu3q'
-        self.air_pressure_token = 'ud1r76dcmb'
-        self.connectionTries = 0
-        self.readyForData = False
-        self.connectedToInternet = False
+        self.username                   = 'andreas.kall'
+        self.api_key                    = 'b7uwccjbpr'
+        self.speed_token                = 'i6ulgqn4mp'
+        self.rpm_token                  = 'aj6o0eh54o'
+        self.eng_block_token            = '5cggy6tthh'
+        self.cylinder_temp_token        = 'ylptfineo4'
+        self.cylinder_head_temp_token   = '13dcofwzp8'
+        self.air_temp_token             = 'l0kjn8nu3q'
+        self.air_pressure_token         = 'ud1r76dcmb'
+        self.connectionTries            = 0
+        self.readyForData               = False
+        self.connectedToInternet        = False
+        self.timeSinceConnected         = time.time()
 
         thread.start_new_thread(self.checkForInternetConnection, ())
 ###########################################################################
@@ -211,64 +213,73 @@ class LiveData(threading.Thread):
         #Check if connected to internet
         while True:
             try:
-                urllib2.urlopen("http://www.google.com").close()
-            except urllib2.URLError:
-                print "Not Connected to internet, trying again"
+                urllib2.urlopen("http://www.google.se",timeout=2)
+                if self.connectedToInternet == False:
+                    self.connectedToInternet = True
+                    self.initiateStreams()
+                
+                self.timeSinceConnected = time.time()
+            except urllib2.URLError as e:
                 self.connectedToInternet = False
-                self.connectionTries += 1
-                if self.connectionTries > 5:
+                if time.time() - self.timeSinceConnected > 5:
+                    print("not connected to internet, trying to connect")
                     os.system("sudo ifdown usb0")
-                    time.sleep(0.5)
+                    time.sleep(1)
                     os.system("sudo ifup usb0")
-                    self.connectionTries = 0
-                time.sleep(1)
-            else:
-                print "Connected to internet"
-                break
+                    self.timeSinceConnected = time.time()
 
-        py.sign_in(self.username, self.api_key)
-        self.connectedToInternet = True
+            time.sleep(2)
 
 
-
-    def run(self):
 
 ###########################################################################
 # Init figures and streams
 # 
+    def initiateStreams(self):
         while True:
             if self.connectedToInternet:
-                self.speed_fig = Figure(data=[self.speed], layout=self.speed_layout)
-                self.rpm_fig = Figure(data=[self.rpm], layout=self.rpm_layout)
-                self.temp_fig = Figure(data=[self.eng_block_temp, self.cylinder_temp, self.cylinder_head_temp], layout=self.temp_layout)
-                self.air_fig = Figure(data=[self.air_temp, self.air_pressure], layout=self.air_layout)
+                try:
+                    py.sign_in(self.username, self.api_key)
+                    self.speed_fig = Figure(data=[self.speed], layout=self.speed_layout)
+                    self.rpm_fig = Figure(data=[self.rpm], layout=self.rpm_layout)
+                    self.temp_fig = Figure(data=[self.eng_block_temp, self.cylinder_temp, self.cylinder_head_temp], layout=self.temp_layout)
+                    self.air_fig = Figure(data=[self.air_temp, self.air_pressure], layout=self.air_layout)
 
 
 
-                py.plot(self.speed_fig, filename='Speed', auto_open=False)
-                py.plot(self.rpm_fig, filename='RPM', auto_open=False)
-                py.plot(self.temp_fig, filename='Temperatures', auto_open=False)
-                py.plot(self.air_fig, filename='Environment data', auto_open=False)
+                    py.plot(self.speed_fig, filename='Speed', auto_open=False)
+                    py.plot(self.rpm_fig, filename='RPM', auto_open=False)
+                    py.plot(self.temp_fig, filename='Temperatures', auto_open=False)
+                    py.plot(self.air_fig, filename='Environment data', auto_open=False)
 
-                self.speed_stream = py.Stream(self.speed_token)
-                self.speed_stream.open()
-                self.rpm_stream = py.Stream(self.rpm_token)
-                self.rpm_stream.open()
+                    self.speed_stream = py.Stream(self.speed_token)
+                    self.speed_stream.open()
+                    self.rpm_stream = py.Stream(self.rpm_token)
+                    self.rpm_stream.open()
 
-                self.eng_block_temp_stream = py.Stream(self.eng_block_token)
-                self.eng_block_temp_stream.open()
-                self.cylinder_temp_stream = py.Stream(self.cylinder_temp_token)
-                self.cylinder_temp_stream.open()
-                self.cylinder_head_temp_stream = py.Stream(self.cylinder_head_temp_token)
-                self.cylinder_head_temp_stream.open()
+                    self.eng_block_temp_stream = py.Stream(self.eng_block_token)
+                    self.eng_block_temp_stream.open()
+                    self.cylinder_temp_stream = py.Stream(self.cylinder_temp_token)
+                    self.cylinder_temp_stream.open()
+                    self.cylinder_head_temp_stream = py.Stream(self.cylinder_head_temp_token)
+                    self.cylinder_head_temp_stream.open()
 
-                self.air_temp_stream = py.Stream(self.air_temp_token)
-                self.air_temp_stream.open()
-                self.air_pressure_stream = py.Stream(self.air_pressure_token)
-                self.air_pressure_stream.open()
-                self.readyForData = True
-                print("init done")
-                break
+                    self.air_temp_stream = py.Stream(self.air_temp_token)
+                    self.air_temp_stream.open()
+                    self.air_pressure_stream = py.Stream(self.air_pressure_token)
+                    self.air_pressure_stream.open()
+                    self.readyForData = True
+                    print("Live data is alive!!!")
+                    break
+                except Exception as e:
+                    pass
+
+
+    def run(self):
+        while True:
+            time.sleep(1)
+
+        
 
 
 
@@ -278,19 +289,25 @@ class LiveData(threading.Thread):
 #
     def sendECUValues(self, logs):
         if self.readyForData and self.connectedToInternet:
-            # Order in logs param: cylinder_temp, cylinder_head_temp, eng_block_temp, battery_voltage, air_pressure, air_temp, rpm, fuel_mass, error_code
-            self.cylinder_temp_stream.write({'x': datetime.datetime.now(), 'y':logs[0]})
-            self.cylinder_head_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[1]})
-            self.eng_block_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[2]})
-            self.rpm_stream.write({'x': datetime.datetime.now(), 'y': logs[6]})
-            self.air_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[5]})
-            self.air_pressure_stream.write({'x': datetime.datetime.now(), 'y': logs[4]})
+            try:
+                # Order in logs param: cylinder_temp, cylinder_head_temp, eng_block_temp, battery_voltage, air_pressure, air_temp, rpm, fuel_mass, error_code
+                self.cylinder_temp_stream.write({'x': datetime.datetime.now(), 'y':logs[0]})
+                self.cylinder_head_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[1]})
+                self.eng_block_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[2]})
+                self.rpm_stream.write({'x': datetime.datetime.now(), 'y': logs[6]})
+                self.air_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[5]})
+                self.air_pressure_stream.write({'x': datetime.datetime.now(), 'y': logs[4]})
+            except Exception as e:
+                pass
 
 
 
     def sendSpeed(self, speed):
         if self.readyForData and self.connectedToInternet:
-            self.speed_stream.write({'x': datetime.datetime.now(), 'y': speed})
+            try:
+                self.speed_stream.write({'x': datetime.datetime.now(), 'y': speed})
+            except Exception as e:
+                pass
 
 ###########################################################################
 # If run as main

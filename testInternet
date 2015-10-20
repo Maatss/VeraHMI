@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import urllib2, time
+
+while True:
+	try:
+		urllib2.urlopen("http://www.google.se",timeout=2)
+		print("connected")
+	except urllib2.URLError as e:
+		print("not connected to internet")
+
+	time.sleep(1)

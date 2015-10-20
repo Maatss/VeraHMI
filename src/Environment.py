@@ -21,6 +21,9 @@ class Environment(threading.Thread):
 		self.mysql 		= DatabaseHandler(self)
 		self.mysql.start()
 
+		#### Internet variables
+		self.connectedTointernet = False
+
 		#### SpeedHandler variables ####
 		self.speed 				= 0
 		self.meanSpeed 			= 0
@@ -85,6 +88,9 @@ class Environment(threading.Thread):
 			string += "0" + str(seconds)
 		return string
 
+	def getInternetStatus(self):
+		self.connectedTointernet = self.liveData.connectedToInternet
+
 
 	'''
 	##################################################################################################################################################
@@ -96,6 +102,7 @@ class Environment(threading.Thread):
 		while True:
 			time.sleep(1)
 			self.stopWatchEvent()
+			self.getInternetStatus()
 
 	#### SpeedHandlerFunction
 	def setSpeed(self,speed):

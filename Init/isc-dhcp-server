@@ -7,7 +7,7 @@
 #
 
 # Path to dhcpd's config file (default: /etc/dhcp/dhcpd.conf).
-DHCPD_CONF="/etc/dhcp/dhcpd.conf"
+#DHCPD_CONF=/etc/dhcp/dhcpd.conf
 
 # Path to dhcpd's PID file (default: /var/run/dhcpd.pid).
 #DHCPD_PID=/var/run/dhcpd.pid

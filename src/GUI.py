@@ -146,10 +146,10 @@ class GUI:
             gpsColor = self.redColor
 
         label = self.gpsEcuFont.render(str("GPS"), 1, gpsColor)
-        self.screen.blit(label, (self.x0-4-self.gpsEcuFont.size("GPS")[0], self.y0+self.radius*0.85-self.gpsEcuFont.size("GPS")[1]))
+        self.screen.blit(label, (self.x0-self.gpsEcuFont.size("GPS")[0], self.y0+self.radius*0.97-self.gpsEcuFont.size("GPS")[1]))
         
         label = self.gpsEcuFont.render(str("ECU"), 1, ecuColor)
-        self.screen.blit(label, (self.x0+4, self.y0+self.radius*0.85-self.gpsEcuFont.size("ECU")[1]))    
+        self.screen.blit(label, (self.x0, self.y0+self.radius*0.97-self.gpsEcuFont.size("ECU")[1]))    
 
 
     def drawSpeedLabel(self):
@@ -354,6 +354,16 @@ class GUI:
         self.screen.blit(label, (x, y))
 
 
+    def drawInternetStatus(self):
+        if self.environment.connectedTointernet:
+            color = self.greenColor
+        else:
+            color = self.redColor
+
+        s = "3G/4G"
+        label = self.mediumFont.render(s, 1, color)
+        self.screen.blit(label, (self.x0-self.mediumFont.size(s)[0]/2, self.y0+self.radius*0.78-self.mediumFont.size(s)[1]))
+
 
     def start(self):
         while not self.done:
@@ -372,6 +382,7 @@ class GUI:
             self.drawTimers()
             self.drawLap()
             self.drawTemperatures()
+            self.drawInternetStatus()
 
             # Update display
             pygame.display.flip()
