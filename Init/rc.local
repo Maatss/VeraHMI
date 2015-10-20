@@ -21,6 +21,6 @@ fi
 setterm -blank 0
 
 sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock &
-sudo python /home/pi/VeraHMI/main.py &
+sudo python /home/pi/VeraHMI/main.py
 
 exit 0

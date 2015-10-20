@@ -29,7 +29,9 @@ then
   # Install X11VNC
   apt-get install x11vnc
   x11vnc -storepasswd
-  echo "x11vnc -bg -nevershared -forever -tightfilexfer -usepw -display :0" >> ~/.xsessionrc
+  touch /home/pi/.xsessionrc
+  echo "# Start X11VNC
+  x11vnc -bg -nevershared -forever -tightfilexfer -usepw -display :0" >> /home/pi/.xsessionrc
   chmod 775 ~/.xsessionrc
 else
   :
@@ -37,7 +39,7 @@ fi
 
 # Make script start at boot
 rm /etc/rc.local
-mv /home/pi/VeraHMI/Init/rc.local /etc/rc.local
+cp /home/pi/VeraHMI/Init/rc.local /etc/rc.local
 chmod 777 /etc/rc.local
 
 
@@ -72,39 +74,50 @@ else
 fi
 
 
-# Set up screen and disable boot to GUI
-text="framebuffer_width=640
-framebuffer_height=480"
-echo "$text" >> /boot/config.txt
-
-echo "disable_splash=1" >> /boot/config.txt
-echo "max_usb_current=1" >> /boot/config.txt
-
-
-echo -e "Boot to GUI? (y/n): \c"
+echo -e "Copy config strings to /boot/config.txt and add phpmyadmin support for apache server? (y/n): \c"
 read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
-  systemctl set-default graphical.target
-  ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
-  sed /etc/lightdm/lightdm.conf -i -e "s/^#autologin-user=.*/autologin-user=pi/"
+  # Set up screen and disable boot to GUI
+  text="framebuffer_width=640
+  framebuffer_height=480"
+  echo "$text" >> /boot/config.txt
+
+  echo "disable_splash=1" >> /boot/config.txt
+  echo "max_usb_current=1" >> /boot/config.txt
+
+
+  # Set up phpmyadmin
+  echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
+  /etc/init.d/apache2 restart
 else
-  systemctl set-default multi-user.target
-  ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
+  :
 fi
 
 
+echo -e "Setup Vera team boot screen? (y/n): \c"
+read answer
+if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
+then
+  # Set up splash screen (boot image)
+  apt-get install fbi
+  cp /home/pi/VeraHMI/Init/asplashscreen /etc/init.d/
+  chmod a+x /etc/init.d/asplashscreen
+  insserv /etc/init.d/asplashscreen
+else
+  :
+fi
 
-# Set up phpmyadmin
-echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
-/etc/init.d/apache2 restart
+# Disable boot to GUI
+systemctl set-default multi-user.target
+ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
 
+# If you want to enable boot to GUI again run the two following commands
+# 
+#systemctl set-default graphical.target
+#ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
+#sed /etc/lightdm/lightdm.conf -i -e "s/^#autologin-user=.*/autologin-user=pi/"
 
-# Set up splash screen (boot image)
-apt-get install fbi
-mv /home/pi/VeraHMI/Init/asplashscreen /etc/init.d/
-chmod a+x /etc/init.d/asplashscreen
-insserv /etc/init.d/asplashscreen
 
 reboot
 
