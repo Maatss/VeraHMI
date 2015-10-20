@@ -27,9 +27,9 @@ def initClasses():
 	gpsHandler.start()
 
 	# Restart 4g router 
-	os.system('sudo ifdown usb0')
-	time.sleep(0.5)
-	os.system('sudo ifup usb0')
+	#os.system('sudo ifdown usb0')
+	#time.sleep(0.5)
+	#os.system('sudo ifup usb0')
 
 
 try:

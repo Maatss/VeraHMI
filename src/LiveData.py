@@ -224,10 +224,10 @@ class LiveData(threading.Thread):
                 time.sleep(1)
             else:
                 print "Connected to internet"
-                self.connectedToInternet = True
                 break
 
         py.sign_in(self.username, self.api_key)
+        self.connectedToInternet = True
 
 
 
