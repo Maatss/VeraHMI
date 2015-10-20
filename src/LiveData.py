@@ -40,7 +40,7 @@ class LiveData(threading.Thread):
             ),
             stream=dict(
                 token=self.speed_token,
-                maxpoints=120
+                maxpoints=1000
             )
         )
 
