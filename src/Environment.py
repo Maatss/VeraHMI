@@ -178,12 +178,6 @@ class Environment(threading.Thread):
 			self.timerRunning = False
 		else:
 			self.timerRunning = True
-			if self.reset:
-				# initiate new tables in database
-				self.mysql.createNewSession()
-				self.reset = False
-				self.totalTimeStartTime = time.time()
-				self.lapTimeStartTime	= time.time()
 
 			# Reset mean speed variables 
 			self.meanSpeed 			= 0
@@ -191,6 +185,13 @@ class Environment(threading.Thread):
 			self.numerOfSpeedValues = 0
 			self.totalTimeStartTime = time.time() - self.totalTime[0]*60 		- self.totalTime[1]
 			self.lapTimeStartTime	= time.time() - self.currentLapTime[0]*60 	- self.currentLapTime[1]
+
+			if self.reset:
+				# initiate new tables in database
+				self.mysql.createNewSession()
+				self.reset = False
+				self.totalTimeStartTime = time.time()
+				self.lapTimeStartTime	= time.time()
 
 			self.totalTimeString = self.timeToString(self.totalTime)
 			self.lapTimeString 	= self.timeToString(self.currentLapTime)
@@ -220,7 +221,7 @@ class Environment(threading.Thread):
 			self.mysql.saveECUValues(values + [self.gpsPos[0]] + [self.gpsPos[1]] + [self.speed])
 
 		# Send live data to website
-		if self.liveData != None:
+		if self.liveData != None and self.timerRunning:
 			if self.rpm != None:
 				self.liveData.sendECUValues(values)
 			else:
