@@ -178,12 +178,6 @@ class Environment(threading.Thread):
 			self.timerRunning = False
 		else:
 			self.timerRunning = True
-			# Reset mean speed variables 
-			self.meanSpeed 			= 0
-			self.totalSpeed			= 0
-			self.numerOfSpeedValues = 0
-			self.totalTimeStartTime = time.time() - self.totalTime[0]*60 		- self.totalTime[1]
-			self.lapTimeStartTime	= time.time() - self.currentLapTime[0]*60 	- self.currentLapTime[1]
 			if self.reset:
 				# initiate new tables in database
 				self.mysql.createNewSession()
@@ -191,6 +185,12 @@ class Environment(threading.Thread):
 				self.totalTimeStartTime = time.time()
 				self.lapTimeStartTime	= time.time()
 
+			# Reset mean speed variables 
+			self.meanSpeed 			= 0
+			self.totalSpeed			= 0
+			self.numerOfSpeedValues = 0
+			self.totalTimeStartTime = time.time() - self.totalTime[0]*60 		- self.totalTime[1]
+			self.lapTimeStartTime	= time.time() - self.currentLapTime[0]*60 	- self.currentLapTime[1]
 
 			self.totalTimeString = self.timeToString(self.totalTime)
 			self.lapTimeString 	= self.timeToString(self.currentLapTime)
@@ -237,6 +237,7 @@ class Environment(threading.Thread):
 		self.meanSpeed 			= 0
 		self.totalSpeed			= 0
 		self.numerOfSpeedValues = 0
+		self.currentLapNumber	= 1
 		self.totalTime 			= (0, 0) # (minutes, seconds)
 		self.currentLapTime 	= (0, 0) # (minutes, seconds)
 		self.totalTimeStartTime = time.time()
