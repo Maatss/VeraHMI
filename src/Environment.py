@@ -116,7 +116,7 @@ class Environment(threading.Thread):
 			self.mysql.saveSpeed(self.speed)
 
 		# Send speed to website
-		if self.liveData != None:
+		if self.liveData != None and self.timerRunning:
 			self.liveData.sendSpeed(self.speed)
 
 

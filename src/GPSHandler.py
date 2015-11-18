@@ -39,7 +39,7 @@ class GPSHandler(threading.Thread):
 				report = self.session.next()
 				# Wait for a 'TPV' report and display the current time,
 				# To see all report data, uncomment the line below
-				#print report
+				print report
 				if report['mode'] > 1:
 					self.connected = True
 					self.unavailableCount = 0
@@ -51,7 +51,7 @@ class GPSHandler(threading.Thread):
 								self.GPSValues[self.attributeNames[attr]] = report[attr]*3.6
 							else:
 								self.GPSValues[self.attributeNames[attr]] = report[attr]
-							#print("attr: " + attr + " number: " + str(self.attributeNames[attr]))
+							print("attr: " + attr + " number: " + str(self.attributeNames[attr]))
 						else:
 							self.GPSValues[self.attributeNames[attr]] = None
 
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 		gps.start()
 		while True:
 			(lat, lon, speed) = (gps.getGPSAttr('lat'), gps.getGPSAttr('lon'), gps.getGPSAttr('speed'))
-			print(lat, lon, speed)
+			#print(lat, lon, speed)
 			time.sleep(1)
 
 	except (KeyboardInterrupt, SystemExit):
