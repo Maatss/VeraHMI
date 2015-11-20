@@ -15,7 +15,7 @@ class SpeedHandler(threading.Thread):
 		self.environment 			= environment
 
 		# System parameters
-		self.sensorPin 				= 13
+		self.sensorPin 				= 31
 		diameterOfWheel 			= 0.4816 # [m]
 		numersOfMagnets 			= 4
 		self.wheelCircumference 	= math.pi*diameterOfWheel
