@@ -93,7 +93,11 @@ if __name__ == '__main__':
 		gps.start()
 		while True:
 			(lat, lon) = gps.gpsPos
-			print("Lat: " + str(lat) + ",    Long: " + str(lon) + "     Connected: " + str(gps.connected))
+			if gps.environment != None:
+				print("Lat: " + str(lat) + ",    Long: " + str(lon) + "     Connected: " + str(gps.environment.gpsConnected))
+			else:
+				print("Lat: " + str(lat) + ",    Long: " + str(lon))
+		
 			time.sleep(1)
 
 	except (KeyboardInterrupt, SystemExit):
