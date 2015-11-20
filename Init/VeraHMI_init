@@ -17,7 +17,8 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Install packages
-  apt-get install apache2 mysql-server php5 php5-mysql phpmyadmin python-mysqldb pynmea2
+  apt-get install apache2 mysql-server php5 php5-mysql phpmyadmin python-mysqldb
+  sudo pip install pynmea2
 else
   :
 fi
