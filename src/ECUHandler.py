@@ -51,7 +51,7 @@ class ECUHandler(threading.Thread):
 	    	try:
 	        	ch = self.port.read()
 	        except Exception as e:
-				print(e)
+				#print(e)
 				return None
 		rv += ch
 	        if ch=='&':
@@ -103,12 +103,14 @@ class ECUHandler(threading.Thread):
 				try:
 					self.port.close()
 				except Exception as e:
-					print(e)
+					pass
+					#print(e)
 			try:
 				self.portName 	= self.findPort()
 				self.port 		= serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			except Exception as e:
-				print(e)
+				pass
+				#print(e)
 
 		if __name__ != '__main__':
 			self.environment.sendEcuVariables(self.logs, self.connected)

@@ -8,7 +8,6 @@ class GPSHandler(threading.Thread):
 		threading.Thread.__init__(self)
 		self.daemon 		= True
 		self.environment 	= environment	
-		self.connected 		= False
 		self.gpsPos		 	= (None, None)
 		self.gpsSpeed 		= None
 		self.timeSet	 	= False
@@ -36,11 +35,9 @@ class GPSHandler(threading.Thread):
 	def parseGPS(self, str):
 	    if str.find('GGA') > 0:
 	        msg = pynmea2.parse(str)
-	        if len(msg.lat) > 0:
-	        	self.connected = True
+	        if len(msg.lat) > 2:
+	        	self.environment.gpsConnected = True
 	        	self.gpsPos = (msg.lat + msg.lat_dir, msg.lon + msg.lon_dir)
-	        	if self.environment != None:
-	        		self.environment.gpsPos = self.gpsPos
 	        	# Set time according to GPS time
 	        	if not self.timeSet:
 	        		print 'Setting system time to GPS time...'
@@ -52,7 +49,10 @@ class GPSHandler(threading.Thread):
 
 	        else:
 	        	self.gpsPos = (None, None)
-	        	self.connected = False
+	        	self.environment.gpsConnected  = False
+
+	     	if self.environment != None:
+	        	self.environment.gpsPos = self.gpsPos
 
 
 	def reconnectToGPS(self):
@@ -77,7 +77,7 @@ class GPSHandler(threading.Thread):
    			except Exception as e:
    				print(e)
    				# Try to close port
-   				self.connected = False
+   				self.environment.gpsConnected  = False
    				self.reconnectToGPS()
    				
 

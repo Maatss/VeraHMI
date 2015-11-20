@@ -37,8 +37,8 @@ try:
 	if sys.platform == "linux2":
 
 		#Set time according to GPS
-		from src import gpstime
-		thread.start_new_thread(gpstime.setTImeFromGPS, (2,))
+		#from src import gpstime
+		#thread.start_new_thread(gpstime.setTImeFromGPS, (2,))
 
 		# Environment
 		from src.Environment import Environment
