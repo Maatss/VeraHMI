@@ -113,7 +113,7 @@ class Environment(threading.Thread):
 
 		# Save speed in MySQL
 		if self.mysql != None and self.timerRunning:
-			self.mysql.saveSpeed(self.speed)
+			self.mysql.saveSpeed(self.speed, self.gpsPos)
 
 		# Send speed to website
 		if self.liveData != None and self.timerRunning:
