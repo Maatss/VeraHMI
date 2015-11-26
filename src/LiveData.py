@@ -220,6 +220,7 @@ class LiveData(threading.Thread):
                 
                 self.timeSinceConnected = time.time()
             except urllib2.URLError as e:
+                print(e)
                 self.connectedToInternet = False
                 if time.time() - self.timeSinceConnected > 5:
                     print("not connected to internet, trying to connect")
@@ -272,7 +273,7 @@ class LiveData(threading.Thread):
                     print("Live data is alive!!!")
                     break
                 except Exception as e:
-                    pass
+                    print(e)
 
 
     def run(self):
@@ -298,7 +299,7 @@ class LiveData(threading.Thread):
                 self.air_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[5]})
                 self.air_pressure_stream.write({'x': datetime.datetime.now(), 'y': logs[4]})
             except Exception as e:
-                pass
+                print(e)
 
 
 
@@ -307,7 +308,7 @@ class LiveData(threading.Thread):
             try:
                 self.speed_stream.write({'x': datetime.datetime.now(), 'y': speed})
             except Exception as e:
-                pass
+                print(e)
 
 ###########################################################################
 # If run as main
