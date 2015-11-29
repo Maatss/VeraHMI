@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import plotly.plotly as py # plotly library
 from plotly.graph_objs import * # plotly graph objects
 import time, datetime, random, math, threading, thread # timer functions
@@ -21,12 +23,10 @@ class LiveData(threading.Thread):
         self.cylinder_head_temp_token   = '13dcofwzp8'
         self.air_temp_token             = 'l0kjn8nu3q'
         self.air_pressure_token         = 'ud1r76dcmb'
-        self.connectionTries            = 0
         self.readyForData               = False
         self.connectedToInternet        = False
         self.timeSinceConnected         = time.time()
 
-        thread.start_new_thread(self.checkForInternetConnection, ())
 ###########################################################################
 # Traces
 #
@@ -210,26 +210,17 @@ class LiveData(threading.Thread):
 
     def checkForInternetConnection(self):
 
-        #Check if connected to internet
         while True:
             try:
-                urllib2.urlopen("http://www.google.se",timeout=2)
-                if self.connectedToInternet == False:
-                    self.connectedToInternet = True
-                    self.initiateStreams()
-                
-                self.timeSinceConnected = time.time()
-            except urllib2.URLError as e:
-                print(e)
+                urllib2.urlopen("http://www.google.com").close()
+            except urllib2.URLError:
+                print "Not Connected to internet"
                 self.connectedToInternet = False
-                if time.time() - self.timeSinceConnected > 5:
-                    print("not connected to internet, trying to connect")
-                    os.system("sudo ifdown usb0")
-                    time.sleep(1)
-                    os.system("sudo ifup usb0")
-                    self.timeSinceConnected = time.time()
+            else:
+                print "Connected to internet"
+                self.connectedToInternet = True
 
-            time.sleep(2)
+            time.sleep(5)
 
 
 
@@ -273,10 +264,14 @@ class LiveData(threading.Thread):
                     print("Live data is alive!!!")
                     break
                 except Exception as e:
+                    print("Error when setting up")
                     print(e)
+                    time.sleep(1)
 
 
     def run(self):
+        thread.start_new_thread(self.checkForInternetConnection, ())
+        self.initiateStreams()
         while True:
             time.sleep(1)
 
@@ -299,6 +294,7 @@ class LiveData(threading.Thread):
                 self.air_temp_stream.write({'x': datetime.datetime.now(), 'y': logs[5]})
                 self.air_pressure_stream.write({'x': datetime.datetime.now(), 'y': logs[4]})
             except Exception as e:
+                print("Error when sending ECU data")
                 print(e)
 
 
@@ -308,6 +304,7 @@ class LiveData(threading.Thread):
             try:
                 self.speed_stream.write({'x': datetime.datetime.now(), 'y': speed})
             except Exception as e:
+                print("Error when sending speed")
                 print(e)
 
 ###########################################################################
