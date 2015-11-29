@@ -16,8 +16,10 @@ echo -e "Install dependencies? (y/n): \c"
 read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
+  echo "deb http://archive.raspbian.org/raspbian/ stretch main" >> /etc/apt/sources.list
+
   # Install packages
-  apt-get install apache2 mysql-server php5 php5-mysql phpmyadmin python-mysqldb
+  apt-get install apache2 mysql-server-5.6 php5 php5-mysql phpmyadmin python-mysqldb
   sudo pip install pynmea2
 else
   :
