@@ -44,7 +44,7 @@ class DatabaseHandler(threading.Thread):
 						`lat_loc` varchar(15) COLLATE utf8_swedish_ci NOT NULL,
 						`long_loc` varchar(15) COLLATE utf8_swedish_ci NOT NULL,
 						`speed` varchar(15) NOT NULL,
-						`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+						`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 						`rpm` varchar(20) NOT NULL,
 						`tempcylinder` varchar(20)  NOT NULL,
 						`temptoplock` varchar(20)  NOT NULL,
@@ -65,7 +65,7 @@ class DatabaseHandler(threading.Thread):
 						`speed` varchar(15) NOT NULL,
 						`lat_loc` varchar(15) COLLATE utf8_swedish_ci NOT NULL,
 						`long_loc` varchar(15) COLLATE utf8_swedish_ci NOT NULL,
-						`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+						`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 						PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci AUTO_INCREMENT=1;
 						""" % str(self.id)	
 

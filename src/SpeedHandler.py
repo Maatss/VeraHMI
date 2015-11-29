@@ -20,9 +20,9 @@ class SpeedHandler(threading.Thread):
 		numersOfMagnets 			= 4
 		self.wheelCircumference 	= math.pi*diameterOfWheel
 		self.distancePerMagnet 		= self.wheelCircumference/numersOfMagnets
-		self.timeIntervall 			= 0.2									# send value every X seconds
+		self.timeIntervall 			= 1								# send value every X seconds
 		self.eventHappened			= False									
-		self.timeUntilZero			= 0.8									# If it has been more than X seconds since last sensor event, set speed to zero
+		self.timeUntilZero			= 1									# If it has been more than X seconds since last sensor event, set speed to zero
 
 		# Initial values
 		self.lastTime 				= time.time()
@@ -35,7 +35,7 @@ class SpeedHandler(threading.Thread):
 		GPIO.setup(self.sensorPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 		# Attach interupts to detect rising edge
-		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.sensorEvent, bouncetime=50) 
+		GPIO.add_event_detect(self.sensorPin, GPIO.RISING, callback=self.sensorEvent, bouncetime=20) 
 
 
 #######################################################################################
@@ -50,7 +50,7 @@ class SpeedHandler(threading.Thread):
 		
 	def sendSpeed(self):
 		if len(self.speed) != 0 and self.eventHappened:
-			self.speedToSend = sum(self.speed) / len(self.speed)
+			self.speedToSend = int(round(sum(self.speed) / len(self.speed)))
 		else:
 			if time.time() - self.lastTime > self.timeUntilZero:
 				self.speedToSend = 0
