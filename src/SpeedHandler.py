@@ -8,7 +8,7 @@ class SpeedHandler(threading.Thread):
 	def __init__(self, environment=None):
 		threading.Thread.__init__(self)
 
-		# Make thread kill it self when parent dies
+		# Make thread kill itself when parent dies
 		self.daemon 				= True
 
 		# Set environment instance
@@ -20,9 +20,9 @@ class SpeedHandler(threading.Thread):
 		numersOfMagnets 			= 4
 		self.wheelCircumference 	= math.pi*diameterOfWheel
 		self.distancePerMagnet 		= self.wheelCircumference/numersOfMagnets
-		self.timeIntervall 			= 1								# send value every X seconds
+		self.timeIntervall 			= 0.5	# send value every X seconds
 		self.eventHappened			= False									
-		self.timeUntilZero			= 1									# If it has been more than X seconds since last sensor event, set speed to zero
+		self.timeUntilZero			= 1		# If it has been more than X seconds since last sensor event, set speed to zero
 
 		# Initial values
 		self.lastTime 				= time.time()
@@ -65,8 +65,8 @@ class SpeedHandler(threading.Thread):
 
 
 	def sensorEvent(self, channel):
+		self.newTime 	= time.time()
 		if GPIO.input(self.sensorPin):
-			self.newTime 	= time.time()
 			passedTime 		= self.newTime - self.lastTime
 
 			# Calulate speed and add it to the speed array
