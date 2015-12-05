@@ -4,9 +4,15 @@ This is a program that is meant for use in Vera, a car developed by Chalmers Ver
 
 The source code in this repository is what we call the HMI part of the system (Human Machine Interface) and is intended for communicating with the ECU also developed by our team via a serial communication link. 
 
-The purpose of this program is to primarily receive data from the cars ECU and save it in a local database. The secondary purpose is to present this data to the driver during the race. The data is then easily accessible through WiFi. All you need is a device with a WiFi connection to the HMI and a web browser. 
+The purpose of this program is to primarily receive data from the ECU in the car and save it in a local database. The secondary purpose is to present this data to the driver during the race. The data is then easily accessible through WiFi. All you need is a device with a WiFi connection to the HMI and a web browser. Another ongoing development is live streaming of the collected and saved data to a server to enable the rest of the team to see the state of the vehicle such as temperatures etc. This is done using a Huawei ZTE MF823 4g modem and plotly python API for Raspberry pi (plot.ly, https://github.com/plotly/raspberrypi).
 
-The next step is to attach a 3G/4G module and provide live data to the rest of the team through our website (www.chalmersverateam.se).
+Installation instructions:
 
-
-To run the program simple execute main.py (with sudo permission) on a Raspberry Pi (preferably a model 2 or later).
+1. Install Raspbian Jessie (or later) on an SD card. 
+2. Clone git repo (https://github.com/andreaskall/VeraHMI.git)
+3. Make /VeraHMI/Init/VeraHMI_init executable (sudo chmod +x .../VeraHMI_init)
+4. run the script (sudo .../VeraHMI_init)
+    This script will install all dependecies and make the proper settings automatically.
+5. The Raspberry Pi will reboot when installation is done. The application will run at boot.
+6. DONE :) 
+7. 
