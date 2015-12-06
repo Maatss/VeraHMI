@@ -8,11 +8,10 @@ class ButtonHandler(threading.Thread):
 	def __init__(self, environment=None):
 		threading.Thread.__init__(self)
 		self.daemon = True
+		self.environment = environment
 
 		self.startStopBtn = 11
 		self.lapResetBtn = 12 
-
-		self.environment = environment
 
 		#Setup GPIO in order to enable button presses
 		GPIO.setmode(GPIO.BOARD)

@@ -214,10 +214,10 @@ class LiveData(threading.Thread):
             try:
                 urllib2.urlopen("http://www.google.com").close()
             except urllib2.URLError:
-                print "Not Connected to internet"
+                #print "Not Connected to internet"
                 self.connectedToInternet = False
             else:
-                print "Connected to internet"
+                #print "Connected to internet"
                 self.connectedToInternet = True
 
             time.sleep(5)

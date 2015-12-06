@@ -50,7 +50,7 @@ class ECUHandler(threading.Thread):
 	        except Exception as e:
 				#print(e)
 				return None
-			rv += ch
+		rv += ch
 	    	if ch=='&':
 	    		return rv
 
