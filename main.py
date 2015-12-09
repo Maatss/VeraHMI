@@ -34,8 +34,9 @@ try:
 		environment = Environment()
 		environment.start()
 	else:
-		from src.EmptyEnvironment import Environment
+		from src.Environment import Environment
 		environment = Environment()
+		environment.start()
 
 	gui = GUI(environment)
 

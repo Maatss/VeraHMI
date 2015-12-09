@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
-from src.LiveData import LiveData
-from src.DatabaseHandler import DatabaseHandler
-import threading, time
+import threading, time, sys
+
+if sys.platform == "linux2":
+	from src.LiveData import LiveData
+	from src.DatabaseHandler import DatabaseHandler
+
 
 
 class Environment(threading.Thread):
@@ -15,11 +18,15 @@ class Environment(threading.Thread):
 
 		self.reset 		= True
 
-		# Initiate class instances 
-		self.liveData 	= LiveData()
-		self.liveData.start()
-		self.mysql 		= DatabaseHandler(self)
-		self.mysql.start()
+		if sys.platform == "linux2":
+			# Initiate class instances 
+			self.liveData 	= LiveData()
+			self.liveData.start()
+			self.mysql 		= DatabaseHandler(self)
+			self.mysql.start()
+		else:
+			self.mysql = None
+			self.liveData = None
 
 		#### Internet variables
 		self.connectedTointernet = False
@@ -36,7 +43,10 @@ class Environment(threading.Thread):
 		self.gpsConnected		= False
 
 		#### StopWatchHandler variables ####
-		self.timerRunning		= False
+		if sys.platform == "linux2":
+			self.timerRunning		= False
+		else:
+			self.timerRunning		= True
 		self.totalTime 			= (0, 0) # (minutes, seconds)
 		self.currentLapTime 	= (0, 0) # (minutes, seconds)
 		self.currentLapNumber	= 1
@@ -89,7 +99,9 @@ class Environment(threading.Thread):
 		return string
 
 	def getInternetStatus(self):
-		self.connectedTointernet = self.liveData.connectedToInternet
+		if sys.platform == "linux2":
+			self.connectedTointernet = self.liveData.connectedToInternet
+		
 
 
 	'''
