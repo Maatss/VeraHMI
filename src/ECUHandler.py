@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import threading, time, sys, os.path
-if sys.platform == "linux2":
-	import serial
-	from numpy import uint32
+import serial
+from numpy import uint32
 
 
 class ECUHandler(threading.Thread):
@@ -23,7 +22,8 @@ class ECUHandler(threading.Thread):
 		try:
 			self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			self.port.flushInput()
-		except:
+		except Exception as e:
+			print(e)
 			print("Could not connect to ECU, continuing...")
 
 
@@ -106,7 +106,8 @@ class ECUHandler(threading.Thread):
 				#print(e)
 
 		# Send ECU values to Environment
-		self.environment.sendEcuVariables(self.logs, self.connected)
+		if self.environment != None:
+			self.environment.sendEcuVariables(self.logs, self.connected)
 
 
 	def checkForError(self, error_code):
