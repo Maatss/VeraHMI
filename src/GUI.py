@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import pygame, os
+import pygame, os, sys
 from math import *
 import numpy
 
@@ -7,32 +7,34 @@ import numpy
 
 class GUI:
     def __init__(self, environment=None):
-        "Ininitializes a new pygame screen using the framebuffer"
-        # Based on "Python GUI in Linux frame buffer"
-        # http://www.karoltomala.com/blog/?p=679
-        disp_no = os.getenv("DISPLAY")
-        if disp_no:
-            print "I'm running under X display = {0}".format(disp_no)
+        if sys.platform == "linux2":
+            "Ininitializes a new pygame screen using the framebuffer"
+            # Based on "Python GUI in Linux frame buffer"
+            # http://www.karoltomala.com/blog/?p=679
+            disp_no = os.getenv("DISPLAY")
+            if disp_no:
+                print "I'm running under X display = {0}".format(disp_no)
+            
+            # Check which frame buffer drivers are available
+            # Start with fbcon since directfb hangs with composite output
+            drivers = ['fbcon', 'directfb', 'svgalib']
+            found = False
+            for driver in drivers:
+                # Make sure that SDL_VIDEODRIVER is set
+                if not os.getenv('SDL_VIDEODRIVER'):
+                    os.putenv('SDL_VIDEODRIVER', driver)
+                try:
+                    pygame.display.init()
+                except pygame.error:
+                    print 'Driver: {0} failed.'.format(driver)
+                    continue
+                found = True
+                break
         
-        # Check which frame buffer drivers are available
-        # Start with fbcon since directfb hangs with composite output
-        drivers = ['fbcon', 'directfb', 'svgalib']
-        found = False
-        for driver in drivers:
-            # Make sure that SDL_VIDEODRIVER is set
-            if not os.getenv('SDL_VIDEODRIVER'):
-                os.putenv('SDL_VIDEODRIVER', driver)
-            try:
-                pygame.display.init()
-            except pygame.error:
-                print 'Driver: {0} failed.'.format(driver)
-                continue
-            found = True
-            break
-    
-        if not found:
-            raise Exception('No suitable video driver found!')
-        
+            if not found:
+                raise Exception('No suitable video driver found!')
+        else:    
+            pygame.display.init()
         self.size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         print "Framebuffer size: %d x %d" % (self.size[0], self.size[1])
         self.screen = pygame.display.set_mode(self.size, pygame.FULLSCREEN)
@@ -43,7 +45,7 @@ class GUI:
         pygame.mouse.set_visible(False)
         self.done           = False
 
-        fontPath            = "/home/pi/VeraHMI/Fonts/gotham.ttf"
+        fontPath            = "../Fonts/gotham.ttf"
         self.bigFont        = pygame.font.Font(fontPath, 70)
         self.mediumFont     = pygame.font.Font(fontPath, 40)
         self.smallFont      = pygame.font.Font(fontPath, 25)
@@ -389,6 +391,31 @@ class GUI:
             self.clock.tick(10) # 
 
 
+if __name__ == '__main__':
+    class Environment:
+        def __init__(self):
+            self.speed=23
+            self.rpm=1000
+            self.totalTime = (12, 32)
+            self.ecuConnected = True
+            self.gpsConnected = True
+            self.meanSpeed = 12
+            self.currentLapNumber = 2
+            self.currentLapTime = (3, 31)
+            self.topplockTemp = 23
+            self.cylinderTemp = 25
+            self.motorblockTemp = 26
+            self.connectedTointernet = False
+
+    try:
+        environment = Environment()
+        gui = GUI(environment)
+        gui.start()
+        while True:
+            time.sleep(1)
+    except (KeyboardInterrupt, SystemExit):
+        btn._Thread__stop()
+        sys.exit()
 
 
 
