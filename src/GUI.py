@@ -33,9 +33,13 @@ class GUI:
         
             if not found:
                 raise Exception('No suitable video driver found!')
+
+            self.size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         else:    
             pygame.display.init()
-        self.size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
+            self.size = (640,480)
+
+        
         print "Framebuffer size: %d x %d" % (self.size[0], self.size[1])
         self.screen = pygame.display.set_mode(self.size, pygame.FULLSCREEN)
         # Clear the screen to start
