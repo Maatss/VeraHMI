@@ -43,10 +43,7 @@ class Environment(threading.Thread):
 		self.gpsConnected		= False
 
 		#### StopWatchHandler variables ####
-		if sys.platform == "linux2":
-			self.timerRunning		= False
-		else:
-			self.timerRunning		= True
+		self.timerRunning		= False
 		self.totalTime 			= (0, 0) # (minutes, seconds)
 		self.currentLapTime 	= (0, 0) # (minutes, seconds)
 		self.currentLapNumber	= 1
@@ -200,7 +197,8 @@ class Environment(threading.Thread):
 
 			if self.reset:
 				# initiate new tables in database
-				self.mysql.createNewSession()
+				if sys.platform == "linux2":
+					self.mysql.createNewSession()
 				self.reset = False
 				self.totalTimeStartTime = time.time()
 				self.lapTimeStartTime	= time.time()

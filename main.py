@@ -29,15 +29,9 @@ def initClasses():
 
 try:
 	# Environment
-	if sys.platform == "linux2":
-		from src.Environment import Environment
-		environment = Environment()
-		environment.start()
-	else:
-		from src.Environment import Environment
-		environment = Environment()
-		environment.start()
-
+	from src.Environment import Environment
+	environment = Environment()
+	environment.start()
 	gui = GUI(environment)
 
 	thread.start_new_thread(initClasses, ())

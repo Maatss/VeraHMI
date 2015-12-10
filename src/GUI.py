@@ -376,6 +376,19 @@ class GUI:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.done = True
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        sys.exit()
+                    elif event.key == pygame.K_UP:
+                        self.environment.speed = (self.environment.speed+5)%50
+                    elif event.key == pygame.K_DOWN:
+                        self.environment.speed = (self.environment.speed-5)%50
+                        if self.environment.speed<0:
+                            self.environment.speed = 0
+                    elif event.key == pygame.K_s:
+                        self.environment.buttonEvent2()
+                    elif event.key == pygame.K_l:
+                        self.environment.buttonEvent1()
 
             # Make entire screen black
             self.screen.fill((0, 0, 0))
