@@ -165,6 +165,7 @@ class Environment(threading.Thread):
 			self.currentLapTime = (lapMinutes, lapSeconds)
 			self.totalTimeString = self.timeToString(self.totalTime)
 			self.lapTimeString 	= self.timeToString(self.currentLapTime)
+			
 
 	def newLapEvent(self):
 		self.currentLapNumber 	+= 1

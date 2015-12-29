@@ -224,13 +224,13 @@ class GUI:
 
 
         else:
-            if self.environment.rpm != None:
-                if self.environment.rpm > maxValue:
+            rpm = self.environment.rpm
+            if rpm != None:
+                rpm = int(self.environment.rpm)
+                if rpm > maxValue:
                     rpm = maxValue-100
-                elif self.environment.rpm < 0:
+                elif rpm < 0:
                     rpm = 0
-                else:
-                    rpm = self.environment.rpm
             else:
                 rpm = 0
 

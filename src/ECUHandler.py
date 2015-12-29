@@ -16,7 +16,6 @@ class ECUHandler(threading.Thread):
 		# Parameters
 		self.BAUDRATE 			= 230400
 		self.connected 			= False
-		self.logNames			= ["cylinder temp", "topplock temp", "motorblock temp", "batterispänning", "lufttryck", "lufttemperatur", "varvtal", "bränslemassa", "error code"]
 		self.portName 			= self.findPort()
 
 		try:
@@ -42,53 +41,26 @@ class ECUHandler(threading.Thread):
 			elif os.path.exists("/dev/ttyUSB1"):
 				return "/dev/ttyUSB1"
 
-	def readECU(self):
-	    rv = ""
-	    while True:
-	    	try:
-	        	ch = self.port.read()
-	        except Exception as e:
-				#print(e)
-				return None
-		rv += ch
-	    	if ch=='&':
-	    		return rv
+	def parseData(self,dataString):
+		mode, data = dataString.split(':')
+		mode = mode.split('#')[1]
+		data=data.split('+')
+		data[-1] = data[-1].split('&')[0]
+		return (mode,data)
 
-
-	def findNumberBefore(self, char, data, x):
-		numberString = ""
-		while True:
-			number = data[x]
-			x += 1
-			if number != char:
-				numberString += number 
-			else:
-				return (x, int(numberString))
 
 	def findNextLog(self):
 		self.logs = [None, None, None, None, None, None, None, None, None]
-		data = self.readECU()
-		if(data != None):
-			x=2
+		mode	  =  ""
+		try:
+			mode,self.logs = self.parseData(self.port.readline())
+		except Exception as e:
+			print(e)
+
+		if(self.logs[1] != None and mode == "BASE"):
 			# Set ECU to be connected
 			self.connected = True
 
-			if data[x] == "#":
-				x 		+= 1
-				command  = ""
-				while data[x] != ":":
-					command += data[x]
-					x += 1
-				#print("Command: " + command)
-				if command == "BASE":
-					x += 1
-					for i in range(0, 8):
-						(x, self.logs[i]) = self.findNumberBefore("+", data, x)
-					# Find last data
-					(x, self.logs[8]) = self.findNumberBefore("&", data, x)
-
-			else:
-				print("jibberish found: " + str(data))
 		else:
 			#print("Serial not available")
 			time.sleep(1)
@@ -108,6 +80,7 @@ class ECUHandler(threading.Thread):
 		# Send ECU values to Environment
 		if self.environment != None:
 			self.environment.sendEcuVariables(self.logs, self.connected)
+		return True
 
 
 	def checkForError(self, error_code):
@@ -119,8 +92,7 @@ class ECUHandler(threading.Thread):
 
 	def run(self):
 		while True:
-			if(self.findNextLog()):
-				self.checkForError(self.logs[8])
+			self.findNextLog()
 					
 
 
