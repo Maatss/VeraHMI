@@ -31,6 +31,10 @@ class Environment(threading.Thread):
 		#### Internet variables
 		self.connectedTointernet = False
 
+<<<<<<< HEAD
+=======
+		self.connectedToTeam = False
+>>>>>>> 173e952... MySQL tables is now swt up properly which includes milliseconds when logging timestamp
 		#### SpeedHandler variables ####
 		self.speed 				= 0
 		self.meanSpeed 			= 0
