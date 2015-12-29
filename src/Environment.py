@@ -24,7 +24,7 @@ class Environment(threading.Thread):
 		else:
 			self.mysql = None
 
-		self.connectedToTeam = True
+		self.connectedToTeam = False
 		#### SpeedHandler variables ####
 		self.speed 				= 0
 		self.meanSpeed 			= 0
@@ -37,7 +37,7 @@ class Environment(threading.Thread):
 		self.gpsConnected		= False
 
 		#### StopWatchHandler variables ####
-		self.timerRunning		= True
+		self.timerRunning		= False
 		self.totalTime 			= (0, 0) # (minutes, seconds)
 		self.currentLapTime 	= (0, 0) # (minutes, seconds)
 		self.currentLapNumber	= 1
