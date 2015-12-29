@@ -20,7 +20,6 @@ class GPSHandler(threading.Thread):
 		
 
 		try:
-			os.system('stty -F /dev/ttyAMA0 raw 9600 cs8 clocal -cstopb')
 			self.serialPort = serial.Serial("/dev/ttyAMA0", 9600, timeout=1)		
 		except:
 			print("Could not connect to GPS, continuing...")
@@ -36,8 +35,12 @@ class GPSHandler(threading.Thread):
 	    if str.find('GGA') > 0:
 	        msg = pynmea2.parse(str)
 	        if len(msg.lat) > 2:
-	        	self.environment.gpsConnected = True
+	        	if self.environment != None:
+	        		self.environment.gpsConnected = True
 	        	self.gpsPos = (msg.lat + msg.lat_dir, msg.lon + msg.lon_dir)
+	        	print(self.gpsPos)
+	        	self.convertToDecimalDegrees()
+
 	        	# Set time according to GPS time
 	        	if not self.timeSet:
 	        		print 'Setting system time to GPS time...'
@@ -67,7 +70,14 @@ class GPSHandler(threading.Thread):
 			print("Could not connect to GPS, continuing...")
 			print(e)
 
-
+	def convertToDecimalDegrees(self):
+		latDec  = float(self.gpsPos[0][:2]) + (float(self.gpsPos[0][2:-1])/60)
+		if self.gpsPos[0][-1] == "S" or self.gpsPos[0][-1] == "W":
+			latDec = -latDec
+		longDec = float(self.gpsPos[1][:3]) + float(self.gpsPos[1][3:-1])/60
+		if self.gpsPos[1][-1] == "S" or self.gpsPos[1][-1] == "W":
+			longDec = -longDec
+		self.gpsPos = (latDec, longDec)
 
 	def run(self):
 		while True:
@@ -77,7 +87,8 @@ class GPSHandler(threading.Thread):
    			except Exception as e:
    				print(e)
    				# Try to close port
-   				self.environment.gpsConnected  = False
+   				if self.environment != None:
+   					self.environment.gpsConnected  = False
    				self.reconnectToGPS()
    				
 
@@ -96,7 +107,7 @@ if __name__ == '__main__':
 			if gps.environment != None:
 				print("Lat: " + str(lat) + ",    Long: " + str(lon) + "     Connected: " + str(gps.environment.gpsConnected))
 			else:
-				print("Lat: " + str(lat) + ",    Long: " + str(lon))
+				print("Position: " + str(lat) + " " + str(lon))
 		
 			time.sleep(1)
 
