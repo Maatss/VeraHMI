@@ -1,26 +1,35 @@
 #!/usr/bin/env python
 
-import time, random, math, threading, os, serial
+import time, datetime, random, math, threading, os, serial
 
 class LiveData(threading.Thread):
-    def __init__(self):
+    def __init__(self, environment):
         threading.Thread.__init__(self)
         self.daemon = True
+        self.environment = environment
+
         self.port = serial.Serial('/dev/ttyUSB0', 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
         self.connectedToTeam = True
 
 
     def run(self):
         while True:
+            if self.environment != None:
+                if self.environment.timerRunning:
+                    data = self.environment.ecuDataArray
+                    self.sendECUValues(data  + [self.environment.speed] + [self.environment.gpsPos[0],self.environment.gpsPos[1]])
             time.sleep(1)
 
         
     def sendECUValues(self, logs):
+        now = datetime.datetime.now()
+        date = "%s-%s-%s" % (now.year, now.month, now.day)
+        logs = logs + [date, now.hour, now.minute, now.second, now.microsecond]
         stringToSend = "#BASE:"
         for log in logs:
-            stringToSend += "%d+" % float(log)
+            stringToSend += "%s+" % str(log)
         # Remove last plus sign from string and add new line 
-        stringToSend = stringToSend[:-1] + "\n"
+        stringToSend = stringToSend[:-1] + "&\n"
         self.port.write(stringToSend)
 
 

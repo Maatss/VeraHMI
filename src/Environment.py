@@ -19,14 +19,10 @@ class Environment(threading.Thread):
 		self.reset 		= True
 
 		if sys.platform == "linux2":
-			# Initiate class instances 
-			self.liveData 	= LiveData()
-			self.liveData.start()
 			self.mysql 		= DatabaseHandler(self)
 			self.mysql.start()
 		else:
 			self.mysql = None
-			self.liveData = None
 
 		self.connectedToTeam = True
 		#### SpeedHandler variables ####
@@ -66,6 +62,7 @@ class Environment(threading.Thread):
 		self.ecuErrorCode		= None
 		self.ecuConnected 		= False
 		self.gpsConnected		= False
+		self.ecuDataArray		= [None, None, None, None, None, None, None, None, None]
 
 		
 
@@ -92,10 +89,6 @@ class Environment(threading.Thread):
 		else:
 			string += "0" + str(seconds)
 		return string
-
-	def getInternetStatus(self):
-		if sys.platform == "linux2":
-			self.connectedToTeam = self.liveData.connectedToTeam
 		
 
 
@@ -109,7 +102,6 @@ class Environment(threading.Thread):
 		while True:
 			time.sleep(1)
 			self.stopWatchEvent()
-			self.getInternetStatus()
 
 	#### SpeedHandlerFunction
 	def setSpeed(self,speed):
@@ -121,10 +113,6 @@ class Environment(threading.Thread):
 		# Save speed in MySQL
 		if self.mysql != None and self.timerRunning:
 			self.mysql.saveSpeed(self.speed, self.gpsPos)
-
-		# Send speed to website
-		if self.liveData != None and self.timerRunning:
-			self.liveData.sendSpeed(self.speed)
 
 
 
@@ -221,20 +209,13 @@ class Environment(threading.Thread):
 		self.rpm				= values[6]
 		self.fuelMass			= values[7]
 		self.ecuErrorCode		= values[8]
-
+		self.ecuDataArray		= values
 		#print(values)
 		self.ecuConnected = connected
 
 		# Save values in database
 		if self.mysql 	!= None and self.timerRunning:
 			self.mysql.saveECUValues(values + [self.gpsPos[0]] + [self.gpsPos[1]] + [self.speed])
-
-		# Send live data to website
-		if self.liveData != None and self.timerRunning:
-			if self.rpm != None:
-				self.liveData.sendECUValues(values)
-			else:
-				self.liveData.sendECUValues([0,0,0,0,0,0,0,0,0])
 
 
 	'''

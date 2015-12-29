@@ -16,7 +16,7 @@ class ECUHandler(threading.Thread):
 		# Parameters
 		self.BAUDRATE 			= 230400
 		self.connected 			= False
-		self.portName 			= self.findPort()
+		self.portName 			= "/dev/ttyACM0"
 
 		try:
 			self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
@@ -30,18 +30,6 @@ class ECUHandler(threading.Thread):
 #######################################################################################
 ################################## Class functions ####################################
 #######################################################################################
-
-	def findPort(self):
-		# Set the device name depending on the OS ("darwin" = OS X, "linux2" = raspbian)
-		if sys.platform == "darwin":
-			return "/dev/tty.usbserial-A96T5FJN"
-		else:
-			if os.path.exists("/dev/ttyACM0"):
-				return "/dev/ttyACM0"
-			elif os.path.exists("/dev/ttyUSB1"):
-				return "/dev/ttyUSB1"
-			elif os.path.exists("/dev/ttyUSB0"):
-				return "/dev/ttyUSB0"
 
 	def parseData(self,dataString):
 		mode, data = dataString.split(':')
@@ -59,7 +47,8 @@ class ECUHandler(threading.Thread):
 			if len(dataString)>0:
 				mode,self.logs = self.parseData(dataString)
 		except Exception as e:
-			print(e)
+			#print(e)
+			pass
 
 		if(self.logs[1] != None and mode == "BASE"):
 			# Set ECU to be connected
@@ -75,8 +64,7 @@ class ECUHandler(threading.Thread):
 				pass
 				#print(e)
 			try:
-				self.portName 	= self.findPort()
-				self.port 		= serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+				self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			except Exception as e:
 				pass
 				#print(e)

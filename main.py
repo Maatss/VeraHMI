@@ -21,6 +21,11 @@ def initClasses():
 		gpsHandler = GPSHandler(environment)
 		gpsHandler.start()
 
+		# Initiate LiveData
+		from src.LiveData import LiveData
+		liveData = LiveData(environment)
+		liveData.start()
+
 	# ECUHandler
 	from src.ECUHandler import ECUHandler
 	ecuHandler = ECUHandler(environment)
