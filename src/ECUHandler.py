@@ -11,7 +11,7 @@ class ECUHandler(threading.Thread):
 	def __init__(self, environment=None):
 		threading.Thread.__init__(self)
 		self.daemon				= True
-		self.environment		= environment
+		self.environment		= environmentq
 		
 		# Parameters
 		self.BAUDRATE 			= 230400
