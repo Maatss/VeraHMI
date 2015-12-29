@@ -38,7 +38,6 @@ class GPSHandler(threading.Thread):
 	        	if self.environment != None:
 	        		self.environment.gpsConnected = True
 	        	self.gpsPos = (msg.lat + msg.lat_dir, msg.lon + msg.lon_dir)
-	        	print(self.gpsPos)
 	        	self.convertToDecimalDegrees()
 
 	        	# Set time according to GPS time
