@@ -16,7 +16,8 @@ class ECUHandler(threading.Thread):
 		# Parameters
 		self.BAUDRATE 			= 230400
 		self.connected 			= False
-		self.portName 			= "/dev/ttyACM0"
+		#self.portName 			= "/dev/ttyACM0"
+		self.portName 			= "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_95335343136351F0B151-if00"
 
 		try:
 			self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)

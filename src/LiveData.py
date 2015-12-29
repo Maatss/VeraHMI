@@ -6,10 +6,14 @@ class LiveData(threading.Thread):
     def __init__(self, environment):
         threading.Thread.__init__(self)
         self.daemon = True
+        self.portName = "/dev/ttyUSB0"
+        self.portName = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A96T5FJN-if00-port0"
         self.environment = environment
-
-        self.port = serial.Serial('/dev/ttyUSB0', 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
-        self.connectedToTeam = True
+        try:
+            self.port = serial.Serial(self.portName, 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+            self.environment.connectedToTeam = True
+        except Exception as e:
+            pass
 
 
     def run(self):
@@ -30,7 +34,19 @@ class LiveData(threading.Thread):
             stringToSend += "%s+" % str(log)
         # Remove last plus sign from string and add new line 
         stringToSend = stringToSend[:-1] + "&\n"
-        self.port.write(stringToSend)
+        try:
+            self.port.write(stringToSend)
+            self.environment.connectedToTeam = True
+        except Exception as e:
+            self.environment.connectedToTeam = False
+            try:
+                self.port.close()
+            except Exception as e:
+                pass
+            try:
+                self.port = serial.Serial(self.portName, 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+            except Exception as e:
+                pass
 
 
     def sendSpeed(self, speed):
