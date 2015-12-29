@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-import time, datetime, random, math, threading, thread, os
+import time, random, math, threading, os, serial
 
 class LiveData(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.daemon = True
+        self.port = serial.Serial('/dev/ttyUSB0', 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+        self.connectedToTeam = True
 
 
     def run(self):
@@ -13,22 +15,17 @@ class LiveData(threading.Thread):
             time.sleep(1)
 
         
-
-
-
-
-###########################################################################
-# Update values
-#
     def sendECUValues(self, logs):
-        if self.readyForData:
-            pass
-
+        stringToSend = "#BASE:"
+        for log in logs:
+            stringToSend += "%d+" % float(log)
+        # Remove last plus sign from string and add new line 
+        stringToSend = stringToSend[:-1] + "\n"
+        self.port.write(stringToSend)
 
 
     def sendSpeed(self, speed):
-        if self.readyForData:
-            pass
+        pass
 
 ###########################################################################
 # If run as main

@@ -361,7 +361,7 @@ class GUI:
 
 
     def drawInternetStatus(self):
-        if self.environment.connectedTointernet:
+        if self.environment.connectedToTeam:
             color = self.greenColor
         else:
             color = self.redColor
@@ -422,7 +422,7 @@ if __name__ == '__main__':
             self.topplockTemp = 23
             self.cylinderTemp = 25
             self.motorblockTemp = 26
-            self.connectedTointernet = False
+            self.connectedToTeam = False
 
     try:
         environment = Environment()

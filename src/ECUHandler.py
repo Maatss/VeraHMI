@@ -11,7 +11,7 @@ class ECUHandler(threading.Thread):
 	def __init__(self, environment=None):
 		threading.Thread.__init__(self)
 		self.daemon				= True
-		self.environment		= environmentq
+		self.environment		= environment
 		
 		# Parameters
 		self.BAUDRATE 			= 230400
@@ -36,10 +36,12 @@ class ECUHandler(threading.Thread):
 		if sys.platform == "darwin":
 			return "/dev/tty.usbserial-A96T5FJN"
 		else:
-			if os.path.exists("/dev/ttyUSB0"):
-				return "/dev/ttyUSB0"
+			if os.path.exists("/dev/ttyACM0"):
+				return "/dev/ttyACM0"
 			elif os.path.exists("/dev/ttyUSB1"):
 				return "/dev/ttyUSB1"
+			elif os.path.exists("/dev/ttyUSB0"):
+				return "/dev/ttyUSB0"
 
 	def parseData(self,dataString):
 		mode, data = dataString.split(':')
@@ -53,7 +55,9 @@ class ECUHandler(threading.Thread):
 		self.logs = [None, None, None, None, None, None, None, None, None]
 		mode	  =  ""
 		try:
-			mode,self.logs = self.parseData(self.port.readline())
+			dataString = self.port.readline()
+			if len(dataString)>0:
+				mode,self.logs = self.parseData(dataString)
 		except Exception as e:
 			print(e)
 
