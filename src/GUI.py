@@ -35,13 +35,14 @@ class GUI:
                 raise Exception('No suitable video driver found!')
 
             self.size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
+            self.screen = pygame.display.set_mode(self.size, pygame.FULLSCREEN)
         else:    
             pygame.display.init()
             self.size = (640,480)
+            self.screen = pygame.display.set_mode(self.size, pygame.RESIZABLE)
 
         
         print "Framebuffer size: %d x %d" % (self.size[0], self.size[1])
-        self.screen = pygame.display.set_mode(self.size, pygame.FULLSCREEN)
         # Clear the screen to start
         self.screen.fill((0, 0, 0))        
         # Initialise font support
@@ -49,7 +50,7 @@ class GUI:
         pygame.mouse.set_visible(False)
         self.done           = False
 
-        fontPath            = "/home/pi/VeraHMI/Fonts/gotham.ttf"
+        fontPath            = "../Fonts/gotham.ttf"
         self.bigFont        = pygame.font.Font(fontPath, 70)
         self.mediumFont     = pygame.font.Font(fontPath, 40)
         self.smallFont      = pygame.font.Font(fontPath, 25)
@@ -424,6 +425,12 @@ if __name__ == '__main__':
             self.motorblockTemp = 26
             self.connectedToTeam = False
 
+        def buttonEvent1(self):
+            print("button 1 pressed")
+
+        def buttonEvent2(self):
+            print("button 2 pressed")
+
     try:
         environment = Environment()
         gui = GUI(environment)
@@ -431,7 +438,6 @@ if __name__ == '__main__':
         while True:
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
-        btn._Thread__stop()
         sys.exit()
 
 
