@@ -50,7 +50,7 @@ class GUI:
         pygame.mouse.set_visible(False)
         self.done           = False
 
-        fontPath            = "../Fonts/gotham.ttf"
+        fontPath            = "Fonts/gotham.ttf"
         self.bigFont        = pygame.font.Font(fontPath, 70)
         self.mediumFont     = pygame.font.Font(fontPath, 40)
         self.smallFont      = pygame.font.Font(fontPath, 25)
@@ -386,6 +386,14 @@ class GUI:
                         self.environment.speed = (self.environment.speed-5)%50
                         if self.environment.speed<0:
                             self.environment.speed = 0
+                    elif event.key == pygame.K_LEFT:
+                        if self.environment.rpm != None:
+                            self.environment.speed = (self.environment.rpm+5)%50
+                    elif event.key == pygame.K_RIGHT:
+                        if self.environment.rpm != None:
+                            self.environment.speed = (self.environment.rpm-5)%50
+                            if self.environment.rpm<0:
+                                self.environment.rpm = 0
                     elif event.key == pygame.K_s:
                         self.environment.buttonEvent2()
                     elif event.key == pygame.K_l:

@@ -187,7 +187,8 @@ class Environment(threading.Thread):
 				if self.debugging:
 					print("entering reset if-statement..")
 				# initiate new tables in database
-				thread.start_new_thread(self.mysql.createNewSession, ())
+				if self.mysql != None:
+					thread.start_new_thread(self.mysql.createNewSession, ())
 				self.reset = False
 				self.totalTimeStartTime = time.time()
 				self.lapTimeStartTime	= time.time()
