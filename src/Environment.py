@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import threading, time, sys
+import threading, time, sys, thread
 
 if sys.platform == "linux2":
 	from src.LiveData import LiveData
@@ -19,17 +19,14 @@ class Environment(threading.Thread):
 		self.reset 		= True
 
 		if sys.platform == "linux2":
-			# Initiate class instances 
-			self.liveData 	= LiveData()
-			self.liveData.start()
 			self.mysql 		= DatabaseHandler(self)
 			self.mysql.start()
 		else:
 			self.mysql = None
-			self.liveData = None
 
 		self.connectedToTeam = False
-	#### SpeedHandler variables ####
+		
+		#### SpeedHandler variables ####
 		self.speed 				= 0
 		self.meanSpeed 			= 0
 		self.totalSpeed			= 0
@@ -66,6 +63,7 @@ class Environment(threading.Thread):
 		self.ecuErrorCode		= None
 		self.ecuConnected 		= False
 		self.gpsConnected		= False
+		self.ecuDataArray		= [None, None, None, None, None, None, None, None, None]
 
 		
 
@@ -92,10 +90,6 @@ class Environment(threading.Thread):
 		else:
 			string += "0" + str(seconds)
 		return string
-
-	def getInternetStatus(self):
-		if sys.platform == "linux2":
-			self.connectedTointernet = self.liveData.connectedToInternet
 		
 
 
@@ -109,7 +103,6 @@ class Environment(threading.Thread):
 		while True:
 			time.sleep(1)
 			self.stopWatchEvent()
-			self.getInternetStatus()
 
 	#### SpeedHandlerFunction
 	def setSpeed(self,speed):
@@ -121,10 +114,6 @@ class Environment(threading.Thread):
 		# Save speed in MySQL
 		if self.mysql != None and self.timerRunning:
 			self.mysql.saveSpeed(self.speed, self.gpsPos)
-
-		# Send speed to website
-		if self.liveData != None and self.timerRunning:
-			self.liveData.sendSpeed(self.speed)
 
 
 
@@ -195,16 +184,18 @@ class Environment(threading.Thread):
 			self.lapTimeStartTime	= time.time() - self.currentLapTime[0]*60 	- self.currentLapTime[1]
 
 			if self.reset:
+				if self.debugging:
+					print("entering reset if-statement..")
 				# initiate new tables in database
-				if sys.platform == "linux2":
-					self.mysql.createNewSession()
+				thread.start_new_thread(self.mysql.createNewSession, ())
 				self.reset = False
 				self.totalTimeStartTime = time.time()
 				self.lapTimeStartTime	= time.time()
+				if self.debugging:
+					print("Done with initialization of DB")
 
 			self.totalTimeString = self.timeToString(self.totalTime)
 			self.lapTimeString 	= self.timeToString(self.currentLapTime)
-
 
 		if self.debugging:
 			print("Start/Stop timer button pressed")
@@ -221,20 +212,13 @@ class Environment(threading.Thread):
 		self.rpm				= values[6]
 		self.fuelMass			= values[7]
 		self.ecuErrorCode		= values[8]
-
+		self.ecuDataArray		= values
 		#print(values)
 		self.ecuConnected = connected
 
 		# Save values in database
 		if self.mysql 	!= None and self.timerRunning:
 			self.mysql.saveECUValues(values + [self.gpsPos[0]] + [self.gpsPos[1]] + [self.speed])
-
-		# Send live data to website
-		if self.liveData != None and self.timerRunning:
-			if self.rpm != None:
-				self.liveData.sendECUValues(values)
-			else:
-				self.liveData.sendECUValues([0,0,0,0,0,0,0,0,0])
 
 
 	'''

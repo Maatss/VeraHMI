@@ -17,9 +17,14 @@ def initClasses():
 		buttonHandler.start()
 
 		# GPSHandler
-		from src.GPSHandler import GPSHandler
-		gpsHandler = GPSHandler(environment)
-		gpsHandler.start()
+		#from src.GPSHandler import GPSHandler
+		#gpsHandler = GPSHandler(environment)
+		#gpsHandler.start()
+
+		# Initiate LiveData
+		from src.LiveData import LiveData
+		liveData = LiveData(environment)
+		liveData.start()
 
 	# ECUHandler
 	from src.ECUHandler import ECUHandler

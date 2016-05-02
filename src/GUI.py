@@ -49,7 +49,7 @@ class GUI:
         pygame.mouse.set_visible(False)
         self.done           = False
 
-        fontPath            = "Fonts/gotham.ttf"
+        fontPath            = "/home/pi/VeraHMI/Fonts/gotham.ttf"
         self.bigFont        = pygame.font.Font(fontPath, 70)
         self.mediumFont     = pygame.font.Font(fontPath, 40)
         self.smallFont      = pygame.font.Font(fontPath, 25)
@@ -361,12 +361,12 @@ class GUI:
 
 
     def drawInternetStatus(self):
-        if self.environment.connectedTointernet:
+        if self.environment.connectedToTeam:
             color = self.greenColor
         else:
             color = self.redColor
 
-        s = "3G/4G"
+        s = "TELE"
         label = self.mediumFont.render(s, 1, color)
         self.screen.blit(label, (self.x0-self.mediumFont.size(s)[0]/2, self.y0+self.radius*0.78-self.mediumFont.size(s)[1]))
 
@@ -422,7 +422,7 @@ if __name__ == '__main__':
             self.topplockTemp = 23
             self.cylinderTemp = 25
             self.motorblockTemp = 26
-            self.connectedTointernet = False
+            self.connectedToTeam = False
 
     try:
         environment = Environment()

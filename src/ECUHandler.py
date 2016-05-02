@@ -16,7 +16,8 @@ class ECUHandler(threading.Thread):
 		# Parameters
 		self.BAUDRATE 			= 230400
 		self.connected 			= False
-		self.portName 			= self.findPort()
+		#self.portName 			= "/dev/ttyACM0"
+		self.portName 			= "/dev/serial/by-id/usb-FTDI_UM232R_USB__-__Serial_FTCAN7QC-if00-port0"
 
 		try:
 			self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
@@ -31,16 +32,6 @@ class ECUHandler(threading.Thread):
 ################################## Class functions ####################################
 #######################################################################################
 
-	def findPort(self):
-		# Set the device name depending on the OS ("darwin" = OS X, "linux2" = raspbian)
-		if sys.platform == "darwin":
-			return "/dev/tty.usbserial-A96T5FJN"
-		else:
-			if os.path.exists("/dev/ttyUSB0"):
-				return "/dev/ttyUSB0"
-			elif os.path.exists("/dev/ttyUSB1"):
-				return "/dev/ttyUSB1"
-
 	def parseData(self,dataString):
 		mode, data = dataString.split(':')
 		mode = mode.split('#')[1]
@@ -53,9 +44,12 @@ class ECUHandler(threading.Thread):
 		self.logs = [None, None, None, None, None, None, None, None, None]
 		mode	  =  ""
 		try:
-			mode,self.logs = self.parseData(self.port.readline())
+			dataString = self.port.readline()
+			if len(dataString)>0:
+				mode,self.logs = self.parseData(dataString)
 		except Exception as e:
-			print(e)
+			#print(e)
+			pass
 
 		if(self.logs[1] != None and mode == "BASE"):
 			# Set ECU to be connected
@@ -71,8 +65,7 @@ class ECUHandler(threading.Thread):
 				pass
 				#print(e)
 			try:
-				self.portName 	= self.findPort()
-				self.port 		= serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+				self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			except Exception as e:
 				pass
 				#print(e)
