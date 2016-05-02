@@ -4,7 +4,6 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Update raspbian
-  rpi-update
   apt-get update
   apt-get upgrade
 else
@@ -17,26 +16,10 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   echo "deb http://archive.raspbian.org/raspbian/ stretch main" >> /etc/apt/sources.list
-  sudo apt-get update
+  apt-get update
   # Install packages
-  sudo apt-get install python-pip python-pygame python-serial
-  sudo apt-get install apache2 mysql-server-5.6 php5 php5-mysql phpmyadmin python-mysqldb
-  sudo pip install pynmea2
-else
-  :
-fi
-
-echo -e "Install X11VNC? (y/n): \c"
-read answer
-if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
-then
-  # Install X11VNC
-  apt-get install x11vnc
-  x11vnc -storepasswd
-  touch /home/pi/.xsessionrc
-  echo "# Start X11VNC
-  x11vnc -bg -nevershared -forever -tightfilexfer -usepw -display :0" >> /home/pi/.xsessionrc
-  chmod 775 ~/.xsessionrc
+  apt-get install python-pip python-pygame python-serial apache2 mysql-server-5.6 php5 php5-mysql phpmyadmin python-mysqldb
+  pip install pynmea2
 else
   :
 fi
@@ -67,21 +50,6 @@ else
   :
 fi
 
-echo -e "Install plotly? (y/n): \c"
-read answer
-if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
-then
-# Install plotly
-  apt-get install python-dev
-  wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | sudo python
-  easy_install -U distribute
-  apt-get install python-pip
-  pip install rpi.gpio
-  pip install plotly
-else
-  :
-fi
-
 
 echo -e "Copy config strings to /boot/config.txt and add phpmyadmin support for apache server? (y/n): \c"
 read answer
@@ -101,30 +69,6 @@ then
 else
   :
 fi
-
-
-echo -e "Setup Vera team boot screen? (y/n): \c"
-read answer
-if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
-then
-  # Set up splash screen (boot image)
-  apt-get install fbi
-  cp /home/pi/VeraHMI/Init/asplashscreen /etc/init.d/
-  chmod a+x /etc/init.d/asplashscreen
-  insserv /etc/init.d/asplashscreen
-else
-  :
-fi
-
-# Disable boot to GUI
-systemctl set-default multi-user.target
-ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
-
-# If you want to enable boot to GUI again run the two following commands
-# 
-#systemctl set-default graphical.target
-#ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
-#sed /etc/lightdm/lightdm.conf -i -e "s/^#autologin-user=.*/autologin-user=pi/"
 
 
 # Set up as access point
