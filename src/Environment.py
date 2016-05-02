@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import threading, time, sys
+import threading, time, sys, thread
 
 if sys.platform == "linux2":
 	from src.LiveData import LiveData
@@ -183,16 +183,18 @@ class Environment(threading.Thread):
 			self.lapTimeStartTime	= time.time() - self.currentLapTime[0]*60 	- self.currentLapTime[1]
 
 			if self.reset:
+				if self.debugging:
+					print("entering reset if-statement..")
 				# initiate new tables in database
-				if sys.platform == "linux2":
-					self.mysql.createNewSession()
+				thread.start_new_thread(self.mysql.createNewSession, ())
 				self.reset = False
 				self.totalTimeStartTime = time.time()
 				self.lapTimeStartTime	= time.time()
+				if self.debugging:
+					print("Done with initialization of DB")
 
 			self.totalTimeString = self.timeToString(self.totalTime)
 			self.lapTimeString 	= self.timeToString(self.currentLapTime)
-
 
 		if self.debugging:
 			print("Start/Stop timer button pressed")

@@ -10,6 +10,10 @@ class ButtonHandler(threading.Thread):
 		self.daemon = True
 		self.environment = environment
 
+		self.testCount = 1
+
+		self.debug = False
+
 		self.startStopBtn = 11
 		self.lapResetBtn = 12 
 
@@ -33,15 +37,18 @@ class ButtonHandler(threading.Thread):
 	def buttonEvent(self, channel):
 		if channel == self.lapResetBtn:
 			#if GPIO.input(self.lapResetBtn):
-			self.environment.buttonEvent1()
-			if __name__ == '__main__':
-				print("button 1 pressed")
-
+			if self.environment != None:
+				self.environment.buttonEvent1()
+			if self.debug:
+				print("Lap/reset button pressed: count = " + str(self.testCount))
+				self.testCount += 1
 
 		elif channel == self.startStopBtn:
-			self.environment.buttonEvent2()				
-			if __name__ == '__main__':
-				print("button 2 pressed")		
+			if self.environment != None:
+				self.environment.buttonEvent2()				
+			if self.debug:
+				print("start/stop button pressed: count = " + str(self.testCount))
+				self.testCount += 1
 
 
 #######################################################################################

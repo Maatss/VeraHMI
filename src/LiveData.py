@@ -6,11 +6,13 @@ class LiveData(threading.Thread):
     def __init__(self, environment):
         threading.Thread.__init__(self)
         self.daemon = True
-        self.portName = "/dev/ttyUSB0"
-        self.portName = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A96T5FJN-if00-port0"
+        #self.portName = "/dev/ttyUSB0"
+        self.portName = "/dev/serial/by-id/usb-FTDI_USB__-__Serial-if00-port0"
         self.environment = environment
+
+        self.testCount = 0
         try:
-            self.port = serial.Serial(self.portName, 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+            self.port = serial.Serial(self.portName, 9600, timeout=3.0)
             self.environment.connectedToTeam = True
         except Exception as e:
             pass
@@ -33,18 +35,21 @@ class LiveData(threading.Thread):
         for log in logs:
             stringToSend += "%s+" % str(log)
         # Remove last plus sign from string and add new line 
-        stringToSend = stringToSend[:-1] + "&\n"
+        stringToSend = stringToSend[:-1] + "   count:  " + str(self.testCount) + "\n"
+        self.testCount += 1
         try:
             self.port.write(stringToSend)
-            self.environment.connectedToTeam = True
+            if self.environment != None:
+                self.environment.connectedToTeam = True
         except Exception as e:
-            self.environment.connectedToTeam = False
+            if self.environment != None:
+                self.environment.connectedToTeam = False
             try:
                 self.port.close()
             except Exception as e:
                 pass
             try:
-                self.port = serial.Serial(self.portName, 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
+                self.port = serial.Serial(self.portName, 9600, timeout=3.0)
             except Exception as e:
                 pass
 
@@ -57,7 +62,7 @@ class LiveData(threading.Thread):
 #
 
 if __name__ == '__main__':
-    live = LiveData()
+    live = LiveData(None)
     live.start()
     while True:
         sensor_data1 = math.sin(time.time())*10 + 10
@@ -72,11 +77,12 @@ if __name__ == '__main__':
         logs = [sensor_data1, sensor_data2, temp1, temp2, temp3, air_temp, air_pressure]
         #print logs
         live.sendECUValues(logs)
+        print("SENT\n")
 
-        speed = random.random()*50
-        live.sendSpeed(speed)
+        #speed = random.random()*50
+        #live.sendSpeed(speed)
 
-        time.sleep(0.5) # delay between stream posts
+        time.sleep(1) # delay between stream posts
 
 
 
