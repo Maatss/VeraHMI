@@ -19,11 +19,6 @@ The team participates in primarily two European competitions, Shell Eco Marathon
 7. run the script (sudo .../VeraHMI_init)
     This script will install all dependecies and make the proper settings automatically.
 8. The Raspberry Pi will reboot when installation is done. The application will run at boot.
-9. DONE :) 
-
-## API Reference
-
-Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
 
 ## Tests
 
