@@ -4,7 +4,7 @@ This is a program that is meant for use in Vera, a car developed by Chalmers Ver
 
 The purpose of this program is to primarily receive data from the ECU in the car and save it in a local database. The secondary purpose is to present this data to the driver during the race. The data is then easily accessible through WiFi. All you need is a device with a WiFi connection to the HMI and a web browser. Another ongoing development is live streaming of the collected data to a remote server in order to enable the rest of the team to see the state of the vehicle such as temperatures, error code from the ECU etc. 
 
-## Motivation
+## Background
 
 The team participates in primarily two European competitions, Shell Eco Marathon in Rotterdam and Pisaralla Pisimälle in Nokia Finland. These competitions challenges student teams from around the world to design, build and test ultra energy-efficient vehicles. With annual events first in the Americas, then Europe and Asia, the winners are the teams that go the furthest using the least amount of energy. The events spark debate about the future of mobility and inspire young engineers to push the boundaries of fuel efficiency.
 
