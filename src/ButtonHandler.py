@@ -3,6 +3,8 @@
 import RPi.GPIO as GPIO
 import threading, sys, time
 
+# Hejsan 
+
 class ButtonHandler(threading.Thread):
 
 	def __init__(self, environment=None):
