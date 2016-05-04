@@ -14,7 +14,7 @@ The team participates in primarily two European competitions, Shell Eco Marathon
 2. run "sudo raspi-config" in the command promt. Go to 'Internationalisation Options' > 'change timezone'. Change the time zone to the desired one. 
 3. Also in the raspi-config menu go to 'Advanced option' > 'Serial' and disable shell and kernel messages on the serial connection. This is done in order to make the "AMA0" serial interface available for the GPS module.
 4. Also in the raspi-config menu, press 'expand filesystem' to resize the partition to fill the whole SD card. After this press 'finish' and answer yes to the popup question. The computer will reboot. 
-5. Clone git repo to the home directory (/home/pi), the address to the repo is: https://github.com/andreaskall/VeraHMI.git .
+5. Clone git repo to the home directory (/home/pi), the address to the repo is: https://github.com/andreaskall/VeraHMI.git . If Raspbian Jessie Lite is used git needs to be installed by the command 'sudo apt-get install git'.
 6. Make /VeraHMI/Init/VeraHMI_init executable (sudo chmod +x .../VeraHMI_init)
 7. run the script (sudo .../VeraHMI_init)
     This script will install all dependecies and make the proper settings automatically.
