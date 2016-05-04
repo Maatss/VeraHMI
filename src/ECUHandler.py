@@ -23,7 +23,7 @@ class ECUHandler(threading.Thread):
 			self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
 			self.port.flushInput()
 		except Exception as e:
-			print(e)
+			#print(e)
 			print("Could not connect to ECU, continuing...")
 
 
