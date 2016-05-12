@@ -30,9 +30,9 @@ cp /home/pi/VeraHMI/Init/rc.local /etc/rc.local
 chmod 777 /etc/rc.local
 
 # Map usb devices to persistent names 
-rm /etc/udev/rules.d/99-usb-serial.rules
-cp /home/pi/VeraHMI/Init/99-usb-serial.rules /etc/udev/rules.d/99-usb-serial.rules
-chmod 777 /etc/udev/rules.d/99-usb-serial.rules
+#rm /etc/udev/rules.d/99-usb-serial.rules
+#cp /home/pi/VeraHMI/Init/99-usb-serial.rules /etc/udev/rules.d/99-usb-serial.rules
+#chmod 777 /etc/udev/rules.d/99-usb-serial.rules
 
 
 echo -e "Set up mysql? (y/n): \c"

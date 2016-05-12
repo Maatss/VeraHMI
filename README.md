@@ -22,7 +22,7 @@ The team participates in primarily two European competitions, Shell Eco Marathon
 
 ## Tests
 
-Almost all submodules can be executed and tested indevidually. E.g if the speedometer needs to be tested the file SpeedHandler.py can be executed by its self (python SpeedHandler.py). This modular hiaracy enables simple debugging and development. 
+Almost all submodules can be executed and tested indevidually. E.g if the speedometer needs to be tested the file SpeedHandler.py can be executed by itsself. This modular hiaracy enables simple debugging and development. 
 
 
 ## License
