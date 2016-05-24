@@ -30,9 +30,9 @@ cp /home/pi/VeraHMI/Init/rc.local /etc/rc.local
 chmod 777 /etc/rc.local
 
 # Map usb devices to persistent names 
-#rm /etc/udev/rules.d/99-usb-serial.rules
-#cp /home/pi/VeraHMI/Init/99-usb-serial.rules /etc/udev/rules.d/99-usb-serial.rules
-#chmod 777 /etc/udev/rules.d/99-usb-serial.rules
+rm /etc/udev/rules.d/99-usb-serial.rules
+cp /home/pi/VeraHMI/Init/99-usb-serial.rules /etc/udev/rules.d/99-usb-serial.rules
+chmod 777 /etc/udev/rules.d/99-usb-serial.rules
 
 
 echo -e "Set up mysql? (y/n): \c"
@@ -61,6 +61,8 @@ then
   echo "disable_splash=1" >> /boot/config.txt
   echo "max_usb_current=1" >> /boot/config.txt
   echo "disable_overscan=1" >> /boot/config.txt
+  echo "enable_uart=1" >> /boot/config.txt
+  
 
 
   # Set up phpmyadmin
@@ -98,8 +100,6 @@ then
   mv /usr/sbin/hostapd /usr/sbin/hostapd.ORIG 
   mv hostapd /usr/sbin
   chmod 755 /usr/sbin/hostapd
-
-
 else
   :
 fi

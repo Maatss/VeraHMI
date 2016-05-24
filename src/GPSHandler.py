@@ -20,7 +20,7 @@ class GPSHandler(threading.Thread):
 		
 
 		try:
-			self.serialPort = serial.Serial("/dev/ttyAMA0", 9600, timeout=1)		
+			self.serialPort = serial.Serial("/dev/ttyAMA0", 9600, timeout=2)		
 		except:
 			print("Could not connect to GPS, continuing...")
 		
@@ -51,7 +51,8 @@ class GPSHandler(threading.Thread):
 
 	        else:
 	        	self.gpsPos = (None, None)
-	        	self.environment.gpsConnected  = False
+	        	if self.environment != None:
+	        		self.environment.gpsConnected  = False
 
 	     	if self.environment != None:
 	        	self.environment.gpsPos = self.gpsPos

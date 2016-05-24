@@ -16,8 +16,8 @@ class ECUHandler(threading.Thread):
 		# Parameters
 		self.BAUDRATE 			= 230400
 		self.connected 			= False
-		#self.portName 			= "/dev/ttyACM0"
-		self.portName 			= "/dev/serial/by-id/usb-FTDI_UM232R_USB__-__Serial_FTCAN7QC-if00-port0"
+		self.portName 			= "/dev/ttyUSB21"
+		#self.portName 			= "/dev/serial/by-id/usb-FTDI_UM232R_USB__-__Serial_FTCAN7QC-if00-port0"
 
 		try:
 			self.port = serial.Serial(self.portName, baudrate=self.BAUDRATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=3.0)
@@ -47,6 +47,7 @@ class ECUHandler(threading.Thread):
 			dataString = self.port.readline()
 			if len(dataString)>0:
 				mode,self.logs = self.parseData(dataString)
+				#print(self.logs)
 		except Exception as e:
 			#print(e)
 			pass
