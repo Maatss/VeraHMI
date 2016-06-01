@@ -21,12 +21,12 @@ class ButtonHandler(threading.Thread):
 
 		#Setup GPIO in order to enable button presses
 		GPIO.setmode(GPIO.BOARD)
-		GPIO.setup(self.startStopBtn, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.setup(self.lapResetBtn,  GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+		GPIO.setup(self.startStopBtn, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(self.lapResetBtn,  GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 		#Attach interupts to detect rising edge
-		GPIO.add_event_detect(self.startStopBtn, GPIO.RISING, callback=self.buttonEvent, bouncetime=200) 
-		GPIO.add_event_detect(self.lapResetBtn,  GPIO.RISING, callback=self.buttonEvent, bouncetime=200)
+		GPIO.add_event_detect(self.startStopBtn, GPIO.FALLING, callback=self.buttonEvent, bouncetime=200) 
+		GPIO.add_event_detect(self.lapResetBtn,  GPIO.FALLING, callback=self.buttonEvent, bouncetime=200)
 	
 
 #######################################################################################
