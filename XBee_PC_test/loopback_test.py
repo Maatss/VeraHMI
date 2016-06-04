@@ -1,6 +1,6 @@
 import serial, time
 
-port = serial.Serial("/dev/tty.usbserial-FTWJCPQ3")
+port = serial.Serial("/dev/ttyRF")
 count = 1
 port.flush()
 
