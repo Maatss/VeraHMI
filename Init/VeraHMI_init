@@ -4,6 +4,7 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Update raspbian
+  echo "deb http://archive.raspbian.org/raspbian/ stretch main" >> /etc/apt/sources.list
   apt-get update
   apt-get upgrade
 else
@@ -15,10 +16,8 @@ echo -e "Install dependencies? (y/n): \c"
 read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
-  echo "deb http://archive.raspbian.org/raspbian/ stretch main" >> /etc/apt/sources.list
-  apt-get update
   # Install packages
-  apt-get install python-pip python-pygame python-serial apache2 mysql-server-5.6 php5 php5-mysql phpmyadmin python-mysqldb
+  apt-get -y install python-pip python-pygame python-serial apache2 mysql-server-5.6 php5 php5-mysql phpmyadmin python-mysqldb
   pip install pynmea2
 else
   :
@@ -78,7 +77,7 @@ echo -e "Set up RPi network settings (WiFi, 4G and ethernet)? (y/n): \c"
 read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
-  sudo apt-get install hostapd isc-dhcp-server
+  sudo apt-get -y install hostapd isc-dhcp-server
 
   cp /home/pi/VeraHMI/Init/dhcpd.conf /etc/dhcp
   chmod 755 /etc/dhcp/dhcpd.conf
