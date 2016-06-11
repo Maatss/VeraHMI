@@ -16,7 +16,7 @@ class ECUHandler(threading.Thread):
 		# Parameters
 		self.BAUDRATE 			= 230400
 		self.connected 			= False
-		self.portName 			= "/dev/ttyUSB21"
+		self.portName 			= "/dev/ECU"
 		#self.portName 			= "/dev/serial/by-id/usb-FTDI_UM232R_USB__-__Serial_FTCAN7QC-if00-port0"
 
 		try:

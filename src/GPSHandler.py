@@ -83,6 +83,7 @@ class GPSHandler(threading.Thread):
 		while True:
 			try:
 				str = self.serialPort.readline()
+				print(str)
    				self.parseGPS(str)
    			except Exception as e:
    				print(e)
@@ -104,10 +105,10 @@ if __name__ == '__main__':
 		gps.start()
 		while True:
 			(lat, lon) = gps.gpsPos
-			if gps.environment != None:
-				print("Lat: " + str(lat) + ",    Long: " + str(lon) + "     Connected: " + str(gps.environment.gpsConnected))
-			else:
-				print("Position: " + str(lat) + " " + str(lon))
+			#if gps.environment != None:
+			#	print("Lat: " + str(lat) + ",    Long: " + str(lon) + "     Connected: " + str(gps.environment.gpsConnected))
+			#else:
+			#	print("Position: " + str(lat) + " " + str(lon))
 		
 			time.sleep(1)
 

@@ -7,10 +7,9 @@ class LiveData(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
         #self.portName = "/dev/ttyUSB0"
-        self.portName = "/dev/serial/by-id/usb-FTDI_USB__-__Serial-if00-port0"
+        self.portName = "/dev/RADIO"
         self.environment = environment
 
-        self.testCount = 0
         try:
             self.port = serial.Serial(self.portName, 9600, timeout=3.0)
             self.environment.connectedToTeam = True
@@ -35,8 +34,7 @@ class LiveData(threading.Thread):
         for log in logs:
             stringToSend += "%s+" % str(log)
         # Remove last plus sign from string and add new line 
-        stringToSend = stringToSend[:-1] + "   count:  " + str(self.testCount) + "\n"
-        self.testCount += 1
+        stringToSend = stringToSend[:-1] + "&" + "\n"
         try:
             self.port.write(stringToSend)
             if self.environment != None:
