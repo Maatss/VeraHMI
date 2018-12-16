@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import threading, time, sys, thread
+import threading, time, sys
 
 if sys.platform == "linux2":
 	from src.LiveData import LiveData
