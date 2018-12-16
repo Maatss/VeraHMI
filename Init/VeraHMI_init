@@ -17,7 +17,7 @@ read answer
 if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
 then
   # Install packages
-  apt-get -y install python-pip python-pygame python-serial apache2 mysql-server-5.6 php5 php5-mysql phpmyadmin python-mysqldb
+  apt-get -y install python-pip python-pygame python-serial apache2 mysql-server php php-mbstring php-mysql phpmyadmin python3-mysqldb
   pip install pynmea2
 else
   :
@@ -73,35 +73,35 @@ fi
 
 
 # Set up as access point
-echo -e "Set up RPi network settings (WiFi, 4G and ethernet)? (y/n): \c"
-read answer
-if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
-then
-  sudo apt-get -y install hostapd isc-dhcp-server
-
-  cp /home/pi/VeraHMI/Init/dhcpd.conf /etc/dhcp
-  chmod 755 /etc/dhcp/dhcpd.conf
-
-  cp /home/pi/VeraHMI/Init/isc-dhcp-server /etc/default
-  chmod 755 /etc/default/isc-dhcp-server
-
-  cp /home/pi/VeraHMI/Init/interfaces /etc/network/interfaces
-  chmod 755 /etc/network/interfaces
-
-  cp /home/pi/VeraHMI/Init/hostapd.conf /etc/hostapd
-  chmod 755 /etc/hostapd/hostapd.conf
-
-  cp /home/pi/VeraHMI/Init/hostapd /etc/default
-  chmod 755 /etc/default/hostapd
-
-  wget http://www.adafruit.com/downloads/adafruit_hostapd.zip 
-  unzip adafruit_hostapd.zip 
-  mv /usr/sbin/hostapd /usr/sbin/hostapd.ORIG 
-  mv hostapd /usr/sbin
-  chmod 755 /usr/sbin/hostapd
-else
-  :
-fi
+#echo -e "Set up RPi network settings (WiFi, 4G and ethernet)? (y/n): \c"
+#read answer
+#if [[ "$answer" = 'y' ]] || [[ "$answer" = 'Y' ]];
+#then
+#  sudo apt-get -y install hostapd isc-dhcp-server
+#
+#  cp /home/pi/VeraHMI/Init/dhcpd.conf /etc/dhcp
+#  chmod 755 /etc/dhcp/dhcpd.conf
+#
+#  cp /home/pi/VeraHMI/Init/isc-dhcp-server /etc/default
+#  chmod 755 /etc/default/isc-dhcp-server
+#
+#  cp /home/pi/VeraHMI/Init/interfaces /etc/network/interfaces
+#  chmod 755 /etc/network/interfaces
+#
+#  cp /home/pi/VeraHMI/Init/hostapd.conf /etc/hostapd
+#  chmod 755 /etc/hostapd/hostapd.conf
+#
+#  cp /home/pi/VeraHMI/Init/hostapd /etc/default
+#  chmod 755 /etc/default/hostapd
+#
+#  wget http://www.adafruit.com/downloads/adafruit_hostapd.zip
+#  unzip adafruit_hostapd.zip
+#  mv /usr/sbin/hostapd /usr/sbin/hostapd.ORIG
+#  mv hostapd /usr/sbin
+#  chmod 755 /usr/sbin/hostapd
+#else
+#  :
+#fi
 
 
 reboot

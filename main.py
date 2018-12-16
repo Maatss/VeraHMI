@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from src.GUI import GUI
-import sys, threading, time, thread, os
+import sys, threading, time, _thread, os
 
 # Hello Testing
 
@@ -40,7 +40,7 @@ try:
 	environment.start()
 	gui = GUI(environment)
 
-	thread.start_new_thread(initClasses, ())
+	_thread.start_new_thread(initClasses, ())
 
 	#Start gui and enter its mainloop
 	gui.start()

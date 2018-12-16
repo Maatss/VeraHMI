@@ -13,7 +13,7 @@ class GUI:
             # http://www.karoltomala.com/blog/?p=679
             disp_no = os.getenv("DISPLAY")
             if disp_no:
-                print "I'm running under X display = {0}".format(disp_no)
+                print("I'm running under X display = {0}".format(disp_no))
             
             # Check which frame buffer drivers are available
             # Start with fbcon since directfb hangs with composite output
@@ -26,7 +26,7 @@ class GUI:
                 try:
                     pygame.display.init()
                 except pygame.error:
-                    print 'Driver: {0} failed.'.format(driver)
+                    print('Driver: {0} failed.'.format(driver))
                     continue
                 found = True
                 break
@@ -107,7 +107,7 @@ class GUI:
 
 
     def drawLineInCirle(self, maxValue, deliminator, speedOrRPM, color):
-        for i in range(0,maxValue+1):
+        for i in range(0,int(maxValue)+1):
             if speedOrRPM:
                 phi = 21*pi/16 - (13*pi/16)/maxValue * i
             else:
